@@ -53,23 +53,15 @@ const Navbar = () => {
               </div>
 
               <div className="w-px h-8 bg-white/30" />
-
-              {/* <div className="text-sm font-semibold text-white leading-tight">
-                <a href="tel:+523526881772" className="hover:text-secondary">
-                  ¿Necesitas ayuda? <br />
-                  <span className="font-bold">352 688 1772</span>
-                </a>
-              </div> */}
-
               <div className="text-sm font-semibold text-white leading-tight">
                 <span className="block">¿Necesitas ayuda?</span>
 
                 <a
-                  href="tel:+523526881772"
+                  href="tel:+523525015754"
                   className="flex items-center gap-2 font-bold hover:text-secondary transition"
                 >
                   <HiOutlinePhone size={16} />
-                  352 688 1772
+                  352 501 5754
                 </a>
               </div>
 
@@ -91,7 +83,9 @@ const Navbar = () => {
 
       {/* MOBILE MODAL */}
       {open && (
-        <div className="fixed inset-0 z-50 bg-primary/95 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 bg-primary/95 backdrop-blur-sm flex flex-col">
+
+          {/* Modal Header */}
           <div className="flex items-center justify-between px-6 h-20 border-b border-white/20">
             <img src={logo} alt="Logo" className="h-10" />
             <button
@@ -103,7 +97,8 @@ const Navbar = () => {
             </button>
           </div>
 
-          <nav className="flex flex-col items-center justify-center gap-8 text-lg font-semibold text-white h-[calc(100vh-80px)]">
+          {/* Menu */}
+          <nav className="flex-1 flex flex-col items-center justify-center gap-8 text-lg font-semibold text-white">
             <a onClick={() => setOpen(false)} href="#inicio">INICIO</a>
             <a onClick={() => setOpen(false)} href="#servicios">SERVICIOS</a>
             <a onClick={() => setOpen(false)} href="#experiencia">EXPERIENCIA</a>
@@ -111,6 +106,47 @@ const Navbar = () => {
             <a onClick={() => setOpen(false)} href="#blog">BLOG</a>
             <a onClick={() => setOpen(false)} href="#contacto">CONTACTO</a>
           </nav>
+
+          {/* Modal Footer Info */}
+          <div className="border-t border-white/20 px-6 py-6 text-white">
+
+            {/* Contact Info */}
+            <div className="flex flex-col items-center gap-3 text-sm">
+              <b>¡Contáctanos!</b>
+              <a
+                href="tel:+523525015754"
+                className="hover:text-secondary transition font-semibold"
+              >
+                352 501 5754
+              </a>
+
+              <a
+                href="mailto:monarcacorporativo@outlook.com"
+                className="hover:text-secondary transition"
+              >
+                monarcacorporativo@outlook.com
+              </a>
+
+              <span className="opacity-90 text-center">
+                Juan Escutia #10, int 3, Col. Centro, CP. 59300, <br /> La Piedad de Cabadas, Michoácan, Mexico
+              </span>
+
+            </div>
+
+            {/* Social */}
+            <div className="flex justify-center gap-6 mt-4">
+              <a href="#" aria-label="Facebook" className="hover:text-secondary transition">
+                <FaFacebookF size={18} />
+              </a>
+              <a href="#" aria-label="Instagram" className="hover:text-secondary transition">
+                <FaInstagram size={18} />
+              </a>
+              <a href="#" aria-label="Youtube" className="hover:text-secondary transition">
+                <FaYoutube size={18} />
+              </a>
+            </div>
+          </div>
+
         </div>
       )}
     </>
