@@ -9,7 +9,7 @@ const Navbar = () => {
   return (
     <>
       {/* NAVBAR */}
-      <header className="w-full bg-primary border-b border-white/20">
+      <header className="fixed top-0 left-0 w-full z-50 bg-primary">
         <div className="w-full px-4 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-20">
 
