@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
-import { HiOutlineMenu, HiOutlineX } from "react-icons/hi";
+import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import logo from "../../assets/react.svg";
 
 const Navbar = () => {
@@ -54,12 +54,26 @@ const Navbar = () => {
 
               <div className="w-px h-8 bg-white/30" />
 
-              <div className="text-sm font-semibold text-white leading-tight">
+              {/* <div className="text-sm font-semibold text-white leading-tight">
                 <a href="tel:+523526881772" className="hover:text-secondary">
                   ¿Necesitas ayuda? <br />
                   <span className="font-bold">352 688 1772</span>
                 </a>
+              </div> */}
+
+              <div className="text-sm font-semibold text-white leading-tight">
+                <span className="block">¿Necesitas ayuda?</span>
+
+                <a
+                  href="tel:+523526881772"
+                  className="flex items-center gap-2 font-bold hover:text-secondary transition"
+                >
+                  <HiOutlinePhone size={16} />
+                  352 688 1772
+                </a>
               </div>
+
+
             </div>
 
             {/* Mobile Menu Button */}

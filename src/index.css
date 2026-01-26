@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+   --font-sans: "Jost", sans-serif;
   --color-primary: #1A3263;
   --color-secondary: #FAB95B;
 }
