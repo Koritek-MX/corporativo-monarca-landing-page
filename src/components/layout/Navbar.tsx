@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
-import logo from "../../assets/react.svg";
+import logo from "../../assets/images/monarca-gold.png";
 
 const Navbar = () => {
   const [open, setOpen] = useState(false);
@@ -9,7 +9,7 @@ const Navbar = () => {
   return (
     <>
       {/* NAVBAR */}
-      <header className="fixed top-0 left-0 w-full z-50 bg-primary">
+      <header className="fixed top-0 left-0 pt-2 pb-2 w-full z-50 bg-primary">
         <div className="w-full px-4 lg:px-8 xl:px-12">
           <div className="flex items-center justify-between h-20">
 
@@ -18,7 +18,7 @@ const Navbar = () => {
               <img
                 src={logo}
                 alt="Corporativo Monarca"
-                className="h-11 w-auto object-contain"
+                className="h-40 w-auto object-contain"
               />
             </div>
 
@@ -35,6 +35,9 @@ const Navbar = () => {
               </a>
               <a href="#casos" className="hover:text-secondary transition">
                 CASOS DE ÉXITO
+              </a>
+              <a href="#casos" className="hover:text-secondary transition">
+                SOBRE NOSOTROS
               </a>
               <a href="#blog" className="hover:text-secondary transition">
                 BLOG
@@ -103,6 +106,7 @@ const Navbar = () => {
             <a onClick={() => setOpen(false)} href="#servicios">SERVICIOS</a>
             <a onClick={() => setOpen(false)} href="#experiencia">EXPERIENCIA</a>
             <a onClick={() => setOpen(false)} href="#casos">CASOS DE ÉXITO</a>
+            <a onClick={() => setOpen(false)} href="#casos">SOBRE NOSOTROS</a>
             <a onClick={() => setOpen(false)} href="#blog">BLOG</a>
             <a onClick={() => setOpen(false)} href="#contacto">CONTACTO</a>
           </nav>
