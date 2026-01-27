@@ -107,7 +107,7 @@ const Footer = () => {
 
           {/* Copyright */}
           <p className="text-sm text-white/60 text-center md:text-left">
-            © {new Date().getFullYear()} Corporativo Monarca.  
+            © {new Date().getFullYear()} Corporativo Monarca.
             Todos los derechos reservados.
           </p>
 
@@ -138,7 +138,16 @@ const Footer = () => {
             </a>
           </div>
         </div>
-
+      </div>
+      {/* Footer Bottom */}
+      <div className="text-sm text-white/60 text-center pb-4">
+        <a
+          href="https://koritekmx.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Creado con ♥ por Koritek
+        </a>
       </div>
     </footer>
   );
