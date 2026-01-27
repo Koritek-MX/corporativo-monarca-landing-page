@@ -1,7 +1,7 @@
 import { FaLinkedinIn, FaEnvelope, FaWhatsapp, FaPlay } from "react-icons/fa";
-import Brau from "../../assets/images/brau.jpg";
-import Cony from "../../assets/images/cony.jpg";
-import Jesus from "../../assets/images/jesus.jpg";
+import Brau from "../../assets/images/brau.webp";
+import Cony from "../../assets/images/cony.webp";
+import Jesus from "../../assets/images/jesus.webp";
 import { useState } from "react";
 import FAQ from "./FAQ";
 

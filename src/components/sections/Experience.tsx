@@ -1,4 +1,4 @@
-import experienceImage from "../../assets/images/DERECHO-PENAL.jpeg";
+import experienceImage from "../../assets/images/DERECHO-PENAL.webp";
 import { useEffect, useRef, useState } from "react";
 import Counter from "../common/Counter";
 

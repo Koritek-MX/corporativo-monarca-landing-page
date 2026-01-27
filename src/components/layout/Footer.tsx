@@ -7,7 +7,7 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
-import logo from "../../assets/images/monarca-gold.png"; // ajusta ruta si es necesario
+import logo from "../../assets/images/monarca-gold.webp"; // ajusta ruta si es necesario
 
 const Footer = () => {
   return (

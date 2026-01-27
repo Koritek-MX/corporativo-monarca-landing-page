@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
-import logo from "../../assets/images/monarca-gold.png";
+import logo from "../../assets/images/monarca-gold.webp";
 
 const sections = [
   "inicio",
