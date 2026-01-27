@@ -220,7 +220,7 @@ const Contact = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
+              {/* <div className="flex items-start gap-4">
                 <FaMapMarkerAlt className="text-secondary mt-1" />
                 <div>
                   <p className="font-semibold text-primary">Ubicación</p>
@@ -229,10 +229,33 @@ const Contact = () => {
                     La Piedad de Cabadas, Michoacán, México
                   </p>
                 </div>
+              </div> */}
+
+              <div className="flex items-start gap-4">
+                <FaMapMarkerAlt className="text-secondary mt-1" />
+                <div className="w-full">
+                  <p className="font-semibold text-primary mb-2">Ubicación</p>
+
+                  <p className="text-gray-600 mb-4">
+                    Juan Escutia #10, int 3, Col. Centro, CP. 59300, <br />
+                    La Piedad de Cabadas, Michoacán, México
+                  </p>
+
+                  {/* Google Map */}
+                  <div className="w-full h-56 rounded-xl overflow-hidden border border-gray-200">
+                    <iframe
+                      title="Ubicación Corporativo Monarca"
+                      src="https://www.google.com/maps?q=Juan%20Escutia%2010%20La%20Piedad%20de%20Cabadas%20Michoacan&output=embed"
+                      className="w-full h-full border-0"
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                    />
+                  </div>
+                </div>
               </div>
 
               {/* WhatsApp */}
-              <a
+              {/* <a
                 href="https://wa.me/523525015754"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -240,7 +263,7 @@ const Contact = () => {
               >
                 <FaWhatsapp />
                 Escríbenos por WhatsApp
-              </a>
+              </a> */}
             </div>
           </div>
 
