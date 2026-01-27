@@ -8,7 +8,7 @@ import Footer from "./components/layout/Footer";
 import Navbar from "./components/layout/Navbar";
 import Hero from "./components/sections/Hero";
 import Blog from "./components/sections/Blog";
-import FAQ from "./components/sections/FAQ";
+// import FAQ from "./components/sections/FAQ";
 
 
 
@@ -22,7 +22,7 @@ export default function App() {
         <Experience />
         <Cases />
         <AboutUs />
-        <FAQ />
+        {/* <FAQ /> */}
         <Blog />
         <Contact />
       </main>
