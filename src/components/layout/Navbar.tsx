@@ -132,7 +132,7 @@ const Navbar = () => {
               </a>
 
               <span className="opacity-90 text-center">
-                Juan Escutia #10, int 3, Col. Centro, CP. 59300, <br /> La Piedad de Cabadas, Michoácan, Mexico
+                Juan Escutia #10, int 3, Col. Centro, CP. 59300, <br /> La Piedad de Cabadas, Michoácan, México
               </span>
 
             </div>
