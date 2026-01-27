@@ -3,17 +3,58 @@ import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.png";
 
+const sections = [
+  "inicio",
+  "servicios",
+  "experiencia",
+  "casos",
+  "nosotros",
+  "blog",
+  "contacto",
+];
+
 const Navbar = () => {
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
+  const [activeSection, setActiveSection] = useState("inicio");
+  const [isNavigating, setIsNavigating] = useState(false);
 
-  // Hide / show navbar on scroll
+  /* 👉 Scroll suave al seleccionar sección */
+  const handleScrollToSection = (
+    e: React.MouseEvent,
+    sectionId: string
+  ) => {
+    e.preventDefault();
+
+    const target = document.getElementById(sectionId);
+    if (!target) return;
+
+    setShow(true);
+    setIsNavigating(true);
+
+    // Scroll suave
+    target.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    // Cerrar drawer si está abierto
+    if (open) setOpen(false);
+
+    // Reactivar hide/show después del scroll
+    setTimeout(() => {
+      setIsNavigating(false);
+      setLastScrollY(window.scrollY);
+    }, 700);
+  };
+
+  /* Hide / show navbar on scroll */
   useEffect(() => {
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
+      if (open || isNavigating) return;
 
-      if (open) return;
+      const currentScrollY = window.scrollY;
 
       if (currentScrollY > lastScrollY && currentScrollY > 80) {
         setShow(false);
@@ -26,15 +67,39 @@ const Navbar = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [lastScrollY, open]);
+  }, [lastScrollY, open, isNavigating]);
 
-  // Lock body scroll when mobile menu is open
+  /* Lock body scroll when drawer is open */
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
   }, [open]);
+
+  /* Scroll Spy */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        rootMargin: "-40% 0px -40% 0px",
+        threshold: 0,
+      }
+    );
+
+    sections.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) observer.observe(el);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
@@ -52,28 +117,46 @@ const Navbar = () => {
             <div className="flex items-center justify-between h-20">
 
               {/* Logo */}
-              <div className="flex items-center gap-3">
-                <img
-                  src={logo}
-                  alt="Corporativo Monarca"
-                  className="h-30 w-auto object-contain"
-                />
-              </div>
+              <img
+                src={logo}
+                alt="Corporativo Monarca"
+                className="h-30 w-auto object-contain"
+              />
 
               {/* Desktop Menu */}
-              <nav className="hidden md:flex gap-10 text-sm lg:text-base font-semibold text-white">
-                <a href="#inicio" className="hover:text-secondary transition">INICIO</a>
-                <a href="#servicios" className="hover:text-secondary transition">SERVICIOS</a>
-                <a href="#experiencia" className="hover:text-secondary transition">EXPERIENCIA</a>
-                <a href="#casos" className="hover:text-secondary transition">CASOS DE ÉXITO</a>
-                <a href="#nosotros" className="hover:text-secondary transition">SOBRE NOSOTROS</a>
-                <a href="#blog" className="hover:text-secondary transition">BLOG</a>
-                <a href="#contacto" className="hover:text-secondary transition">CONTACTO</a>
+              <nav className="hidden md:flex gap-10 text-sm lg:text-base font-semibold">
+                {sections.map((id) => (
+                  <a
+                    key={id}
+                    href={`#${id}`}
+                    onClick={(e) => handleScrollToSection(e, id)}
+                    className={`
+                      relative pb-1 transition-colors duration-300
+                      ${
+                        activeSection === id
+                          ? "text-secondary after:scale-x-100"
+                          : "text-white hover:text-secondary after:scale-x-0"
+                      }
+                      after:content-['']
+                      after:absolute
+                      after:left-0
+                      after:-bottom-1
+                      after:w-full
+                      after:h-[2px]
+                      after:bg-secondary
+                      after:origin-left
+                      after:transition-transform
+                      after:duration-300
+                    `}
+                  >
+                    {id.toUpperCase()}
+                  </a>
+                ))}
               </nav>
 
               {/* Desktop Right */}
-              <div className="hidden md:flex items-center gap-6 text-right">
-                <div className="flex gap-3 text-white">
+              <div className="hidden md:flex items-center gap-6 text-white">
+                <div className="flex gap-3">
                   <FaFacebookF size={20} />
                   <FaInstagram size={20} />
                   <FaYoutube size={20} />
@@ -81,8 +164,10 @@ const Navbar = () => {
 
                 <div className="w-px h-8 bg-white/30" />
 
-                <div className="text-sm font-semibold text-white leading-tight">
-                  <span className="block">¿Necesitas ayuda?</span>
+                <div className="text-sm font-semibold leading-tight text-right">
+                  <span className="block text-xs opacity-80">
+                    ¿Necesitas ayuda?
+                  </span>
                   <a
                     href="tel:+523525015754"
                     className="flex items-center gap-2 font-bold hover:text-secondary transition"
@@ -93,7 +178,7 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Mobile Menu Button */}
+              {/* Mobile Button */}
               <button
                 className="md:hidden text-white"
                 onClick={() => setOpen(true)}
@@ -107,23 +192,30 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* MOBILE MODAL (ANIMATED) */}
+      {/* MOBILE DRAWER */}
       <div
         className={`
           fixed inset-0 z-50
-          bg-primary/95 backdrop-blur-sm
-          transition-all duration-300 ease-out
+          transition-all duration-300
           ${open ? "opacity-100 visible" : "opacity-0 invisible"}
         `}
       >
+        {/* Overlay */}
+        <div
+          className="absolute inset-0 bg-black/40"
+          onClick={() => setOpen(false)}
+        />
+
+        {/* Drawer */}
         <div
           className={`
-            flex flex-col h-full
-            transform transition-all duration-300 ease-out
-            ${open ? "translate-y-0" : "-translate-y-6"}
+            absolute top-0 right-0 h-full w-full max-w-sm
+            bg-primary
+            transform transition-transform duration-300
+            ${open ? "translate-x-0" : "translate-x-full"}
           `}
         >
-          {/* Modal Header */}
+          {/* Header */}
           <div className="flex items-center justify-between px-6 h-24 border-b border-white/20">
             <img
               src={logo}
@@ -140,50 +232,26 @@ const Navbar = () => {
           </div>
 
           {/* Menu */}
-          <nav className="flex-1 flex flex-col items-center justify-center gap-8 text-lg font-semibold text-white">
-            {["inicio","servicios","experiencia","casos","nosotros","blog","contacto"].map(id => (
+          <nav className="flex-1 flex flex-col items-center justify-center gap-8 text-lg font-semibold">
+            <br />
+            {sections.map((id) => (
               <a
                 key={id}
                 href={`#${id}`}
-                onClick={() => setOpen(false)}
-                className="hover:text-secondary transition"
+                onClick={(e) => handleScrollToSection(e, id)}
+                className={`
+                  transition-all duration-200
+                  ${
+                    activeSection === id
+                      ? "text-secondary scale-105"
+                      : "text-white hover:text-secondary"
+                  }
+                `}
               >
                 {id.toUpperCase()}
               </a>
             ))}
           </nav>
-
-          {/* Modal Footer Info */}
-          <div className="border-t border-white/20 px-6 py-6 text-white">
-            <div className="flex flex-col items-center gap-3 text-sm">
-              <b>¡Contáctanos!</b>
-
-              <a
-                href="tel:+523525015754"
-                className="hover:text-secondary transition font-semibold"
-              >
-                352 501 5754
-              </a>
-
-              <a
-                href="mailto:monarcacorporativo@outlook.com"
-                className="hover:text-secondary transition"
-              >
-                monarcacorporativo@outlook.com
-              </a>
-
-              <span className="opacity-90 text-center">
-                Juan Escutia #10, int 3, Col. Centro, CP. 59300,<br />
-                La Piedad de Cabadas, Michoacán, México
-              </span>
-            </div>
-
-            <div className="flex justify-center gap-6 mt-4">
-              <FaFacebookF size={18} />
-              <FaInstagram size={18} />
-              <FaYoutube size={18} />
-            </div>
-          </div>
         </div>
       </div>
     </>
