@@ -30,12 +30,7 @@ const Navbar = () => {
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "auto";
-    }
-
+    document.body.style.overflow = open ? "hidden" : "auto";
     return () => {
       document.body.style.overflow = "auto";
     };
@@ -112,20 +107,29 @@ const Navbar = () => {
         </div>
       </header>
 
-      {/* MOBILE MODAL */}
-      {open && (
-        <div className="fixed inset-0 z-50 bg-primary/95 backdrop-blur-sm flex flex-col">
-
+      {/* MOBILE MODAL (ANIMATED) */}
+      <div
+        className={`
+          fixed inset-0 z-50
+          bg-primary/95 backdrop-blur-sm
+          transition-all duration-300 ease-out
+          ${open ? "opacity-100 visible" : "opacity-0 invisible"}
+        `}
+      >
+        <div
+          className={`
+            flex flex-col h-full
+            transform transition-all duration-300 ease-out
+            ${open ? "translate-y-0" : "-translate-y-6"}
+          `}
+        >
           {/* Modal Header */}
           <div className="flex items-center justify-between px-6 h-24 border-b border-white/20">
-             {/* Logo */}
-              <div className="flex items-center gap-3">
-                <img
-                  src={logo}
-                  alt="Corporativo Monarca"
-                  className="h-30 w-auto object-contain"
-                />
-              </div>
+            <img
+              src={logo}
+              alt="Corporativo Monarca"
+              className="h-30 w-auto object-contain"
+            />
             <button
               onClick={() => setOpen(false)}
               className="text-white"
@@ -151,7 +155,6 @@ const Navbar = () => {
 
           {/* Modal Footer Info */}
           <div className="border-t border-white/20 px-6 py-6 text-white">
-
             <div className="flex flex-col items-center gap-3 text-sm">
               <b>¡Contáctanos!</b>
 
@@ -181,9 +184,8 @@ const Navbar = () => {
               <FaYoutube size={18} />
             </div>
           </div>
-
         </div>
-      )}
+      </div>
     </>
   );
 };
