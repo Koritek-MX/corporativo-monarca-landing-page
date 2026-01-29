@@ -9,39 +9,39 @@ import {
 
 const services = [
   {
-    title: "Derecho Corporativo",
+    title: "Derecho Familiar",
     description:
-      "Asesoría legal integral para empresas, contratos, cumplimiento normativo y gobierno corporativo.",
+      "Brindamos asesoría y representación legal en asuntos familiares como divorcios, pensiones alimenticias, guarda y custodia, actuando siempre con sensibilidad, confidencialidad y enfoque en el bienestar de las personas involucradas.",
     icon: HiOutlineOfficeBuilding,
-  },
-  {
-    title: "Derecho Laboral",
-    description:
-      "Defensa y asesoría en relaciones laborales, despidos, contratos y cumplimiento ante autoridades.",
-    icon: HiOutlineUserGroup,
   },
   {
     title: "Derecho Civil",
     description:
-      "Representación en controversias civiles, contratos, arrendamientos y responsabilidad civil.",
+      "Ofrecemos asesoría y representación legal en conflictos civiles relacionados con contratos, obligaciones, responsabilidad civil, sucesiones y propiedad, buscando soluciones jurídicas efectivas que protejan los derechos e intereses de nuestros clientes.",
+    icon: HiOutlineUserGroup,
+  },
+  {
+    title: "Derecho Penal",
+    description:
+      "Brindamos defensa y asesoría legal en procedimientos penales, representando a nuestros clientes con rigor jurídico, confidencialidad y compromiso en cada etapa del proceso, velando siempre por la protección de sus derechos, y garantizando una reparacion del daño.",
     icon: HiOutlineDocumentText,
+  },
+  {
+    title: "Derecho Laboral",
+    description:
+      "Asesoramos y representamos a trabajadores y empresas en conflictos laborales, despidos, conciliaciones y cumplimiento de obligaciones legales, ofreciendo soluciones estratégicas y defensa efectiva de sus derechos.",
+    icon: HiOutlineBriefcase,
   },
   {
     title: "Derecho Mercantil",
     description:
-      "Soluciones legales para operaciones comerciales, cobranza, sociedades y litigios mercantiles.",
-    icon: HiOutlineBriefcase,
-  },
-  {
-    title: "Litigio Estratégico",
-    description:
-      "Defensa jurídica especializada con estrategias personalizadas para cada caso.",
+      "Ofrecemos asesoría y representación legal en asuntos mercantiles, incluyendo contratos comerciales, recuperación de cartera, cumplimiento de obligaciones y resolución de controversias, protegiendo los intereses de nuestros clientes y su actividad empresarial.",
     icon: HiOutlineScale,
   },
   {
-    title: "Cumplimiento Legal",
+    title: "Asesoria notarial",
     description:
-      "Prevención de riesgos legales y acompañamiento en auditorías y procesos regulatorios.",
+      "Brindamos asesoría legal en trámites y actos notariales como compraventas, poderes, testamentos y regularización de bienes, asegurando seguridad jurídica, claridad y cumplimiento normativo en cada proceso.",
     icon: HiOutlineShieldCheck,
   },
 ];
@@ -62,8 +62,7 @@ const Services = () => {
           </h2>
 
           <p className="text-gray-600">
-            Brindamos asesoría jurídica especializada con un enfoque estratégico,
-            ético y orientado a resultados para proteger tus intereses.
+            No solo ejecutamos procesos legales; construimos el camino hacia su tranquilidad jurídica. Si hay un derecho que defender o una obligación que cumplir, nosotros somos su mejor aliado.
           </p>
         </div>
 
@@ -80,23 +79,23 @@ const Services = () => {
               </div>
 
               {/* Content */}
-              <h3 className="text-lg font-semibold text-primary mb-3">
+              <h3 className="text-lg justify-center font-semibold text-primary mb-3">
                 {service.title}
               </h3>
 
-              <p className="text-sm text-gray-600 leading-relaxed">
+              <p className="text-sm text-gray-600 leading-relaxed text-left md:text-justify">
                 {service.description}
               </p>
 
               {/* Ver más */}
-              <div className="mt-6 text-right">
+              {/* <div className="mt-6 text-right">
                 <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
                   Ver más
                   <span className="transform group-hover:translate-x-1 transition">
                     →
                   </span>
                 </span>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>

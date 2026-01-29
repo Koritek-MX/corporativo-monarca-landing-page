@@ -8,25 +8,25 @@ import FAQ from "./FAQ";
 const lawyers = [
     {
         name: "Lic. Braulio Reyes Cervantes",
-        role: "Derecho Laboral",
+        role: "litigio estratégico",
         image: Brau,
         phone: "+52 352 527 1774",
         linkedin: "#",
         email: "juan.perez@corporativomonarca.com",
     },
     {
-        name: "Lic. Concepcion Solorio Sánchez",
-        role: "Derecho Penal",
+        name: "Lic. María Concepcion Mora Sánchez",
+        role: "litigio contencioso",
         image: Cony,
-        phone: "+52 352 527 1774",
+        phone: "+52 352 146 4834",
         linkedin: "#",
         email: "juan.perez@corporativomonarca.com",
     },
     {
         name: "Lic. Jesús Meza López",
-        role: "Derecho Mercantil",
+        role: "derecho civil",
         image: Jesus,
-        phone: "+52 352 527 1774",
+        phone: "+52 352 501 5754",
         linkedin: "#",
         email: "juan.perez@corporativomonarca.com",
     },
@@ -57,16 +57,10 @@ const AboutUs = () => {
                             </h2>
 
                             <p className="text-gray-600 mb-4 leading-relaxed">
-                                En <strong>Corporativo Monarca</strong> brindamos soluciones legales
-                                integrales, enfocadas en la prevención de riesgos, protección
-                                patrimonial y crecimiento empresarial.
+                                En <strong>Corporativo Monarca</strong> , no solo entendemos la ley; la aplicamos con precisión técnica para transformar desafíos en soluciones. Somos un corporativo legal diseñado para ofrecer seguridad en un entorno jurídico complejo, basando nuestra práctica en tres pilares: especialización, prevención y acompañamiento integral.
                             </p>
 
-                            <p className="text-gray-600 leading-relaxed">
-                                Nuestro equipo está conformado por abogados especializados que
-                                combinan conocimiento jurídico, experiencia práctica y atención
-                                personalizada.
-                            </p>
+
                         </div>
 
                         {/* Image with play button */}
@@ -120,13 +114,10 @@ const AboutUs = () => {
                                         {/* Social icons */}
                                         <div className="flex items-center gap-4 mb-6">
                                             <a className="text-primary/60 hover:text-secondary transition">
-                                                <FaWhatsapp size={18} />
+                                                <FaWhatsapp size={25} />
                                             </a>
                                             <a className="text-primary/60 hover:text-secondary transition">
-                                                <FaEnvelope size={18} />
-                                            </a>
-                                            <a className="text-primary/60 hover:text-secondary transition">
-                                                <FaLinkedinIn size={18} />
+                                                <FaEnvelope size={25} />
                                             </a>
                                         </div>
 
@@ -136,9 +127,9 @@ const AboutUs = () => {
                                                 {lawyer.role}
                                             </span>
 
-                                            <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition cursor-pointer">
+                                            {/* <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition cursor-pointer">
                                                 Ver perfil →
-                                            </span>
+                                            </span> */}
                                         </div>
                                     </div>
                                 </div>

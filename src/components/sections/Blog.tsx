@@ -87,12 +87,12 @@ const Blog = () => {
 
                 {/* Read more */}
                 <div className="mt-6 text-right">
-                <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
+                {/* <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
                   Ver más
                   <span className="transform group-hover:translate-x-1 transition">
                     →
                   </span>
-                </span>
+                </span> */}
               </div>
               </div>
             </article>

@@ -91,8 +91,9 @@ const Footer = () => {
               <li className="flex items-start gap-2">
                 <FaMapMarkerAlt className="mt-1 text-secondary" />
                 <span>
-                  La Piedad de Cabadas, <br />
-                  Michoacán, México
+                  Juan Escutia #10, int 3, Col. Centro, CP. 59300,
+                  La Piedad de Cabadas, Michoacán, México
+
                 </span>
               </li>
             </ul>

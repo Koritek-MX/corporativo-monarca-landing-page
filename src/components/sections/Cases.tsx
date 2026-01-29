@@ -2,27 +2,27 @@ const cases = [
   {
     title: "Resolución favorable en conflicto laboral",
     description:
-      "Defensa exitosa de empresa ante demanda laboral, logrando un acuerdo favorable y evitando más sanciones.",
-    area: "Derecho Laboral",
+      "Resolución de pérdida de la patria potestad en favor de nuestra clienta y su hijo, después de haber sufrido violencia familiar.",
+    area: "Derecho Familiar",
     image:
       "https://blogs.evaluar.com/hubfs/images/resolver-conflictos-600X300.jpg",
   },
   {
-    title: "Recuperación de cartera vencida",
+    title: "Sentencia condenatoria de prision",
     description:
-      "Estrategia legal mercantil que permitió la recuperación efectiva de adeudos significativos.",
-    area: "Derecho Mercantil",
-    image:
-      "https://i0.wp.com/advacoo.com.mx/wp-content/uploads/2021/12/credito-pymes-min.jpg?fit=800%2C400&ssl=1",
-  },
-  {
-    title: "Asesoría corporativa integral",
-    description:
-      "Acompañamiento legal continuo para empresa en procesos contractuales y cumplimiento normativo.",
-    area: "Derecho Corporativo",
+      "En favor de nuestra clienta, víctima del delito de violación por parte de su padrastro.",
+    area: "Derecho Penal",
     image:
       "https://static.wixstatic.com/media/11062b_83086fb64b6248d2a2ff560b1e89af1a~mv2.jpg",
   },
+  {
+    title: "Recuperación de cartera vencida",
+    description:
+      "Liquidación de alimentos retroactivos en favor de nuestra clienta y sus hijos por más de un $1,000,000 MXN.",
+    area: "Derecho Familiar",
+    image:
+      "https://i0.wp.com/advacoo.com.mx/wp-content/uploads/2021/12/credito-pymes-min.jpg?fit=800%2C400&ssl=1",
+  }
 ];
 
 const SuccessCases = () => {
@@ -78,12 +78,12 @@ const SuccessCases = () => {
                     {item.area}
                   </span>
 
-                  <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
+                  {/* <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
                     Ver más
                     <span className="transform group-hover:translate-x-1 transition">
                       →
                     </span>
-                  </span>
+                  </span> */}
                 </div>
               </div>
             </div>
