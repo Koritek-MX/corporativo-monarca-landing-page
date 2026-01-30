@@ -1,4 +1,4 @@
-import { FaLinkedinIn, FaEnvelope, FaWhatsapp, FaPlay } from "react-icons/fa";
+import { FaEnvelope, FaWhatsapp, FaPlay } from "react-icons/fa";
 import Brau from "../../assets/images/brau.webp";
 import Cony from "../../assets/images/cony.webp";
 import Jesus from "../../assets/images/jesus.webp";
