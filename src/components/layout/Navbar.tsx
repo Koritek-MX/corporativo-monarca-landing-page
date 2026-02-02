@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { FaFacebookF, FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaUser } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.webp";
 
@@ -101,6 +101,12 @@ const Navbar = () => {
     return () => observer.disconnect();
   }, []);
 
+
+
+  function openLogin() {
+    console.log("Abrir login");
+  }
+
   return (
     <>
       {/* NAVBAR */}
@@ -132,10 +138,9 @@ const Navbar = () => {
                     onClick={(e) => handleScrollToSection(e, id)}
                     className={`
                       relative pb-1 transition-colors duration-300
-                      ${
-                        activeSection === id
-                          ? "text-secondary after:scale-x-100"
-                          : "text-white hover:text-secondary after:scale-x-0"
+                      ${activeSection === id
+                        ? "text-secondary after:scale-x-100"
+                        : "text-white hover:text-secondary after:scale-x-0"
                       }
                       after:content-['']
                       after:absolute
@@ -157,9 +162,12 @@ const Navbar = () => {
               {/* Desktop Right */}
               <div className="hidden md:flex items-center gap-6 text-white">
                 <div className="flex gap-3">
-                  <FaFacebookF size={20} />
-                  <FaInstagram size={20} />
-                  <FaYoutube size={20} />
+                  <FaUser
+                    className="hover:text-secondary transition"
+                    href="#"
+                    size={25}
+                    onClick={openLogin}
+                  />
                 </div>
 
                 <div className="w-px h-8 bg-white/30" />
@@ -178,15 +186,28 @@ const Navbar = () => {
                 </div>
               </div>
 
-              {/* Mobile Button */}
-              <button
-                className="md:hidden text-white"
-                onClick={() => setOpen(true)}
-                aria-label="Abrir menú"
-              >
-                <HiOutlineMenu size={30} />
-              </button>
 
+              {/* Mobile Buttons */}
+              <div className="md:hidden flex items-center gap-2">
+                <button
+                  className="text-white"
+                  onClick={openLogin}
+                  aria-label="Abrir login"
+                >
+                  <FaUser
+                    className="hover:text-secondary transition"
+                    size={30}
+                  />
+                </button>
+
+                <button
+                  className="text-white"
+                  onClick={() => setOpen(true)}
+                  aria-label="Abrir menú"
+                >
+                  <HiOutlineMenu size={35} />
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -241,10 +262,9 @@ const Navbar = () => {
                 onClick={(e) => handleScrollToSection(e, id)}
                 className={`
                   transition-all duration-200
-                  ${
-                    activeSection === id
-                      ? "text-secondary scale-105"
-                      : "text-white hover:text-secondary"
+                  ${activeSection === id
+                    ? "text-secondary scale-105"
+                    : "text-white hover:text-secondary"
                   }
                 `}
               >

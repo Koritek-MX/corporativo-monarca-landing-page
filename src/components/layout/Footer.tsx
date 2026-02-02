@@ -1,7 +1,7 @@
 import {
   FaFacebookF,
   FaInstagram,
-  FaLinkedinIn,
+  FaYoutube,
   FaEnvelope,
   FaPhoneAlt,
   FaMapMarkerAlt,
@@ -115,7 +115,8 @@ const Footer = () => {
           {/* Social */}
           <div className="flex items-center gap-4">
             <a
-              href="#"
+              href="https://www.facebook.com/profile.php?id=100062926254911"
+              target="_blank"
               aria-label="Facebook"
               className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-secondary hover:text-primary transition"
             >
@@ -123,20 +124,21 @@ const Footer = () => {
             </a>
 
             <a
-              href="#"
+              href="https://www.instagram.com/monarca_abogados/"
+              target="_blank"
               aria-label="Instagram"
               className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-secondary hover:text-primary transition"
             >
               <FaInstagram size={14} />
             </a>
 
-            <a
+            {/* <a
               href="#"
-              aria-label="LinkedIn"
+              aria-label="Youtube"
               className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-secondary hover:text-primary transition"
             >
-              <FaLinkedinIn size={14} />
-            </a>
+              <FaYoutube size={14} />
+            </a> */}
           </div>
         </div>
       </div>
