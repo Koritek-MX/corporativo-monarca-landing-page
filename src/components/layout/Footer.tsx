@@ -1,7 +1,6 @@
 import {
   FaFacebookF,
   FaInstagram,
-  FaYoutube,
   FaEnvelope,
   FaPhoneAlt,
   FaMapMarkerAlt,
