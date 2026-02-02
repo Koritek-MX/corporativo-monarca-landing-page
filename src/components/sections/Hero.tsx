@@ -1,10 +1,24 @@
 import heroImage from "../../assets/images/hero.webp";
 
 const Hero = () => {
+  const handleScrollToContact = (
+    e: React.MouseEvent<HTMLAnchorElement>
+  ) => {
+    e.preventDefault();
+
+    const contactSection = document.getElementById("contacto");
+    if (!contactSection) return;
+
+    contactSection.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   return (
     <section
       id="inicio"
-      className="relative min-h-screen w-full bg-cover bg-center"
+      className="relative min-h-screen w-full bg-cover bg-center scroll-mt-28"
       style={{ backgroundImage: `url(${heroImage})` }}
     >
       {/* Overlay */}
@@ -28,18 +42,10 @@ const Hero = () => {
               </span>
             </h1>
 
-            {/* Description (opcional, lista para activar) */}
-            {/* 
-            <p className="text-base md:text-lg text-white/90 mb-10">
-              Somos un despacho jurídico especializado en brindar soluciones
-              legales efectivas, respaldadas por años de experiencia y un trato
-              profesional y cercano.
-            </p>
-            */}
-
             {/* CTA */}
             <a
               href="#contacto"
+              onClick={handleScrollToContact}
               className="inline-flex items-center justify-center bg-secondary text-white font-semibold px-10 py-4 rounded-xl text-sm md:text-base hover:bg-secondary/90 transition"
             >
               CONTÁCTANOS
