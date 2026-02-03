@@ -1,21 +1,33 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { FcGoogle } from "react-icons/fc";
+import {
+  HiOutlineEye,
+  HiOutlineEyeOff,
+} from "react-icons/hi";
+
 import logo from "../../assets/images/monarca-gold.webp";
 import loginBg from "../../assets/images/hero.webp";
-import { FcGoogle } from "react-icons/fc";
-import { useNavigate } from "react-router-dom";
-import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
-import Swal from 'sweetalert2'
 
-const Login = () => {
-
+const Register = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
+
   const [form, setForm] = useState({
-    email: "admin@gmail.com",
+    name: "",
+    email: "",
     password: "",
+    confirmPassword: "",
   });
 
-  const isFormValid = form.email.trim() !== "" && form.password.trim() !== "";
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+  const isFormValid =
+    form.name.trim() !== "" &&
+    form.email.trim() !== "" &&
+    form.password.trim() !== "" &&
+    form.confirmPassword.trim() !== "" &&
+    form.password === form.confirmPassword;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -29,41 +41,12 @@ const Login = () => {
     e.preventDefault();
     if (!isFormValid) return;
 
-
-
-    let timerInterval = 100;
-    Swal.fire({
-      title: "Iniciando sesión...",
-      timer: 1500,
-      timerProgressBar: true,
-      didOpen: () => {
-        Swal.showLoading();
-        const popup = Swal.getPopup();
-        const timer = popup?.querySelector("b");
-        if (timer) {
-          timerInterval = setInterval(() => {
-            timer.textContent = `${Swal.getTimerLeft()}`;
-          }, 100);
-        }
-      },
-      willClose: () => {
-        clearInterval(timerInterval);
-      }
-    }).then((result) => {
-      if (result.dismiss === Swal.DismissReason.timer) {
-        console.log("I was closed by the timer");
-      }
-    });
-
-    setTimeout(() => {
-      console.log("Login form submitted", form);
-      // aquí va la lógica real de login
-      navigate("/dashboard");
-    }, 1500);
+    console.log("Register form submitted", form);
+    // aquí va la lógica real de registro
   };
 
-  const handleGoogleLogin = () => {
-    // aquí va login con Google
+  const handleGoogleRegister = () => {
+    // registro con Google
   };
 
   return (
@@ -99,14 +82,38 @@ const Login = () => {
             />
           </div>
 
-          <h1 className="text-4xl font-bold text-primary mb-2 text-center mb-16">
-            Iniciar sesión
+          <h1 className="text-2xl font-bold text-primary mb-2 text-center">
+            Crear cuenta
           </h1>
 
+          <p className="text-gray-600 mb-8 text-center">
+            Regístrate para acceder al panel
+          </p>
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
 
+            {/* Nombre */}
+            <div>
+              <label className="block text-sm font-medium text-primary mb-1">
+                Nombre completo
+              </label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Tu nombre"
+                value={form.name}
+                onChange={handleChange}
+                className="
+                  w-full border border-gray-300 rounded-lg
+                  px-4 py-3
+                  focus:outline-none focus:ring-2 focus:ring-secondary
+                "
+                required
+              />
+            </div>
+
+            {/* Email */}
             <div>
               <label className="block text-sm font-medium text-primary mb-1">
                 Correo electrónico
@@ -126,11 +133,11 @@ const Login = () => {
               />
             </div>
 
+            {/* Password */}
             <div className="relative">
               <label className="block text-sm font-medium text-primary mb-1">
                 Contraseña
               </label>
-
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
@@ -144,38 +151,56 @@ const Login = () => {
                 "
                 required
               />
-
               <button
                 type="button"
                 onClick={() => setShowPassword((prev) => !prev)}
-                className="
-                  absolute right-4 top-9.5
-                  text-gray-400 hover:text-primary
-                  transition
-                "
-                aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
+                className="absolute right-4 top-[38px] text-gray-400 hover:text-primary transition"
               >
-                {showPassword ? (
-                  <HiOutlineEyeOff size={20} />
-                ) : (
-                  <HiOutlineEye size={20} />
-                )}
+                {showPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
               </button>
             </div>
 
-            {/* Entrar */}
+            {/* Confirm Password */}
+            <div className="relative">
+              <label className="block text-sm font-medium text-primary mb-1">
+                Confirmar contraseña
+              </label>
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                placeholder="••••••••"
+                value={form.confirmPassword}
+                onChange={handleChange}
+                className="
+                  w-full border border-gray-300 rounded-lg
+                  px-4 py-3 pr-12
+                  focus:outline-none focus:ring-2 focus:ring-secondary
+                "
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword((prev) => !prev)}
+                className="absolute right-4 top-[38px] text-gray-400 hover:text-primary transition"
+              >
+                {showConfirmPassword ? <HiOutlineEyeOff size={20} /> : <HiOutlineEye size={20} />}
+              </button>
+            </div>
+
+            {/* Submit */}
             <button
               type="submit"
               disabled={!isFormValid}
               className={`
                 w-full font-semibold py-4 rounded-xl transition
-                ${isFormValid
-                  ? "bg-primary text-white hover:bg-primary/90"
-                  : "bg-primary/50 text-white/70 cursor-not-allowed"
+                ${
+                  isFormValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-primary/50 text-white/70 cursor-not-allowed"
                 }
               `}
             >
-              Entrar
+              Crear cuenta
             </button>
           </form>
 
@@ -186,9 +211,9 @@ const Login = () => {
             <div className="flex-1 h-px bg-gray-200" />
           </div>
 
-          {/* Google Login */}
+          {/* Google */}
           <button
-            onClick={handleGoogleLogin}
+            onClick={handleGoogleRegister}
             className="
               w-full flex items-center justify-center gap-3
               bg-white border border-gray-300
@@ -198,18 +223,18 @@ const Login = () => {
             "
           >
             <FcGoogle size={18} />
-            Continuar con Google
+            Registrarse con Google
           </button>
 
-          {/* Register */}
+          {/* Login */}
           <p className="text-sm text-gray-600 text-center mt-6">
-            ¿No tienes cuenta?{" "}
-            <a
-              href="/register"
+            ¿Ya tienes cuenta?{" "}
+            <button
+              onClick={() => navigate("/login")}
               className="text-secondary font-semibold hover:underline"
             >
-              Regístrate
-            </a>
+              Inicia sesión
+            </button>
           </p>
 
           {/* Footer */}
@@ -223,4 +248,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;

@@ -12,6 +12,7 @@ import DashboardHome from "./dashboard/pages/DashboardHome.tsx";
 import ProtectedRoute from "./guards/ProtectedRoute.tsx";
 
 import NotFound from "./dashboard/pages/NotFound.tsx";
+import Register from "./dashboard/auth/Register.tsx";
 
 export default function App() {
   return (
@@ -22,6 +23,9 @@ export default function App() {
 
       {/* Login */}
       <Route path="/login" element={<Login />} />
+
+      {/* Register */}
+      <Route path="/register" element={<Register />} />
 
       {/* Dashboard protegido */}
       <Route element={<ProtectedRoute />}>

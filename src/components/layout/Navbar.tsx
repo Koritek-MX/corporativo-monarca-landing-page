@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUser } from "react-icons/fa";
+// import { FaUser } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.webp";
 
@@ -170,11 +170,11 @@ const Navbar = () => {
 
               {/* Desktop Right */}
               <div className="hidden md:flex items-center gap-6 text-white">
-                <FaUser
+                {/* <FaUser
                   size={25}
                   onClick={openLogin}
                   className="cursor-pointer hover:text-secondary transition"
-                />
+                /> */}
 
                 <div className="w-px h-8 bg-white/30" />
 
@@ -199,7 +199,7 @@ const Navbar = () => {
                   onClick={openLogin}
                   aria-label="Abrir login"
                 >
-                  <FaUser size={30} />
+                  {/* <FaUser size={30} /> */}
                 </button>
 
                 <button
