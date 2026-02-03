@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { FaUser } from "react-icons/fa";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.webp";
@@ -14,6 +15,8 @@ const sections = [
 ];
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
   const [open, setOpen] = useState(false);
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -33,20 +36,32 @@ const Navbar = () => {
     setShow(true);
     setIsNavigating(true);
 
-    // Scroll suave
     target.scrollIntoView({
       behavior: "smooth",
       block: "start",
     });
 
-    // Cerrar drawer si está abierto
     if (open) setOpen(false);
 
-    // Reactivar hide/show después del scroll
     setTimeout(() => {
       setIsNavigating(false);
       setLastScrollY(window.scrollY);
     }, 700);
+  };
+
+  /* 👉 Redirección a login */
+  const openLogin = () => {
+    setShow(true);
+    setIsNavigating(true);
+
+    if (open) setOpen(false);
+
+    navigate("/login");
+
+    setTimeout(() => {
+      setIsNavigating(false);
+      setLastScrollY(window.scrollY);
+    }, 300);
   };
 
   /* Hide / show navbar on scroll */
@@ -100,12 +115,6 @@ const Navbar = () => {
 
     return () => observer.disconnect();
   }, []);
-
-
-
-  function openLogin() {
-    console.log("Abrir login");
-  }
 
   return (
     <>
@@ -161,14 +170,11 @@ const Navbar = () => {
 
               {/* Desktop Right */}
               <div className="hidden md:flex items-center gap-6 text-white">
-                <div className="flex gap-3">
-                  <FaUser
-                    className="hover:text-secondary transition"
-                    href="#"
-                    size={25}
-                    onClick={openLogin}
-                  />
-                </div>
+                <FaUser
+                  size={25}
+                  onClick={openLogin}
+                  className="cursor-pointer hover:text-secondary transition"
+                />
 
                 <div className="w-px h-8 bg-white/30" />
 
@@ -186,7 +192,6 @@ const Navbar = () => {
                 </div>
               </div>
 
-
               {/* Mobile Buttons */}
               <div className="md:hidden flex items-center gap-2">
                 <button
@@ -194,10 +199,7 @@ const Navbar = () => {
                   onClick={openLogin}
                   aria-label="Abrir login"
                 >
-                  <FaUser
-                    className="hover:text-secondary transition"
-                    size={30}
-                  />
+                  <FaUser size={30} />
                 </button>
 
                 <button
@@ -208,6 +210,7 @@ const Navbar = () => {
                   <HiOutlineMenu size={35} />
                 </button>
               </div>
+
             </div>
           </div>
         </div>
@@ -254,7 +257,6 @@ const Navbar = () => {
 
           {/* Menu */}
           <nav className="flex-1 flex flex-col items-center justify-center gap-8 text-lg font-semibold">
-            <br />
             {sections.map((id) => (
               <a
                 key={id}

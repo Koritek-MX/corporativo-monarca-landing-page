@@ -1,33 +1,38 @@
-import WhatsAppButton from "./components/common/WhatsAppButton";
-import Experience from "./components/sections/Experience";
-import Services from "./components/sections/Services";
-import Contact from "./components/sections/Contact";
-import AboutUs from "./components/sections/AboutUs";
-import Cases from "./components/sections/Cases";
-import Footer from "./components/layout/Footer";
-import Navbar from "./components/layout/Navbar";
-import Hero from "./components/sections/Hero";
-import Blog from "./components/sections/Blog";
-// import FAQ from "./components/sections/FAQ";
+import { Routes, Route } from "react-router-dom";
 
+// Pages
+import Home from "./components/Home.tsx";
+import Login from "./dashboard/auth/Auth.tsx";
 
+// Dashboard
+import DashboardLayout from "./dashboard/layout/DashboardLayout.tsx";
+import DashboardHome from "./dashboard/pages/DashboardHome.tsx";
+
+// Guard
+import ProtectedRoute from "./guards/ProtectedRoute.tsx";
+
+import NotFound from "./dashboard/pages/NotFound.tsx";
 
 export default function App() {
   return (
-    <>
-      <Navbar />
-      <main>
-        <Hero />
-        <Services />
-        <Experience />
-        <Cases />
-        <AboutUs />
-        {/* <FAQ /> */}
-        <Blog />
-        <Contact />
-      </main>
-      <Footer />
-      <WhatsAppButton />
-    </>
+    <Routes>
+
+      {/* Landing pública */}
+      <Route path="/" element={<Home />} />
+
+      {/* Login */}
+      <Route path="/login" element={<Login />} />
+
+      {/* Dashboard protegido */}
+      <Route element={<ProtectedRoute />}>
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardHome />} />
+        </Route>
+      </Route>
+
+      {/* 404 */}
+      <Route path="*" element={<NotFound />} />
+
+    </Routes>
   );
 }
