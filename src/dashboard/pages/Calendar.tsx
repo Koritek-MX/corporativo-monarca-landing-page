@@ -1,5 +1,6 @@
 import { useState } from "react";
 import FullCalendar from "@fullcalendar/react";
+import type { EventApi } from "@fullcalendar/core";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -21,7 +22,7 @@ const initialEvents = [
     title: "10:30 AM - Audiencia laboral",
     start: new Date().toISOString().split("T")[0] + "T10:30:00",
     end: new Date().toISOString().split("T")[0] + "T11:30:00",
-    extendedProps: { category: "audiencia", guests: [] },
+    extendedProps: { category: "audiencia", guests: [], caseId: "" },
   },
 ];
 
@@ -31,20 +32,21 @@ const CASES = [
   { id: "C-2045", name: "Contrato mercantil – Empresa XYZ" },
   { id: "P-3301", name: "Proceso penal – María López" },
   { id: "F-4412", name: "Divorcio – Carlos Hernández" },
-  { id: '0', name: "Ninguno" }
+  { id: "0", name: "Ninguno" },
 ];
 
 /* 👥 Invitados */
 const LAWYERS = [
-  { value: "ana@monarca.com", label: "Ana Martínez" },
-  { value: "luis@monarca.com", label: "Luis Gómez" },
-  { value: "carlos@monarca.com", label: "Carlos Ramírez" },
-  { value: "maria@monarca.com", label: "María López" },
+  { value: "ana@monarca.com", label: "Braulio Reyes" },
+  { value: "luis@monarca.com", label: "Conny" },
+  { value: "carlos@monarca.com", label: "Jesus Meza" },
 ];
 
 const Calendar = () => {
   const [events, setEvents] = useState<any[]>(initialEvents);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [mode, setMode] = useState<"create" | "edit">("create");
+  const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
 
   const [form, setForm] = useState({
     title: "",
@@ -55,6 +57,7 @@ const Calendar = () => {
     caseId: "",
   });
 
+  /* ➕ Abrir modal manual */
   const openCreateModal = () => {
     const now = new Date().toISOString().slice(0, 16);
     setForm({
@@ -65,24 +68,61 @@ const Calendar = () => {
       guests: [],
       caseId: "",
     });
+    setMode("create");
+    setActiveEvent(null);
     setIsModalOpen(true);
   };
 
+  /* 🟢 Click en día */
+  const handleDateClick = (info: any) => {
+    setForm({
+      title: "",
+      category: "audiencia",
+      start: info.dateStr + "T09:00",
+      end: info.dateStr + "T10:00",
+      guests: [],
+      caseId: "",
+    });
+    setMode("create");
+    setActiveEvent(null);
+    setIsModalOpen(true);
+  };
+
+  /* 🔵 Click en evento */
+  const handleEventClick = (info: any) => {
+    const event = info.event;
+
+    setForm({
+      title: event.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, ""),
+      category: event.extendedProps.category,
+      start: event.startStr.slice(0, 16),
+      end: event.endStr?.slice(0, 16) || event.startStr.slice(0, 16),
+      guests: (event.extendedProps.guests || []).map((g: string) => ({
+        value: g,
+        label: g,
+      })),
+      caseId: event.extendedProps.caseId || "",
+    });
+
+    setMode("edit");
+    setActiveEvent(event);
+    setIsModalOpen(true);
+  };
+
+  /* ➕ Crear evento */
   const handleCreateEvent = () => {
     if (!form.title || !form.start || !form.end) return;
 
     const startDate = new Date(form.start);
-    let hours = startDate.getHours();
-    const minutes = startDate.getMinutes().toString().padStart(2, "0");
-    const period = hours >= 12 ? "PM" : "AM";
-    hours = hours % 12 || 12;
-
-    const time = `${hours}:${minutes} ${period}`;
+    let h = startDate.getHours();
+    const m = startDate.getMinutes().toString().padStart(2, "0");
+    const p = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
 
     setEvents((prev) => [
       ...prev,
       {
-        title: `${time} - ${form.title}`,
+        title: `${h}:${m} ${p} - ${form.title}`,
         start: form.start,
         end: form.end,
         extendedProps: {
@@ -97,14 +137,63 @@ const Calendar = () => {
 
     Swal.fire({
       icon: "success",
-      title: "Evento creado con exito.",
+      title: "Evento creado con éxito",
+      timer: 1500,
       showConfirmButton: false,
-      timer: 1500
+    });
+  };
+
+  /* ✏️ Editar evento */
+  const handleUpdateEvent = () => {
+    if (!activeEvent) return;
+
+    const startDate = new Date(form.start);
+    let h = startDate.getHours();
+    const m = startDate.getMinutes().toString().padStart(2, "0");
+    const p = h >= 12 ? "PM" : "AM";
+    h = h % 12 || 12;
+
+    activeEvent.setProp("title", `${h}:${m} ${p} - ${form.title}`);
+    activeEvent.setStart(form.start);
+    activeEvent.setEnd(form.end);
+    activeEvent.setExtendedProp("category", form.category);
+    activeEvent.setExtendedProp(
+      "guests",
+      form.guests.map((g) => g.value)
+    );
+    activeEvent.setExtendedProp("caseId", form.caseId);
+
+    setIsModalOpen(false);
+
+    Swal.fire({
+      icon: "success",
+      title: "Evento actualizado",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  /* 🗑️ Eliminar evento */
+  const handleDeleteEvent = () => {
+    Swal.fire({
+      title: "¿Eliminar evento?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        activeEvent?.remove();
+        setIsModalOpen(false);
+        Swal.fire("Eliminado", "El evento fue eliminado", "success");
+      }
     });
   };
 
   return (
     <div className="h-full flex flex-col gap-6">
+
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
@@ -128,9 +217,11 @@ const Calendar = () => {
           plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
           initialView="dayGridMonth"
           locale={esLocale}
-          height="100%"
           events={events}
+          height="100%"
           displayEventTime={false}
+          dateClick={handleDateClick}
+          eventClick={handleEventClick}
           headerToolbar={{
             left: "prev,next today",
             center: "title",
@@ -152,153 +243,102 @@ const Calendar = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
 
-            <div className="px-6 py-4 border-b">
+            <div className="px-6 py-4 border-b flex justify-between items-center">
               <h2 className="text-lg font-bold text-primary">
-                Crear evento
+                {mode === "create" ? "Crear evento" : "Editar evento"}
               </h2>
+              {mode === "edit" && (
+                <button
+                  onClick={handleDeleteEvent}
+                  className="text-red-600 font-semibold"
+                >
+                  Eliminar
+                </button>
+              )}
             </div>
 
             <div className="px-6 py-6 space-y-4">
-              {/* Título */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Título del evento
-                </label>
-                <input
-                  type="text"
-                  placeholder="Agregar título"
-                  value={form.title}
-                  onChange={(e) =>
-                    setForm({ ...form, title: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                />
-              </div>
+              <input
+                placeholder="Título del evento"
+                value={form.title}
+                onChange={(e) =>
+                  setForm({ ...form, title: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              />
 
-              {/* Categoría */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Categoría
-                </label>
-                <select
-                  value={form.category}
-                  onChange={(e) =>
-                    setForm({ ...form, category: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                >
-                  <option value="audiencia">Audiencia</option>
-                  <option value="cita">Cita</option>
-                  <option value="revision">Revisión</option>
-                  <option value="vencimiento">Vencimiento</option>
-                </select>
-              </div>
+              <select
+                value={form.category}
+                onChange={(e) =>
+                  setForm({ ...form, category: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              >
+                <option value="audiencia">Audiencia</option>
+                <option value="cita">Cita</option>
+                <option value="revision">Revisión</option>
+                <option value="vencimiento">Vencimiento</option>
+              </select>
 
-              {/* Asunto */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Asunto relacionado
-                </label>
-                <select
-                  value={form.caseId}
-                  onChange={(e) =>
-                    setForm({ ...form, caseId: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                >
-                  <option value="">Selecciona un asunto</option>
-                  {CASES.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              <select
+                value={form.caseId}
+                onChange={(e) =>
+                  setForm({ ...form, caseId: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              >
+                <option value="">Selecciona un asunto</option>
+                {CASES.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
 
-              {/* Inicio */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Fecha y hora de inicio
-                </label>
-                <input
-                  type="datetime-local"
-                  value={form.start}
-                  onChange={(e) =>
-                    setForm({ ...form, start: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                />
-              </div>
+              <input
+                type="datetime-local"
+                value={form.start}
+                onChange={(e) =>
+                  setForm({ ...form, start: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              />
 
-              {/* Fin */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Fecha y hora de cierre
-                </label>
-                <input
-                  type="datetime-local"
-                  value={form.end}
-                  onChange={(e) =>
-                    setForm({ ...form, end: e.target.value })
-                  }
-                  className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                />
-              </div>
+              <input
+                type="datetime-local"
+                value={form.end}
+                onChange={(e) =>
+                  setForm({ ...form, end: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              />
 
-              {/* Invitados */}
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Invitados
-                </label>
-                <Select
-                  isMulti
-                  options={LAWYERS}
-                  value={form.guests}
-                  onChange={(selected) =>
-                    setForm({ ...form, guests: selected as any })
-                  }
-                  placeholder="Selecciona abogados"
-                  classNamePrefix="react-select"
-                  styles={{
-                    control: (base, state) => ({
-                      ...base,
-                      borderRadius: "0.5rem",
-                      minHeight: "48px",
-                      borderColor: state.isFocused
-                        ? "#FAB95B"
-                        : "#D1D5DB",
-                      boxShadow: state.isFocused
-                        ? "0 0 0 2px rgba(250,185,91,.3)"
-                        : "none",
-                      "&:hover": {
-                        borderColor: "#FAB95B",
-                      },
-                    }),
-                  }}
-                />
-              </div>
+              <Select
+                isMulti
+                options={LAWYERS}
+                value={form.guests}
+                onChange={(g) =>
+                  setForm({ ...form, guests: g as any })
+                }
+                placeholder="Invitados"
+              />
             </div>
 
-            <div className="flex justify-end gap-3 px-6 py-4 border-t">
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+                className="px-4 py-2 text-gray-600"
               >
                 Cancelar
               </button>
-
               <button
-                onClick={handleCreateEvent}
-                disabled={!form.title}
-                className={`px-6 py-2 rounded-lg font-semibold transition
-                  ${form.title
-                    ? "bg-primary text-white hover:bg-primary/90"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                onClick={mode === "create" ? handleCreateEvent : handleUpdateEvent}
+                className="bg-primary text-white px-6 py-2 rounded-lg"
               >
-                Crear evento
+                {mode === "create" ? "Crear evento" : "Guardar cambios"}
               </button>
             </div>
+
           </div>
         </div>
       )}
