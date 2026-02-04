@@ -1,7 +1,33 @@
 @import "tailwindcss";
 
 @theme {
-   --font-sans: "Jost", sans-serif;
+  --font-sans: "Jost", sans-serif;
   --color-primary: #1A3263;
   --color-secondary: #CB942F;
+}
+
+/* FullCalendar: permitir salto solo en el título */
+.fc-event-time {
+  white-space: nowrap !important;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.fc-event-title {
+  white-space: normal !important;
+  display: inline;
+}
+
+.fc-event {
+  align-items: flex-start;
+}
+
+/* Quitar el punto (dot) de los eventos en FullCalendar */
+.fc-daygrid-event-dot {
+  display: none;
+}
+
+/* Agregar guion entre hora y título */
+.fc-event-time::after {
+  content: " - ";
 }
