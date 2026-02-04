@@ -7,6 +7,7 @@ import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import Select from "react-select";
 import Swal from "sweetalert2";
+import { HiOutlinePlus } from "react-icons/hi";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -202,12 +203,12 @@ const Calendar = () => {
             Agenda y seguimiento de actividades del despacho
           </p>
         </div>
-
         <button
           onClick={openCreateModal}
-          className="bg-primary text-white px-5 py-3 rounded-xl text-sm font-semibold hover:bg-primary/90 transition"
+          className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
         >
-          + Crear evento
+          <HiOutlinePlus />
+          Crear evento
         </button>
       </div>
 

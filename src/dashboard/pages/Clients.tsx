@@ -263,7 +263,7 @@ const Clients = () => {
                 <td className="px-6 py-4">
                   <span
                     className={`
-                    inline-block px-3 py-1 rounded-full text-xs font-semibold
+                    inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
                     ${c.type === "fisica"
                         ? "bg-secondary/20 text-secondary"
                         : "bg-primary/20 text-primary"
@@ -283,13 +283,13 @@ const Clients = () => {
                     onClick={() => openEdit(c)}
                     className="text-primary hover:text-secondary"
                   >
-                    <HiOutlinePencil size={18} />
+                    <HiOutlinePencil size={22} />
                   </button>
                   <button
                     onClick={() => deleteClient(c.id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    <HiOutlineTrash size={18} />
+                    <HiOutlineTrash size={22} />
                   </button>
                 </td>
               </tr>

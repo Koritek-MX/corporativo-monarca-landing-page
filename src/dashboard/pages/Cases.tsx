@@ -42,7 +42,7 @@ const MOCK_CASES = [
     status: "en proceso",
     startDate: "2024-02-05",
   },
-   {
+  {
     id: "C-2045",
     title: "Contrato mercantil",
     client: "Empresa XYZ",
@@ -51,7 +51,7 @@ const MOCK_CASES = [
     status: "resuelto",
     startDate: "2024-02-05",
   },
-   {
+  {
     id: "C-2045",
     title: "Contrato mercantil",
     client: "Empresa XYZ",
@@ -76,18 +76,11 @@ const Cases = () => {
             Gestión de expedientes y casos legales
           </p>
         </div>
-
         <button
           onClick={() => setIsModalOpen(true)}
-          className="
-            inline-flex items-center gap-2
-            bg-primary text-white
-            px-5 py-3 rounded-xl
-            text-sm font-semibold
-            hover:bg-primary/90 transition
-          "
+          className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
         >
-          <HiOutlinePlus size={20} />
+          <HiOutlinePlus />
           Nuevo asunto
         </button>
       </div>
@@ -142,7 +135,7 @@ const Cases = () => {
                     className={`
                     inline-flex items-center
                     px-3 py-1 rounded-full
-                    text-xs font-semibold capitalize
+                    text-xs font-semibold capitalize uppercase
                     ${STATUS_STYLES[a.status]?.bg}
                     ${STATUS_STYLES[a.status]?.text}
                   `}
@@ -154,10 +147,10 @@ const Cases = () => {
                 <td className="px-6 py-4 text-right">
                   <div className="inline-flex gap-2">
                     <button className="text-primary hover:text-secondary">
-                      <HiOutlinePencil size={18} />
+                      <HiOutlinePencil size={22} />
                     </button>
                     <button className="text-red-500 hover:text-red-600">
-                      <HiOutlineTrash size={18} />
+                      <HiOutlineTrash size={22} />
                     </button>
                   </div>
                 </td>
