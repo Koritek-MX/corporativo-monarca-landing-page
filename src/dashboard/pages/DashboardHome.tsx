@@ -3,6 +3,7 @@ import {
   HiOutlineBriefcase,
   HiOutlineCash,
   HiOutlineCalendar,
+  HiOutlinePlus
 } from "react-icons/hi";
 
 const stats = [
@@ -50,7 +51,6 @@ const DashboardHome = () => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat) => {
           const Icon = stat.icon;
-
           return (
             <div
               key={stat.label}
@@ -63,11 +63,9 @@ const DashboardHome = () => {
                   <Icon size={24} />
                 </div>
               </div>
-
               <p className="text-sm text-gray-500">
                 {stat.label}
               </p>
-
               <p className="text-2xl font-bold text-primary mt-1">
                 {stat.value}
               </p>
@@ -81,42 +79,58 @@ const DashboardHome = () => {
         <h2 className="text-lg font-semibold text-primary mb-4">
           Accesos rápidos
         </h2>
-
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left">
-            <p className="font-semibold text-primary">
-              Nuevo cliente
-            </p>
-            <p className="text-sm text-gray-500">
-              Registrar cliente
-            </p>
+          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-primary">
+                Nuevo cliente
+              </p>
+              <p className="text-sm text-gray-500">
+                Registrar cliente
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
+              <HiOutlinePlus size={20} />
+            </div>
           </button>
-
-          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left">
-            <p className="font-semibold text-primary">
-              Agendar cita
-            </p>
-            <p className="text-sm text-gray-500">
-              Calendario
-            </p>
+          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-primary">
+                Agendar cita
+              </p>
+              <p className="text-sm text-gray-500">
+                Calendario
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
+              <HiOutlinePlus size={20} />
+            </div>
           </button>
-
-          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left">
-            <p className="font-semibold text-primary">
-              Nuevo asunto
-            </p>
-            <p className="text-sm text-gray-500">
-              Abrir expediente
-            </p>
+          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-primary">
+                Nuevo asunto
+              </p>
+              <p className="text-sm text-gray-500">
+                Abrir expediente
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
+              <HiOutlinePlus size={20} />
+            </div>
           </button>
-
-          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left">
-            <p className="font-semibold text-primary">
-              Registrar pago
-            </p>
-            <p className="text-sm text-gray-500">
-              Cobros
-            </p>
+          <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-primary">
+                Registar pago
+              </p>
+              <p className="text-sm text-gray-500">
+                Cobros
+              </p>
+            </div>
+            <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
+              <HiOutlinePlus size={20} />
+            </div>
           </button>
         </div>
       </div>
