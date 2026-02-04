@@ -97,14 +97,14 @@ const BlogAdmin = () => {
           </thead>
 
           <tbody>
-            {posts.map((post, i) => (
-              <tr
+            {posts.map((post, index) => (
+             <tr
                 key={post.id}
                 className={`
-                  border-t
-                  ${i % 2 === 0 ? "bg-white" : "bg-gray-50"}
-                  hover:bg-primary/5
-                `}
+                border-t transition
+                ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
+                hover:bg-primary/5
+              `}
               >
                 <td className="px-6 py-4 font-semibold text-primary">
                   {post.title}
