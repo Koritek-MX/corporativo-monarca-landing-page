@@ -32,13 +32,13 @@ const STATS = [
   },
   {
     label: "Ingresos del mes",
-    value: "$125,400",
+    value: "$125,400 MXN",
     icon: HiOutlineCash,
     color: "bg-green-100 text-green-700",
   },
   {
     label: "Pagos pendientes",
-    value: "$32,800",
+    value: "$32,800 MXN",
     icon: HiOutlineClock,
     color: "bg-red-100 text-red-700",
   },
@@ -170,7 +170,7 @@ const Stats = () => {
       {/* Insights */}
       <div className="bg-primary/5 rounded-2xl p-6">
         <p className="text-sm text-primary font-medium">
-          📌 Insight:
+          📌 Obvservaciones:
         </p>
         <p className="text-gray-700 mt-1">
           Los ingresos han crecido un <b>18%</b> respecto al mes anterior y

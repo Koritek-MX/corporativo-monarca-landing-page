@@ -7,6 +7,7 @@ import Login from "./dashboard/auth/Auth.tsx";
 // Dashboard
 import DashboardLayout from "./dashboard/layout/DashboardLayout.tsx";
 import DashboardHome from "./dashboard/pages/DashboardHome.tsx";
+import BlogAdmin from "./dashboard/pages/BlogAdmin.tsx";
 
 // Guard
 import ProtectedRoute from "./guards/ProtectedRoute.tsx";
@@ -41,6 +42,7 @@ export default function App() {
           <Route path="/dashboard/asuntos" element={<Cases />} />
           <Route path="/dashboard/cobros" element={<Billing />} />
           <Route path="/dashboard/estadisticas" element={<Stats />} />
+          <Route path="/dashboard/blog" element={<BlogAdmin />} />
         </Route>
       </Route>
 

@@ -8,6 +8,7 @@ import {
   HiOutlineChartBar,
   HiOutlineX,
   HiOutlineLogout,
+  HiOutlineNewspaper
 } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.webp";
 import Swal from "sweetalert2";
@@ -24,6 +25,7 @@ const links = [
   { to: "/dashboard/asuntos", label: "Asuntos", icon: HiOutlineBriefcase },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
   { to: "/dashboard/estadisticas", label: "Estadísticas", icon: HiOutlineChartBar },
+  { to: "/dashboard/blog", label: "Blog", icon: HiOutlineNewspaper },
 ];
 
 const Sidebar = ({ open, onClose }: Props) => {
