@@ -3,7 +3,8 @@ import {
   HiOutlineBriefcase,
   HiOutlineCash,
   HiOutlineCalendar,
-  HiOutlinePlus
+  HiOutlinePlus,
+  HiOutlineClock
 } from "react-icons/hi";
 
 const stats = [
@@ -31,6 +32,34 @@ const stats = [
     icon: HiOutlineCalendar,
     color: "bg-green-50 text-green-600",
   },
+];
+
+const pendingEvents = [
+  {
+    title: "Audiencia laboral",
+    time: "10:30 AM",
+    client: "Juan Pérez",
+  },
+  {
+    title: "Cita con cliente",
+    time: "1:00 PM",
+    client: "María González",
+  },
+  {
+    title: "Revisión de expediente",
+    time: "4:00 PM",
+    client: "Corporativo ABC",
+  },
+  {
+    title: "Reunión con DIF",
+    time: "5:00 PM",
+    client: "DIF La Piedad",
+  },
+  {
+    title: "Reunión con el alcalde",
+    time: "6:00 PM",
+    client: "Ayuntamiento de La Piedad",
+  }  
 ];
 
 const DashboardHome = () => {
@@ -132,6 +161,40 @@ const DashboardHome = () => {
               <HiOutlinePlus size={20} />
             </div>
           </button>
+        </div>
+      </div>
+
+      {/* Calendar / Pending */}
+      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold text-primary">
+            Pendientes de hoy
+          </h2>
+
+          <HiOutlineCalendar className="text-primary" size={22} />
+        </div>
+
+        <div className="space-y-4">
+          {pendingEvents.map((event, index) => (
+            <div
+              key={index}
+              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+            >
+              <div>
+                <p className="font-semibold text-primary">
+                  {event.title}
+                </p>
+                <p className="text-sm text-gray-500">
+                  {event.client}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <HiOutlineClock />
+                {event.time}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
