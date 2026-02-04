@@ -66,16 +66,16 @@ const Billing = () => {
   const totalWithIva = form.total + ivaAmount;
 
   const openPaymentModal = (billing: any) => {
-  setSelectedBilling(billing);
-  setPaymentForm({
-    amount: "",
-    description: "",
-    date: new Date().toISOString().slice(0, 16),
-    status: billing.status,
-    file: null,
-  });
-  setPaymentModalOpen(true);
-};
+    setSelectedBilling(billing);
+    setPaymentForm({
+      amount: "",
+      description: "",
+      date: new Date().toISOString().slice(0, 16),
+      status: billing.status,
+      file: null,
+    });
+    setPaymentModalOpen(true);
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -124,7 +124,7 @@ const Billing = () => {
                   key={c.id}
                   className={`
                     border-t transition
-                    ${index % 2 === 0 ? "bg-white" : "bg-gray-100"}
+                    ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                     hover:bg-primary/5
                   `}
                 >
@@ -154,17 +154,23 @@ const Billing = () => {
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="inline-flex gap-2">
-                      <button
-                        className="text-green-600 hover:text-green-700"
-                        onClick={() => openPaymentModal(c)}
-                      >
-                        <MdAttachMoney size={25}/>
-                      </button>
+                      <div className="relative group inline-block">
+                        <button
+                          className="text-green-600 hover:text-green-700"
+                          onClick={() => openPaymentModal(c)}
+                        >
+                          <MdAttachMoney size={25} />
+                        </button>
+
+                        <span className="tooltip">
+                          Registrar pago
+                        </span>
+                      </div>
                       <button className="text-primary hover:text-secondary">
-                        <HiOutlinePencil size={22}/>
+                        <HiOutlinePencil size={22} />
                       </button>
                       <button className="text-red-500 hover:text-red-600">
-                        <HiOutlineTrash size={22}/>
+                        <HiOutlineTrash size={22} />
                       </button>
                     </div>
                   </td>
@@ -375,121 +381,121 @@ const Billing = () => {
       )}
 
       {paymentModalOpen && selectedBilling && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-    <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
 
-      {/* Header */}
-      <div className="px-6 py-4 border-b">
-        <h2 className="text-lg font-bold text-primary">
-          Registrar pago
-        </h2>
-        <p className="text-sm text-gray-500">
-          Factura {selectedBilling.id}
-        </p>
-      </div>
+            {/* Header */}
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-bold text-primary">
+                Registrar pago
+              </h2>
+              <p className="text-sm text-gray-500">
+                Factura {selectedBilling.id}
+              </p>
+            </div>
 
-      {/* Body */}
-      <div className="px-6 py-6 space-y-5">
+            {/* Body */}
+            <div className="px-6 py-6 space-y-5">
 
-        {/* Resumen */}
-        <div className="grid grid-cols-3 gap-4 text-center">
-          <div className="bg-gray-50 rounded-lg p-3">
-            <p className="text-xs text-gray-500">Total</p>
-            <p className="font-bold text-primary">
-              ${selectedBilling.total.toLocaleString()}
-            </p>
-          </div>
+              {/* Resumen */}
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div className="bg-gray-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">Total</p>
+                  <p className="font-bold text-primary">
+                    ${selectedBilling.total.toLocaleString()}
+                  </p>
+                </div>
 
-          <div className="bg-green-50 rounded-lg p-3">
-            <p className="text-xs text-gray-500">Pagado</p>
-            <p className="font-bold text-green-700">
-              ${selectedBilling.paid.toLocaleString()}
-            </p>
-          </div>
+                <div className="bg-green-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">Pagado</p>
+                  <p className="font-bold text-green-700">
+                    ${selectedBilling.paid.toLocaleString()}
+                  </p>
+                </div>
 
-          <div className="bg-red-50 rounded-lg p-3">
-            <p className="text-xs text-gray-500">Pendiente</p>
-            <p className="font-bold text-red-600">
-              ${(selectedBilling.total - selectedBilling.paid).toLocaleString()}
-            </p>
-          </div>
-        </div>
+                <div className="bg-red-50 rounded-lg p-3">
+                  <p className="text-xs text-gray-500">Pendiente</p>
+                  <p className="font-bold text-red-600">
+                    ${(selectedBilling.total - selectedBilling.paid).toLocaleString()}
+                  </p>
+                </div>
+              </div>
 
-        {/* Monto */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Monto a abonar
-          </label>
-          <input
-            type="number"
-            value={paymentForm.amount}
-            onChange={(e) =>
-              setPaymentForm({ ...paymentForm, amount: e.target.value })
-            }
-            className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-            placeholder="$0.00"
-          />
-        </div>
+              {/* Monto */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Monto a abonar
+                </label>
+                <input
+                  type="number"
+                  value={paymentForm.amount}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, amount: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                  placeholder="$0.00"
+                />
+              </div>
 
-        {/* Fecha */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Fecha y hora
-          </label>
-          <input
-            type="datetime-local"
-            value={paymentForm.date}
-            onChange={(e) =>
-              setPaymentForm({ ...paymentForm, date: e.target.value })
-            }
-            className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-          />
-        </div>
+              {/* Fecha */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Fecha y hora
+                </label>
+                <input
+                  type="datetime-local"
+                  value={paymentForm.date}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, date: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                />
+              </div>
 
-        {/* Descripción */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Descripción
-          </label>
-          <textarea
-            rows={3}
-            value={paymentForm.description}
-            onChange={(e) =>
-              setPaymentForm({ ...paymentForm, description: e.target.value })
-            }
-            className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-            placeholder="Ej. Pago parcial de honorarios"
-          />
-        </div>
+              {/* Descripción */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Descripción
+                </label>
+                <textarea
+                  rows={3}
+                  value={paymentForm.description}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, description: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                  placeholder="Ej. Pago parcial de honorarios"
+                />
+              </div>
 
-        {/* Estado */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Estado del comprobante
-          </label>
-          <select
-            value={paymentForm.status}
-            onChange={(e) =>
-              setPaymentForm({ ...paymentForm, status: e.target.value })
-            }
-            className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-          >
-            <option value="pendiente">Pendiente</option>
-            <option value="pagado">Pagado</option>
-            <option value="vencido">Vencido</option>
-            <option value="cancelado">Cancelado</option>
-          </select>
-        </div>
+              {/* Estado */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Estado del comprobante
+                </label>
+                <select
+                  value={paymentForm.status}
+                  onChange={(e) =>
+                    setPaymentForm({ ...paymentForm, status: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                >
+                  <option value="pendiente">Pendiente</option>
+                  <option value="pagado">Pagado</option>
+                  <option value="vencido">Vencido</option>
+                  <option value="cancelado">Cancelado</option>
+                </select>
+              </div>
 
-        {/* Archivo */}
-        <div>
-          <label className="block text-sm font-medium mb-1">
-            Comprobante (PDF / XML)
-          </label>
+              {/* Archivo */}
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Comprobante (PDF / XML)
+                </label>
 
-          <label
-            htmlFor="paymentFile"
-            className="
+                <label
+                  htmlFor="paymentFile"
+                  className="
               inline-flex items-center justify-center
               w-full px-4 py-3
               border border-gray-300 rounded-lg
@@ -499,49 +505,49 @@ const Billing = () => {
               hover:bg-primary/10
               transition
             "
-          >
-            Adjuntar comprobante
-          </label>
+                >
+                  Adjuntar comprobante
+                </label>
 
-          <input
-            id="paymentFile"
-            type="file"
-            accept=".pdf,.xml"
-            className="hidden"
-            onChange={(e) =>
-              setPaymentForm({
-                ...paymentForm,
-                file: e.target.files?.[0] || null,
-              })
-            }
-          />
+                <input
+                  id="paymentFile"
+                  type="file"
+                  accept=".pdf,.xml"
+                  className="hidden"
+                  onChange={(e) =>
+                    setPaymentForm({
+                      ...paymentForm,
+                      file: e.target.files?.[0] || null,
+                    })
+                  }
+                />
 
-          {paymentForm.file && (
-            <p className="text-xs text-gray-500 mt-1">
-              Archivo: {paymentForm.file.name}
-            </p>
-          )}
+                {paymentForm.file && (
+                  <p className="text-xs text-gray-500 mt-1">
+                    Archivo: {paymentForm.file.name}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t">
+              <button
+                onClick={() => setPaymentModalOpen(false)}
+                className="px-4 py-2 text-gray-600 hover:text-gray-800"
+              >
+                Cancelar
+              </button>
+
+              <button
+                className="px-6 py-2 rounded-lg font-semibold bg-primary text-white hover:bg-primary/90 transition"
+              >
+                Registrar pago
+              </button>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Footer */}
-      <div className="flex justify-end gap-3 px-6 py-4 border-t">
-        <button
-          onClick={() => setPaymentModalOpen(false)}
-          className="px-4 py-2 text-gray-600 hover:text-gray-800"
-        >
-          Cancelar
-        </button>
-
-        <button
-          className="px-6 py-2 rounded-lg font-semibold bg-primary text-white hover:bg-primary/90 transition"
-        >
-          Registrar pago
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+      )}
     </div>
   );
 };
