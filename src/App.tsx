@@ -13,6 +13,11 @@ import ProtectedRoute from "./guards/ProtectedRoute.tsx";
 
 import NotFound from "./dashboard/pages/NotFound.tsx";
 import Register from "./dashboard/auth/Register.tsx";
+import Clients from "./dashboard/pages/Clients.tsx";
+import Calendar from "./dashboard/pages/Calendar.tsx";
+import Cases from "./dashboard/pages/Cases.tsx";
+import Billing from "./dashboard/pages/Billing.tsx";
+import Stats from "./dashboard/pages/Stats.tsx";
 
 export default function App() {
   return (
@@ -31,6 +36,11 @@ export default function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/dashboard/clientes" element={<Clients />} />
+          <Route path="/dashboard/calendario" element={<Calendar />} />
+          <Route path="/dashboard/asuntos" element={<Cases />} />
+          <Route path="/dashboard/cobros" element={<Billing />} />
+          <Route path="/dashboard/estadisticas" element={<Stats />} />
         </Route>
       </Route>
 
