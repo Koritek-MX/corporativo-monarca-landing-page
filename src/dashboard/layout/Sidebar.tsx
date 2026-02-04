@@ -10,6 +10,7 @@ import {
   HiOutlineLogout,
 } from "react-icons/hi";
 import logo from "../../assets/images/monarca-gold.webp";
+import Swal from "sweetalert2";
 
 interface Props {
   open: boolean;
@@ -18,18 +19,36 @@ interface Props {
 
 const links = [
   { to: "/dashboard", label: "Inicio", icon: HiOutlineHome },
-  { to: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUserGroup },
   { to: "/dashboard/calendario", label: "Calendario", icon: HiOutlineCalendar },
+  { to: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUserGroup },
   { to: "/dashboard/asuntos", label: "Asuntos", icon: HiOutlineBriefcase },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
   { to: "/dashboard/estadisticas", label: "Estadísticas", icon: HiOutlineChartBar },
 ];
 
 const Sidebar = ({ open, onClose }: Props) => {
+
   const handleLogout = () => {
     console.log("Cerrar sesión");
     // aquí irá la lógica real de logout
+
+    Swal.fire({
+      title: "¿Seguro que deseas cerrar sesión?",
+      showCancelButton: true,
+      confirmButtonText: "Cerrar sesión",
+      cancelButtonText: "Cancelar",
+      cancelButtonColor: "#CB942F",
+      confirmButtonColor: "#1A3263"
+    }).then((result) => {
+      if (result.isConfirmed) {
+        Swal.fire("Saved!", "", "success");
+      } else if (result.isDismissed) {
+        Swal.fire("Changes are not saved", "", "info");
+      }
+    });
   };
+
+
 
   return (
     <>
@@ -73,6 +92,7 @@ const Sidebar = ({ open, onClose }: Props) => {
             <NavLink
               key={to}
               to={to}
+              end={to === "/dashboard"}
               onClick={onClose}
               className={({ isActive }) =>
                 `
