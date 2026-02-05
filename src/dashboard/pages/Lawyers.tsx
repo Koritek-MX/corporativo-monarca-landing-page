@@ -65,12 +65,14 @@ const Lawyers = () => {
           </thead>
 
           <tbody>
-            {lawyers.map((l, i) => (
+            {lawyers.map((l, index) => (
               <tr
                 key={l.id}
-                className={`border-t ${
-                  i % 2 ? "bg-gray-50" : "bg-white"
-                } hover:bg-primary/5`}
+                className={`
+                border-t transition
+                ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
+                hover:bg-primary/5
+              `}
               >
                 <td className="px-6 py-4 font-semibold text-primary flex items-center gap-2">
                   <HiOutlineUser />
@@ -89,14 +91,14 @@ const Lawyers = () => {
                       title="Editar abogado"
                       className="text-primary hover:text-secondary"
                     >
-                      <HiOutlinePencil size={18} />
+                      <HiOutlinePencil size={22} />
                     </button>
 
                     <button
                       title="Eliminar abogado"
                       className="text-red-500 hover:text-red-600"
                     >
-                      <HiOutlineTrash size={18} />
+                      <HiOutlineTrash size={22} />
                     </button>
                   </div>
                 </td>

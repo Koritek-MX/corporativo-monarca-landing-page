@@ -136,11 +136,11 @@ const BlogAdmin = () => {
                 <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-3">
                     <button className="text-primary hover:text-secondary">
-                      <HiOutlinePencil size={18} />
+                      <HiOutlinePencil size={22} />
                     </button>
 
                     <button className="text-red-500 hover:text-red-600">
-                      <HiOutlineTrash size={18} />
+                      <HiOutlineTrash size={22} />
                     </button>
                   </div>
                 </td>

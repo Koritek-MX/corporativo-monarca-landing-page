@@ -125,14 +125,14 @@ const Contacts = () => {
                                             onClick={() => setSelected(c)}
                                             className="text-primary hover:text-secondary"
                                         >
-                                            <HiOutlineEye size={18} />
+                                            <HiOutlineEye size={22} />
                                         </button>
 
                                         <button
                                             onClick={() => deleteContact(c.id)}
                                             className="text-red-500 hover:text-red-600"
                                         >
-                                            <HiOutlineTrash size={18} />
+                                            <HiOutlineTrash size={22} />
                                         </button>
 
                                     </div>
