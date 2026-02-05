@@ -20,6 +20,7 @@ import Cases from "./dashboard/pages/Cases.tsx";
 import Billing from "./dashboard/pages/Billing.tsx";
 import Stats from "./dashboard/pages/Stats.tsx";
 import Contacts from "./dashboard/pages/Contacts.tsx";
+import Lawyers from "./dashboard/pages/Lawyers.tsx";
 
 export default function App() {
   return (
@@ -45,6 +46,7 @@ export default function App() {
           <Route path="/dashboard/estadisticas" element={<Stats />} />
           <Route path="/dashboard/blog" element={<BlogAdmin />} />
           <Route path="/dashboard/contactos" element={<Contacts />} />
+          <Route path="/dashboard/abogados" element={<Lawyers />} />
         </Route>
       </Route>
 

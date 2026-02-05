@@ -14,6 +14,8 @@ interface Client {
   email: string;
   rfc: string;
   billingEmail: string;
+  password?: string;
+  confirmPassword?: string;
   address: {
     state: string;
     city: string;
@@ -156,6 +158,8 @@ const Clients = () => {
     email: "",
     rfc: "",
     billingEmail: "",
+    password: "",
+    confirmPassword: "",
     address: {
       state: "",
       city: "",
@@ -366,6 +370,24 @@ const Clients = () => {
                     value={form.email}
                     onChange={(e) =>
                       setForm({ ...form, email: e.target.value })
+                    }
+                    className="border rounded-lg px-4 py-3"
+                  />
+
+                   <input
+                    placeholder="Contraseña"
+                    value={form.password}
+                    onChange={(e) =>
+                      setForm({ ...form, password: e.target.value })
+                    }
+                    className="border rounded-lg px-4 py-3"
+                  />
+
+                  <input
+                    placeholder="Confirmar contraseña"
+                    value={form.confirmPassword}
+                    onChange={(e) =>
+                      setForm({ ...form, confirmPassword: e.target.value })
                     }
                     className="border rounded-lg px-4 py-3"
                   />

@@ -9,8 +9,9 @@ import {
   HiOutlineX,
   HiOutlineLogout,
   HiOutlineNewspaper,
-  HiUsers
+  HiOutlineClipboardList
 } from "react-icons/hi";
+import { VscLaw } from "react-icons/vsc";
 import logo from "../../assets/images/monarca-gold.webp";
 import Swal from "sweetalert2";
 
@@ -25,9 +26,10 @@ const links = [
   { to: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUserGroup },
   { to: "/dashboard/asuntos", label: "Asuntos", icon: HiOutlineBriefcase },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
-  { to: "/dashboard/contactos", label: "Contactos", icon: HiUsers },
+  { to: "/dashboard/contactos", label: "Contactos", icon: HiOutlineClipboardList },
   { to: "/dashboard/blog", label: "Blog", icon: HiOutlineNewspaper },
-  { to: "/dashboard/estadisticas", label: "Estadísticas", icon: HiOutlineChartBar },
+  { to: "/dashboard/abogados", label: "Abogados", icon: VscLaw },
+  { to: "/dashboard/estadisticas", label: "Estadísticas", icon: HiOutlineChartBar }
 ];
 
 const Sidebar = ({ open, onClose }: Props) => {
