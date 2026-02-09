@@ -1,177 +1,75 @@
-import { useState } from "react";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
-import Swal from "sweetalert2";
 import { formatPhone } from "../../components/common/formatPhone";
+import type { Client, ClientType } from "../../types/client.type";
+import { useState, useEffect } from "react";
+import {
+  getClientsService,
+  createClientService,
+  updateClientService,
+  deleteClientService,
+  updatePasswordClientService
+} from "../../services/client.service";
+import Swal from "sweetalert2";
 
-type ClientType = "fisica" | "moral";
-
-interface Client {
-  id: number;
-  type: ClientType;
-  name: string;
-  lastName: string;
-  phone: string;
-  email: string;
-  rfc: string;
-  billingEmail: string;
-  password?: string;
-  confirmPassword?: string;
+const emptyClient: Client = {
+  type: "FISICA",
+  name: "",
+  lastName: "",
+  phone: "",
+  email: "",
+  rfc: "",
+  password: "",
+  confirmPassword: "",
   address: {
-    state: string;
-    city: string;
-    neighborhood: string;
-    postalCode: string;
-    street: string;
-    exterior: string;
-    interior: string;
-  };
-}
-
-const initialClients: Client[] = [
-  {
-    id: 1,
-    type: "fisica",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
+    state: "",
+    city: "",
+    colony: "",
+    postalCode: "",
+    street: "",
+    extNumber: "",
+    intNumber: "",
   },
-  {
-    id: 2,
-    type: "moral",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
-  },
-  {
-    id: 3,
-    type: "fisica",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
-  },
-  {
-    id: 4,
-    type: "moral",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
-  },
-  {
-    id: 5,
-    type: "fisica",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
-  },
-  {
-    id: 6,
-    type: "moral",
-    name: "Juan",
-    lastName: "Pérez López",
-    phone: "3521234567",
-    email: "juan@email.com",
-    rfc: "PELJ900101XXX",
-    billingEmail: "facturas@email.com",
-    address: {
-      state: "Michoacán",
-      city: "La Piedad",
-      neighborhood: "Centro",
-      postalCode: "59300",
-      street: "Juárez",
-      exterior: "123",
-      interior: "",
-    }
-  },
-];
+  id: 0
+};
 
 const Clients = () => {
-  const [clients, setClients] = useState<Client[]>(initialClients);
+
+  const [clients, setClients] = useState<Client[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
-
-  const emptyClient: Client = {
-    id: Date.now(),
-    type: "fisica",
-    name: "",
-    lastName: "",
-    phone: "",
-    email: "",
-    rfc: "",
-    billingEmail: "",
+  const [form, setForm] = useState<Client>(emptyClient);
+  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
     password: "",
     confirmPassword: "",
-    address: {
-      state: "",
-      city: "",
-      neighborhood: "",
-      postalCode: "",
-      street: "",
-      exterior: "",
-      interior: "",
-    },
-  };
+  });
 
-  const [form, setForm] = useState<Client>(emptyClient);
+  useEffect(() => {
+    loadClients();
+  }, []);
+
+
+  const loadClients = async () => {
+    try {
+      Swal.fire({
+        title: "Cargando clientes...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const [data] = await Promise.all([
+        getClientsService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+
+      setClients(data);
+
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+    } finally {
+      Swal.close();
+    }
+  };
 
   const openCreate = () => {
     setForm(emptyClient);
@@ -185,18 +83,58 @@ const Clients = () => {
     setOpen(true);
   };
 
-  const saveClient = () => {
-    if (!form.name || !form.email) return;
-
-    if (editing) {
-      setClients((prev) =>
-        prev.map((c) => (c.id === editing.id ? form : c))
-      );
-    } else {
-      setClients((prev) => [...prev, form]);
+  const createClient = async () => {
+    if (!form.name || !form.email) {
+      Swal.fire("Error", "Nombre y correo son obligatorios", "error");
+      return;
     }
 
-    setOpen(false);
+    try {
+      const payload = {
+        type: form.type.trim().toUpperCase() as ClientType,
+        name: form.name.trim(),
+        lastName: form.lastName.trim(),
+        phone: form.phone.trim(),
+        email: form.email.trim(),
+        rfc: form.rfc.trim(),
+        address: {
+          state: form.address.state.trim(),
+          city: form.address.city.trim(),
+          colony: form.address.colony.trim(),
+          postalCode: form.address.postalCode.trim(),
+          street: form.address.street.trim(),
+          extNumber: form.address.extNumber.trim(),
+          intNumber: form.address.intNumber.trim()
+        }
+      };
+
+      if (editing) {
+        await updateClientService(editing.id, payload);
+
+        Swal.fire({
+          icon: "success",
+          title: "Cliente actualizado",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      } else {
+        await createClientService(payload);
+
+        Swal.fire({
+          icon: "success",
+          title: "Cliente creado",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+      }
+
+      setOpen(false);
+      loadClients(); // recarga desde backend
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo guardar el cliente", "error");
+    }
   };
 
   const deleteClient = (id: number) => {
@@ -208,12 +146,59 @@ const Clients = () => {
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#dc2626",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        setClients((prev) => prev.filter((c) => c.id !== id));
+        try {
+          await deleteClientService(id);
+          // Actualizar lista local
+          setClients((prev) => prev.filter((c) => c.id !== id));
+
+          Swal.fire({
+            icon: "success",
+            title: "Cliente eliminado",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error(error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Error al eliminar",
+            text: "No se pudo eliminar el cliente",
+          });
+        }
       }
     });
   };
+
+  const handleChangePassword = async () => {
+    if (passwordForm.password !== passwordForm.confirmPassword) {
+      Swal.fire("Error", "Las contraseñas no coinciden", "error");
+      return;
+    }
+    try {
+
+      if (editing) {
+        await updatePasswordClientService(editing.id, passwordForm.password);
+        Swal.fire({
+          icon: "success",
+          title: "Contraseña actualizada",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+        setPasswordModalOpen(false);
+      } else {
+        Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
+      }
+
+    } catch (error) {
+      Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
+    }
+  };
+
+  const passwordsMatch =
+    !editing && form.password === form.confirmPassword;
 
   return (
     <div className="space-y-6">
@@ -238,68 +223,70 @@ const Clients = () => {
 
       {/* Tabla */}
       <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-        <table className="w-full text-sm">
-          <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-            <tr>
-              <th className="px-6 py-4 text-left">Cliente</th>
-              <th className="px-6 py-4 text-left">Régimen fiscal</th>
-              <th className="px-6 py-4 text-left">Correo</th>
-              <th className="px-6 py-4 text-left">Teléfono</th>
-              <th className="px-6 py-4 text-left">RFC</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[900px] md:min-w-full text-sm">
+            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+              <tr>
+                <th className="px-6 py-4 text-left">Cliente</th>
+                <th className="px-6 py-4 text-left">Régimen fiscal</th>
+                <th className="px-6 py-4 text-left">Correo</th>
+                <th className="px-6 py-4 text-left">Teléfono</th>
+                <th className="px-6 py-4 text-left">RFC</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {clients.map((c, index) => (
-              <tr
-                key={c.id}
-                className={`
+            <tbody>
+              {clients.map((c, index) => (
+                <tr
+                  key={c.id}
+                  className={`
                 border-t transition
                 ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                 hover:bg-primary/5
               `}
-              >
-                <td className="px-6 py-4 font-medium">
-                  {c.name} {c.lastName}
+                >
+                  <td className="px-6 py-4 font-medium">
+                    {c.name} {c.lastName}
 
-                </td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`
+                  </td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`
                     inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
-                    ${c.type === "fisica"
-                        ? "bg-secondary/20 text-secondary"
-                        : "bg-primary/20 text-primary"
-                      }
+                    ${c.type === "FISICA"
+                          ? "bg-secondary/20 text-secondary"
+                          : "bg-primary/20 text-primary"
+                        }
                   `}
-                  >
-                    {c.type === "fisica" ? "Física" : "Moral"}
-                  </span>
-                </td>
-                <td className="px-6 py-4">{c.email}</td>
-                <td className="px-6 py-4 text-gray-600">
-                  {formatPhone(c.phone)}
-                </td>
-                <td className="px-6 py-4">{c.rfc}</td>
-                <td className="px-6 py-4 text-right space-x-3">
-                  <button
-                    onClick={() => openEdit(c)}
-                    className="text-primary hover:text-secondary"
-                  >
-                    <HiOutlinePencil size={22} />
-                  </button>
-                  <button
-                    onClick={() => deleteClient(c.id)}
-                    className="text-red-500 hover:text-red-700"
-                  >
-                    <HiOutlineTrash size={22} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                    >
+                      {c.type === "FISICA" ? "Física" : "Moral"}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4">{c.email}</td>
+                  <td className="px-6 py-4 text-gray-600">
+                    {formatPhone(c.phone)}
+                  </td>
+                  <td className="px-6 py-4">{c.rfc}</td>
+                  <td className="px-6 py-4 text-right space-x-3">
+                    <button
+                      onClick={() => openEdit(c)}
+                      className="text-primary hover:text-secondary"
+                    >
+                      <HiOutlinePencil size={22} />
+                    </button>
+                    <button
+                      onClick={() => deleteClient(c.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <HiOutlineTrash size={22} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       {/* MODAL */}
@@ -329,8 +316,8 @@ const Clients = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   >
-                    <option value="fisica">Persona Física</option>
-                    <option value="moral">Persona Moral</option>
+                    <option value="FISICA">Persona Física</option>
+                    <option value="MORAL">Persona Moral</option>
                   </select>
 
                   <input
@@ -374,24 +361,46 @@ const Clients = () => {
                     className="border rounded-lg px-4 py-3"
                   />
 
-                   <input
-                    placeholder="Contraseña"
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm({ ...form, password: e.target.value })
-                    }
-                    className="border rounded-lg px-4 py-3"
-                  />
 
-                  <input
-                    placeholder="Confirmar contraseña"
-                    value={form.confirmPassword}
-                    onChange={(e) =>
-                      setForm({ ...form, confirmPassword: e.target.value })
-                    }
-                    className="border rounded-lg px-4 py-3"
-                  />
+                  {/* SOLO cuando se crea cliente */}
+                  {!editing && (
+                    <>
+                      <input
+                        placeholder="Contraseña"
+                        value={form.password || ""}
+                        onChange={(e) =>
+                          setForm({ ...form, password: e.target.value })
+                        }
+                        className="border rounded-lg px-4 py-3"
+                      />
+
+                      <input
+                        placeholder="Confirmar contraseña"
+                        value={form.confirmPassword || ""}
+                        onChange={(e) =>
+                          setForm({ ...form, confirmPassword: e.target.value })
+                        }
+                        className="border rounded-lg px-4 py-3"
+                      />
+                    </>
+                  )}
                 </div>
+
+
+                {editing && (
+                  <h3 className="text-sm font-semibold
+                    text-primary hover:text-secondary
+                      underline transition mt-4"
+                    onClick={() => setPasswordModalOpen(true)}>
+                    Cambiar contraseña
+                  </h3>
+                )}
+
+                {!editing && form.confirmPassword && !passwordsMatch && (
+                  <p className="text-red-500 text-sm mt-1">
+                    Las contraseñas no coinciden
+                  </p>
+                )}
               </section>
 
               {/* Dirección */}
@@ -399,27 +408,84 @@ const Clients = () => {
                 <h3 className="font-semibold mb-4">Dirección</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <input placeholder="Estado" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="Municipio" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="Colonia" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="Código Postal" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="Calle" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="No. Exterior" className="border px-4 py-3 rounded-lg" />
-                  <input placeholder="No. Interior" className="border px-4 py-3 rounded-lg" />
+                  <input
+                    placeholder="Estado"
+                    value={form.address.state}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, state: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="Municipio"
+                    value={form.address.city}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, city: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="Colonia"
+                    value={form.address.colony}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, colony: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="Código Postal"
+                    value={form.address.postalCode}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, postalCode: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="Calle"
+                    value={form.address.street}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, street: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="No. Exterior"
+                    value={form.address.extNumber}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, extNumber: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
+                  <input
+                    placeholder="No. Interior"
+                    value={form.address.intNumber}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        address: { ...form.address, intNumber: e.target.value },
+                      })
+                    }
+                    className="border px-4 py-3 rounded-lg"
+                  />
                 </div>
-              </section>
-
-              {/* Cobranza */}
-              <section>
-                <h3 className="font-semibold mb-4">Cobranza</h3>
-                <input
-                  placeholder="Correo para facturación y abonos"
-                  value={form.billingEmail}
-                  onChange={(e) =>
-                    setForm({ ...form, billingEmail: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-4 py-3"
-                />
               </section>
             </div>
 
@@ -432,9 +498,14 @@ const Clients = () => {
                 Cancelar
               </button>
               <button
-                onClick={saveClient}
-                className="bg-primary text-white px-6 py-2 rounded-lg font-semibold"
-              >
+                onClick={createClient}
+                disabled={!passwordsMatch}
+                className={`px-6 py-2 rounded-lg font-semibold transition
+                    ${passwordsMatch
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
+                      `}>
                 Guardar
               </button>
             </div>
@@ -442,7 +513,68 @@ const Clients = () => {
           </div>
         </div>
       )}
+
+      {passwordModalOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+
+            {/* Header */}
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-bold text-primary">
+                Cambiar contraseña
+              </h2>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6 space-y-4">
+
+              <input
+                type="password"
+                placeholder="Nueva contraseña"
+                value={passwordForm.password}
+                onChange={(e) =>
+                  setPasswordForm({ ...passwordForm, password: e.target.value })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              />
+
+              <input
+                type="password"
+                placeholder="Confirmar contraseña"
+                value={passwordForm.confirmPassword}
+                onChange={(e) =>
+                  setPasswordForm({
+                    ...passwordForm,
+                    confirmPassword: e.target.value,
+                  })
+                }
+                className="w-full border rounded-lg px-4 py-3"
+              />
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                onClick={() => setPasswordModalOpen(false)}
+                className="px-4 py-2 text-gray-600"
+              >
+                Cancelar
+              </button>
+
+              <button
+                onClick={handleChangePassword}
+                className="bg-primary text-white px-6 py-2 rounded-lg font-semibold"
+              >
+                Guardar contraseña
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
+
+
   );
 };
 

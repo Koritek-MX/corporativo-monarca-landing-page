@@ -67,7 +67,7 @@ const Topbar = ({ onMenuClick }: Props) => {
           onClick={() => setProfileOpen(!profileOpen)}
           className="flex items-center gap-3"
         >
-          <div className="text-right hidden sm:block">
+          <div className="text-right">
             <p className="text-sm font-semibold text-primary">
               {userName}
             </p>
