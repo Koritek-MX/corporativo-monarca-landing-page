@@ -48,6 +48,7 @@ const Clients = () => {
     loadClients();
   }, []);
 
+  const passwordsMatch = editing || form.password === form.confirmPassword;
 
   const loadClients = async () => {
     try {
@@ -197,8 +198,6 @@ const Clients = () => {
     }
   };
 
-  const passwordsMatch =
-    !editing && form.password === form.confirmPassword;
 
   return (
     <div className="space-y-6">
