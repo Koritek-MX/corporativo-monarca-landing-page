@@ -1,13 +1,19 @@
-import { useState } from "react";
-import FullCalendar from "@fullcalendar/react";
-import type { EventApi } from "@fullcalendar/core";
-import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
-import Select from "react-select";
-import Swal from "sweetalert2";
+import type { EventApi } from "@fullcalendar/core";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import dayGridPlugin from "@fullcalendar/daygrid";
 import { HiOutlinePlus } from "react-icons/hi";
+import FullCalendar from "@fullcalendar/react";
+import Select from "react-select";
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import {
+  createEventService,
+  updateEventService,
+  getEventService,
+  deleteEventService
+} from "../../services/event.service";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -16,16 +22,6 @@ const CATEGORY_COLORS: Record<string, string> = {
   vencimiento: "#B153D7",
   revision: "#FF6500",
 };
-
-/* 📅 Eventos iniciales */
-const initialEvents = [
-  {
-    title: "10:30 AM - Audiencia laboral",
-    start: new Date().toISOString().split("T")[0] + "T10:30:00",
-    end: new Date().toISOString().split("T")[0] + "T11:30:00",
-    extendedProps: { category: "audiencia", guests: [], caseId: "" },
-  },
-];
 
 /* ⚖️ Asuntos */
 const CASES = [
@@ -44,10 +40,46 @@ const LAWYERS = [
 ];
 
 const Calendar = () => {
-  const [events, setEvents] = useState<any[]>(initialEvents);
+  const [events, setEvents] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
+
+  useEffect(() => {
+    loadEvents();
+  }, []);
+
+  const loadEvents = async () => {
+    try {
+      Swal.fire({
+        title: "Cargando eventos...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const [data] = await Promise.all([
+        getEventService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+
+      const formatted = data.map((e: any) => ({
+        id: e.id,
+        title: e.title,
+        start: e.start,
+        end: e.end,
+        extendedProps: {
+          category: e.category,
+        },
+      }));
+
+      setEvents(formatted);
+
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+    } finally {
+      Swal.close();
+    }
+  };
 
   const [form, setForm] = useState({
     title: "",
@@ -111,71 +143,70 @@ const Calendar = () => {
   };
 
   /* ➕ Crear evento */
-  const handleCreateEvent = () => {
-    if (!form.title || !form.start || !form.end) return;
+  const handleCreateEvent = async () => {
+    if (!form.title || !form.start) return;
 
-    const startDate = new Date(form.start);
-    let h = startDate.getHours();
-    const m = startDate.getMinutes().toString().padStart(2, "0");
-    const p = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
-
-    setEvents((prev) => [
-      ...prev,
-      {
-        title: `${h}:${m} ${p} - ${form.title}`,
+    try {
+      await createEventService({
+        title: form.title,
         start: form.start,
         end: form.end,
-        extendedProps: {
-          category: form.category,
-          guests: form.guests.map((g) => g.value),
-          caseId: form.caseId,
-        },
-      },
-    ]);
+        category: form.category,
+        caseId: 1, // 👈 temporal hasta servicio de casos
+        userId: 1 // 👈 temporal hasta login
+      });
 
-    setIsModalOpen(false);
+      await loadEvents(); // refresca calendario
+      setIsModalOpen(false);
 
-    Swal.fire({
-      icon: "success",
-      title: "Evento creado con éxito",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+      Swal.fire({
+        icon: "success",
+        title: "Evento creado",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /* ✏️ Editar evento */
-  const handleUpdateEvent = () => {
+  const handleUpdateEvent = async () => {
     if (!activeEvent) return;
 
-    const startDate = new Date(form.start);
-    let h = startDate.getHours();
-    const m = startDate.getMinutes().toString().padStart(2, "0");
-    const p = h >= 12 ? "PM" : "AM";
-    h = h % 12 || 12;
+    try {
+      await updateEventService(Number(activeEvent.id), {
+        title: form.title,
+        start: form.start,
+        end: form.end,
+        category: form.category,
+        caseId: form.caseId || null,
+        guests: form.guests.map((g) => g.value),
+      });
 
-    activeEvent.setProp("title", `${h}:${m} ${p} - ${form.title}`);
-    activeEvent.setStart(form.start);
-    activeEvent.setEnd(form.end);
-    activeEvent.setExtendedProp("category", form.category);
-    activeEvent.setExtendedProp(
-      "guests",
-      form.guests.map((g) => g.value)
-    );
-    activeEvent.setExtendedProp("caseId", form.caseId);
+      // 🔥 Refrescar calendario desde backend
+      await loadEvents();
 
-    setIsModalOpen(false);
+      setIsModalOpen(false);
 
-    Swal.fire({
-      icon: "success",
-      title: "Evento actualizado",
-      timer: 1500,
-      showConfirmButton: false,
-    });
+      Swal.fire({
+        icon: "success",
+        title: "Evento actualizado",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo actualizar", "error");
+    }
   };
 
   /* 🗑️ Eliminar evento */
   const handleDeleteEvent = () => {
+    if (!activeEvent) return;
+
     Swal.fire({
       title: "¿Eliminar evento?",
       text: "Esta acción no se puede deshacer",
@@ -183,11 +214,26 @@ const Calendar = () => {
       showCancelButton: true,
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
-    }).then((result) => {
+    }).then(async (result) => {
       if (result.isConfirmed) {
-        activeEvent?.remove();
-        setIsModalOpen(false);
-        Swal.fire("Eliminado", "El evento fue eliminado", "success");
+        try {
+          await deleteEventService(Number(activeEvent.id));
+
+          await loadEvents();
+
+          setIsModalOpen(false);
+
+          Swal.fire({
+            icon: "success",
+            title: "Evento eliminado",
+            timer: 1500,
+            showConfirmButton: false,
+          });
+
+        } catch (error) {
+          console.error(error);
+          Swal.fire("Error", "No se pudo eliminar", "error");
+        }
       }
     });
   };
@@ -228,13 +274,34 @@ const Calendar = () => {
             center: "title",
             right: "dayGridMonth,timeGridWeek,timeGridDay",
           }}
-          eventDidMount={(info) => {
-            const color = CATEGORY_COLORS[info.event.extendedProps.category];
-            if (color) {
-              info.el.style.backgroundColor = color;
-              info.el.style.borderColor = color;
-              info.el.style.color = "#fff";
-            }
+
+          eventContent={(arg) => {
+            const start = arg.event.start;
+            if (!start) return null;
+
+            let hours = start.getHours();
+            const minutes = start.getMinutes().toString().padStart(2, "0");
+            const period = hours >= 12 ? "PM" : "AM";
+            hours = hours % 12 || 12;
+
+            const color =
+              CATEGORY_COLORS[arg.event.extendedProps.category] || "#1A3263";
+
+            return (
+              <div
+                style={{
+                  backgroundColor: color,
+                  color: "#fff",
+                  padding: "3px 8px",
+                  borderRadius: "6px",
+                  fontSize: "12px",
+                  fontWeight: 500,
+                  whiteSpace: "normal",
+                }}
+              >
+                {hours}:{minutes} {period} - {arg.event.title}
+              </div>
+            );
           }}
         />
       </div>
@@ -275,6 +342,7 @@ const Calendar = () => {
                 }
                 className="w-full border rounded-lg px-4 py-3"
               >
+                <option value="">Selecciona una categoría</option>
                 <option value="audiencia">Audiencia</option>
                 <option value="cita">Cita</option>
                 <option value="revision">Revisión</option>
