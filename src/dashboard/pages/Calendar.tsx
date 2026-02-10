@@ -14,6 +14,7 @@ import {
   getEventService,
   deleteEventService
 } from "../../services/event.service";
+import { getUsersService } from "../../services/user.services";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -32,23 +33,27 @@ const CASES = [
   { id: "0", name: "Ninguno" },
 ];
 
-/* 👥 Invitados */
-const LAWYERS = [
-  { value: "ana@monarca.com", label: "Braulio Reyes" },
-  { value: "luis@monarca.com", label: "Conny" },
-  { value: "carlos@monarca.com", label: "Jesus Meza" },
-];
 
 const Calendar = () => {
   const [events, setEvents] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [form, setForm] = useState({
+    title: "",
+    category: "audiencia",
+    start: "",
+    end: "",
+    guests: [] as { value: string; label: string }[],
+    caseId: "",
+  });
 
   useEffect(() => {
     loadEvents();
+    loadUsers();
   }, []);
 
   const loadEvents = async () => {
@@ -83,26 +88,46 @@ const Calendar = () => {
     }
   };
 
-  const [form, setForm] = useState({
-    title: "",
-    category: "audiencia",
-    start: "",
-    end: "",
-    guests: [] as { value: string; label: string }[],
-    caseId: "",
-  });
+  const loadUsers = async () => {
+    try {
+      Swal.fire({
+        title: "Cargando usuarios...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
+      const [data] = await Promise.all([
+        getUsersService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+
+      const formatted = data.map((u: any) => ({
+        value: u.id,
+        label: u.name,
+      }));
+
+      setUsers(formatted);
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
 
   /* ➕ Abrir modal manual */
   const openCreateModal = () => {
-    const now = new Date().toISOString().slice(0, 16);
+    const { start, end } = getNowPlusOneHour();
+
     setForm({
       title: "",
-      category: "audiencia",
-      start: now,
-      end: now,
+      category: "",
+      start,
+      end,
       guests: [],
       caseId: "",
     });
+
     setMode("create");
     setActiveEvent(null);
     setIsModalOpen(true);
@@ -159,6 +184,15 @@ const Calendar = () => {
     if (!form.title || !form.start) return;
 
     try {
+      if (new Date(form.end) < new Date(form.start)) {
+        Swal.fire({
+          icon: "warning",
+          title: "Hora inválida",
+          text: "La hora de fin no puede ser antes que la hora de inicio",
+        });
+        return;
+      }
+
       await createEventService({
         title: form.title,
         start: form.start,
@@ -188,6 +222,14 @@ const Calendar = () => {
     if (!activeEvent) return;
 
     try {
+      if (new Date(form.end) < new Date(form.start)) {
+        Swal.fire({
+          icon: "warning",
+          title: "Hora inválida",
+          text: "La hora de fin no puede ser antes que la hora de inicio",
+        });
+        return;
+      }
       await updateEventService(Number(activeEvent.id), {
         title: form.title,
         start: form.start,
@@ -248,6 +290,20 @@ const Calendar = () => {
         }
       }
     });
+  };
+
+  const getNowPlusOneHour = () => {
+    const now = new Date();
+    const plusOne = new Date(now.getTime() + 60 * 60 * 1000);
+
+    const format = (date: Date) => {
+      return date.toISOString().slice(0, 16);
+    };
+
+    return {
+      start: format(now),
+      end: format(plusOne),
+    };
   };
 
   return (
@@ -351,72 +407,109 @@ const Calendar = () => {
               )}
             </div>
 
-            <div className="px-6 py-6 space-y-4">
-              <input
-                placeholder="Título del evento"
-                value={form.title}
-                onChange={(e) =>
-                  setForm({ ...form, title: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              />
+            <div className="px-6 py-6 space-y-5">
 
-              <select
-                value={form.category}
-                onChange={(e) =>
-                  setForm({ ...form, category: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              >
-                <option value="">Selecciona una categoría</option>
-                <option value="audiencia">Audiencia</option>
-                <option value="cita">Cita</option>
-                <option value="revision">Revisión</option>
-                <option value="vencimiento">Vencimiento</option>
-              </select>
+              {/* Título */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Título del evento
+                </label>
+                <input
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                />
+              </div>
 
-              <select
-                value={form.caseId}
-                onChange={(e) =>
-                  setForm({ ...form, caseId: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              >
-                <option value="">Selecciona un asunto</option>
-                {CASES.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
-                ))}
-              </select>
+              {/* Categoría */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Categoría
+                </label>
+                <select
+                  value={form.category}
+                  onChange={(e) =>
+                    setForm({ ...form, category: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                >
+                  <option value="">Selecciona una categoría</option>
+                  <option value="audiencia">Audiencia</option>
+                  <option value="cita">Cita</option>
+                  <option value="revision">Revisión</option>
+                  <option value="vencimiento">Vencimiento</option>
+                </select>
+              </div>
 
-              <input
-                type="datetime-local"
-                value={form.start}
-                onChange={(e) =>
-                  setForm({ ...form, start: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              />
+              {/* Asunto */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Asunto legal
+                </label>
+                <select
+                  value={form.caseId}
+                  onChange={(e) =>
+                    setForm({ ...form, caseId: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                >
+                  <option value="">Selecciona un asunto</option>
+                  {CASES.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-              <input
-                type="datetime-local"
-                value={form.end}
-                onChange={(e) =>
-                  setForm({ ...form, end: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              />
+              {/* Fecha inicio */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Fecha y hora inicio
+                </label>
+                <input
+                  type="datetime-local"
+                  value={form.start}
+                  onChange={(e) =>
+                    setForm({ ...form, start: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                />
+              </div>
 
-              <Select
-                isMulti
-                options={LAWYERS}
-                value={form.guests}
-                onChange={(g) =>
-                  setForm({ ...form, guests: g as any })
-                }
-                placeholder="Invitados"
-              />
+              {/* Fecha fin */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Fecha y hora fin
+                </label>
+                <input
+                  type="datetime-local"
+                  value={form.end}
+                  onChange={(e) =>
+                    setForm({ ...form, end: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                />
+              </div>
+
+              {/* Invitados */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Invitados
+                </label>
+                <Select
+                  isMulti
+                  options={users}
+                  value={form.guests}
+                  onChange={(g) =>
+                    setForm({ ...form, guests: g as any })
+                  }
+                  placeholder="Selecciona invitados"
+                />
+              </div>
+
             </div>
 
             <div className="px-6 py-4 border-t flex justify-end gap-3">
