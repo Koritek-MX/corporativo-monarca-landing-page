@@ -32,6 +32,18 @@
   content: " - ";
 }
 
+/* Quitar fondo azul default de FullCalendar */
+.fc-timegrid-event {
+  background: transparent !important;
+  border: none !important;
+}
+
+/* Opcional: también en vista mes */
+.fc-daygrid-event {
+  background: transparent !important;
+  border: none !important;
+}
+
 .tooltip {
   @apply
     absolute bottom-full left-1/2 -translate-x-1/2 mb-2

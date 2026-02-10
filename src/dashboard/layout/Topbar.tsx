@@ -12,10 +12,11 @@ interface Props {
 }
 
 const Topbar = ({ onMenuClick }: Props) => {
-
   const [profileOpen, setProfileOpen] = useState(false);
   const [myprofileOpen, setmyProfileOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [settingsOpen] = useState(false);
+  const [time, setTime] = useState(new Date());
+
   const menuRef = useRef<HTMLDivElement>(null);
 
   const userName = "Braulio Reyes";
@@ -24,6 +25,7 @@ const Topbar = ({ onMenuClick }: Props) => {
     userName
   )}&background=1A3263&color=FFFFFF&rounded=true&size=128&bold=true`;
 
+  /* 👋 Saludo dinámico */
   const getGreeting = () => {
     const hour = new Date().getHours();
     if (hour >= 5 && hour < 12) return "Buenos días 🌤";
@@ -31,7 +33,16 @@ const Topbar = ({ onMenuClick }: Props) => {
     return "Buenas noches 😴";
   };
 
-  /* 👉 Cerrar dropdown si haces click fuera */
+  /* 🕒 Reloj en vivo */
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date());
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  /* 👉 Cerrar dropdown */
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (!menuRef.current?.contains(e.target as Node)) {
@@ -43,11 +54,33 @@ const Topbar = ({ onMenuClick }: Props) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  /* Formato hora */
+  const formatTime = (date: Date) => {
+    let hours = date.getHours();
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
+    const period = hours >= 12 ? "PM" : "AM";
+
+    hours = hours % 12 || 12;
+
+    return `${hours}:${minutes}:${seconds} ${period}`;
+  };
+
+  /* Formato fecha */
+  const formatDate = (date: Date) =>
+    date.toLocaleDateString("es-MX", {
+      weekday: "short",
+      day: "numeric",
+      month: "short",
+      year: "numeric"
+    });
+
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
 
-      {/* LEFT */}
-      <div className="flex items-center gap-4">
+      {/* IZQUIERDA */}
+      <div className="flex items-center gap-6">
+
         <button
           onClick={onMenuClick}
           className="md:hidden text-primary"
@@ -59,9 +92,19 @@ const Topbar = ({ onMenuClick }: Props) => {
         <h1 className="hidden md:block text-lg font-semibold text-primary">
           {getGreeting()}
         </h1>
+
+        {/* 🕒 RELOJ */}
+        <div className="hidden md:flex flex-col leading-tight">
+          <span className="text-sm font-semibold text-gray-600">
+            {formatTime(time)}
+          </span>
+          <span className="text-xs text-gray-400 capitalize">
+            {formatDate(time)}
+          </span>
+        </div>
       </div>
 
-      {/* RIGHT */}
+      {/* DERECHA - PERFIL */}
       <div className="relative" ref={menuRef}>
         <button
           onClick={() => setProfileOpen(!profileOpen)}
@@ -83,17 +126,9 @@ const Topbar = ({ onMenuClick }: Props) => {
           />
         </button>
 
-        {/* DROPDOWN PERFIL */}
         {profileOpen && (
-          <div
-            className="
-              absolute right-0 mt-3 w-56
-              bg-white rounded-xl shadow-lg border
-              overflow-hidden z-50
-              animate-fade-in
-            "
-          >
-            {/* Header */}
+          <div className="absolute right-0 mt-3 w-56 bg-white rounded-xl shadow-lg border overflow-hidden z-50">
+
             <div className="px-4 py-3 border-b">
               <p className="font-semibold text-primary">
                 {userName}
@@ -103,7 +138,6 @@ const Topbar = ({ onMenuClick }: Props) => {
               </p>
             </div>
 
-            {/* Opciones */}
             <button
               className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
               onClick={() => setmyProfileOpen(true)}
@@ -112,13 +146,6 @@ const Topbar = ({ onMenuClick }: Props) => {
               Mi perfil
             </button>
 
-            {/* <button className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50"
-              onClick={() => setSettingsOpen(true)}
-            >
-              <HiOutlineCog />
-              Configuración
-            </button> */}
-
             <button className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50">
               <HiOutlineLogout />
               Cerrar sesión
@@ -126,19 +153,17 @@ const Topbar = ({ onMenuClick }: Props) => {
           </div>
         )}
       </div>
-      {/* MODAL PERFIL */}
+
       <ProfileModal
         open={myprofileOpen}
         onClose={() => setmyProfileOpen(false)}
       />
-      {/* MODAL CONFIGURACIÓN */}
+
       <SettingsModal
         open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
+        onClose={() => {}}
       />
     </header>
-
-
   );
 };
 

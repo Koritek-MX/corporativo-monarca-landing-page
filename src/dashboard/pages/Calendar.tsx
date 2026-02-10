@@ -5,8 +5,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import { HiOutlinePlus } from "react-icons/hi";
 import FullCalendar from "@fullcalendar/react";
-import Select from "react-select";
 import { useEffect, useState } from "react";
+import Select from "react-select";
 import Swal from "sweetalert2";
 import {
   createEventService,
@@ -44,6 +44,8 @@ const Calendar = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
+  const [detailOpen, setDetailOpen] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
 
   useEffect(() => {
     loadEvents();
@@ -125,20 +127,30 @@ const Calendar = () => {
   const handleEventClick = (info: any) => {
     const event = info.event;
 
+    setSelectedEvent(event);
+    setDetailOpen(true);
+  };
+
+  const openEditFromDetail = () => {
+    if (!selectedEvent) return;
+
     setForm({
-      title: event.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, ""),
-      category: event.extendedProps.category,
-      start: event.startStr.slice(0, 16),
-      end: event.endStr?.slice(0, 16) || event.startStr.slice(0, 16),
-      guests: (event.extendedProps.guests || []).map((g: string) => ({
+      title: selectedEvent.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, ""),
+      category: selectedEvent.extendedProps.category,
+      start: selectedEvent.startStr.slice(0, 16),
+      end:
+        selectedEvent.endStr?.slice(0, 16) ||
+        selectedEvent.startStr.slice(0, 16),
+      guests: (selectedEvent.extendedProps.guests || []).map((g: string) => ({
         value: g,
         label: g,
       })),
-      caseId: event.extendedProps.caseId || "",
+      caseId: selectedEvent.extendedProps.caseId || "",
     });
 
+    setActiveEvent(selectedEvent);
     setMode("edit");
-    setActiveEvent(event);
+    setDetailOpen(false);
     setIsModalOpen(true);
   };
 
@@ -277,12 +289,20 @@ const Calendar = () => {
 
           eventContent={(arg) => {
             const start = arg.event.start;
+            const end = arg.event.end;
+
             if (!start) return null;
 
-            let hours = start.getHours();
-            const minutes = start.getMinutes().toString().padStart(2, "0");
-            const period = hours >= 12 ? "PM" : "AM";
-            hours = hours % 12 || 12;
+            const formatHour = (date: Date) => {
+              let h = date.getHours();
+              const m = date.getMinutes().toString().padStart(2, "0");
+              const p = h >= 12 ? "PM" : "AM";
+              h = h % 12 || 12;
+              return `${h}:${m} ${p}`;
+            };
+
+            const startHour = formatHour(start);
+            const endHour = end ? formatHour(end) : "";
 
             const color =
               CATEGORY_COLORS[arg.event.extendedProps.category] || "#1A3263";
@@ -292,14 +312,20 @@ const Calendar = () => {
                 style={{
                   backgroundColor: color,
                   color: "#fff",
-                  padding: "3px 8px",
-                  borderRadius: "6px",
+                  padding: "6px 8px",
+                  borderRadius: "8px",
                   fontSize: "12px",
-                  fontWeight: 500,
-                  whiteSpace: "normal",
+                  lineHeight: "1.3",
                 }}
               >
-                {hours}:{minutes} {period} - {arg.event.title}
+                <div style={{ fontWeight: 600 }}>
+                  {arg.event.title}
+                </div>
+
+                <div style={{ fontSize: "11px", opacity: 0.9 }}>
+                  {startHour}
+                  {endHour && ` - ${endHour}`}
+                </div>
               </div>
             );
           }}
@@ -405,6 +431,84 @@ const Calendar = () => {
                 className="bg-primary text-white px-6 py-2 rounded-lg"
               >
                 {mode === "create" ? "Crear evento" : "Guardar cambios"}
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+      {detailOpen && selectedEvent && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+
+            {/* Header */}
+            <div className="px-6 py-4 border-b flex justify-between">
+              <h2 className="text-lg font-bold text-primary">
+                Detalle del evento
+              </h2>
+
+              <button
+                onClick={() => setDetailOpen(false)}
+                className="text-gray-500"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6 space-y-4 text-sm">
+
+              <p>
+                <strong>Título:</strong>{" "}
+                {selectedEvent.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, "")}
+              </p>
+
+              <p>
+                <strong>Categoría:</strong>{" "}
+                {selectedEvent.extendedProps.category}
+              </p>
+
+              <p>
+                <strong>Inicio:</strong>{" "}
+                {new Date(selectedEvent.start).toLocaleString("es-MX")}
+              </p>
+
+              {selectedEvent.end && (
+                <p>
+                  <strong>Fin:</strong>{" "}
+                  {new Date(selectedEvent.end).toLocaleString("es-MX")}
+                </p>
+              )}
+
+              {selectedEvent.extendedProps.caseId && (
+                <p>
+                  <strong>Asunto:</strong>{" "}
+                  {selectedEvent.extendedProps.caseId}
+                </p>
+              )}
+
+              {selectedEvent.extendedProps.guests?.length > 0 && (
+                <p>
+                  <strong>Invitados:</strong>{" "}
+                  {selectedEvent.extendedProps.guests.join(", ")}
+                </p>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t flex justify-end gap-3">
+              <button
+                onClick={() => setDetailOpen(false)}
+                className="px-4 py-2 text-gray-600"
+              >
+                Cerrar
+              </button>
+
+              <button
+                onClick={openEditFromDetail}
+                className="bg-primary text-white px-6 py-2 rounded-lg"
+              >
+                Editar
               </button>
             </div>
 
