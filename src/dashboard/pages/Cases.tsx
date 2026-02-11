@@ -4,6 +4,7 @@ import Swal from "sweetalert2";
 import { createCaseService, deleteCaseService, getCaseService, updateCaseService } from "../../services/case.services";
 import { getClientsService } from "../../services/client.service";
 import { getUsersService } from "../../services/user.services";
+import { MdKeyboardArrowDown } from "react-icons/md";
 
 const STATUS_STYLES: Record<
   string,
@@ -13,7 +14,7 @@ const STATUS_STYLES: Record<
     bg: "bg-blue-100",
     text: "text-blue-700",
   },
-  "EN_PROCESO": {
+  "PROCESO": {
     bg: "bg-yellow-100",
     text: "text-yellow-800",
   },
@@ -26,9 +27,17 @@ const STATUS_STYLES: Record<
     text: "text-gray-600",
   },
 };
+const STATUS_LABELS: Record<string, string> = {
+  POR_INICIAR: "Por iniciar",
+  PROCESO: "En proceso",
+  RESUELTO: "Resuelto",
+  ARCHIVADO: "Archivado",
+};
 
 const Cases = () => {
 
+  const [statusModalOpen, setStatusModalOpen] = useState(false);
+  const [selectedCase, setSelectedCase] = useState<any>(null);
   const [editingCase, setEditingCase] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cases, setCases] = useState<any[]>([]);
@@ -110,10 +119,9 @@ const Cases = () => {
     }
   };
 
-  const formatStatus = (status: string) => {
-    return status
-      .replaceAll("_", " ");
-  };
+ const formatStatus = (status: string) => {
+  return STATUS_LABELS[status] || status;
+};
 
   const createCase = async () => {
     await createCaseService({
@@ -218,6 +226,38 @@ const Cases = () => {
     });
   };
 
+  const changeCaseStatus = async (caseItem: any, newStatus: string) => {
+    try {
+      await updateCaseService(caseItem.id, {
+        ...caseItem,
+        status: newStatus,
+        clientId: Number(caseItem.clientId),
+        lawyerId: Number(caseItem.lawyerId),
+      });
+
+      await Swal.fire({
+        icon: "success",
+        title: "Estado actualizado",
+        timer: 1200,
+        showConfirmButton: false,
+      });
+
+      setStatusModalOpen(false);
+      loadCases();
+
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudo actualizar estado", "error");
+    }
+  };
+
+  const openStatusModal = (caseItem: any) => {
+    setSelectedCase(caseItem);
+    setStatusModalOpen(true);
+  };
+
+  
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -283,8 +323,12 @@ const Cases = () => {
                   {a.lawyer.name}
                 </td>
 
-                <td className="px-6 py-4">
+                <td
+                  className="px-6 py-4"
+                  onClick={() => openStatusModal(a)}
+                >
                   <span
+                    onClick={() => openStatusModal(a)}
                     className={`
                     inline-flex items-center
                     px-3 py-1 rounded-full
@@ -293,7 +337,7 @@ const Cases = () => {
                     ${STATUS_STYLES[a.status]?.text}
                   `}
                   >
-                    {formatStatus(a.status)}
+                    {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
                   </span>
                 </td>
 
@@ -449,6 +493,50 @@ const Cases = () => {
                 className="px-6 py-2 rounded-lg font-semibold bg-primary text-white"
               >
                 Guardar asunto
+              </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {statusModalOpen && selectedCase && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl w-full max-w-sm shadow-xl">
+
+            {/* Header */}
+            <div className="px-6 py-4 border-b">
+              <h2 className="text-lg font-bold text-primary">
+                Cambiar estado
+              </h2>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6 space-y-3">
+              {Object.keys(STATUS_STYLES).map((status) => (
+                <button
+                  key={status}
+                  onClick={() => changeCaseStatus(selectedCase, status)}
+                  className={`
+              w-full px-4 py-3 rounded-lg text-sm font-semibold
+              border transition uppercase
+              ${STATUS_STYLES[status].bg}
+              ${STATUS_STYLES[status].text}
+              hover:scale-[1.02]
+            `}
+                >
+                  {formatStatus(status)}
+                </button>
+              ))}
+            </div>
+
+            {/* Footer */}
+            <div className="px-6 py-4 border-t text-right">
+              <button
+                onClick={() => setStatusModalOpen(false)}
+                className="px-4 py-2 text-gray-600"
+              >
+                Cancelar
               </button>
             </div>
 
