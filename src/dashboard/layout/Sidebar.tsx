@@ -25,10 +25,10 @@ const links = [
   { to: "/dashboard/calendario", label: "Calendario", icon: HiOutlineCalendar },
   { to: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUserGroup },
   { to: "/dashboard/asuntos", label: "Asuntos", icon: HiOutlineBriefcase },
+  { to: "/dashboard/abogados", label: "Abogados", icon: VscLaw },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
   { to: "/dashboard/contactos", label: "Contactos", icon: HiOutlineClipboardList },
   { to: "/dashboard/blog", label: "Blog", icon: HiOutlineNewspaper },
-  { to: "/dashboard/abogados", label: "Abogados", icon: VscLaw },
   { to: "/dashboard/estadisticas", label: "Estadísticas", icon: HiOutlineChartBar }
 ];
 
