@@ -20,5 +20,10 @@ export const deleteCaseService = async (id: number) => {
   return data;
 };
 
+export const getCaseByIdService = async (id: number) => {
+  const { data } = await api.get(`/cases/${id}`);
+  return data;
+};
+
 
 

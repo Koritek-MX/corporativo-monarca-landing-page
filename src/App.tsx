@@ -21,6 +21,7 @@ import Billing from "./dashboard/pages/Billing.tsx";
 import Stats from "./dashboard/pages/Stats.tsx";
 import Contacts from "./dashboard/pages/Contacts.tsx";
 import Lawyers from "./dashboard/pages/Lawyers.tsx";
+import CaseFiles from "./dashboard/pages/CaseFiles.tsx";
 
 export default function App() {
   return (
@@ -42,6 +43,7 @@ export default function App() {
           <Route path="/dashboard/clientes" element={<Clients />} />
           <Route path="/dashboard/calendario" element={<Calendar />} />
           <Route path="/dashboard/asuntos" element={<Cases />} />
+          <Route path="/dashboard/asuntos/:caseId/expedientes" element={<CaseFiles />} />
           <Route path="/dashboard/cobros" element={<Billing />} />
           <Route path="/dashboard/estadisticas" element={<Stats />} />
           <Route path="/dashboard/blog" element={<BlogAdmin />} />

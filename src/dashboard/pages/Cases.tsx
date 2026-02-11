@@ -5,6 +5,8 @@ import { createCaseService, deleteCaseService, getCaseService, updateCaseService
 import { getClientsService } from "../../services/client.service";
 import { getUsersService } from "../../services/user.services";
 import { MdKeyboardArrowDown } from "react-icons/md";
+import { FaRegFileAlt } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_STYLES: Record<
   string,
@@ -36,6 +38,7 @@ const STATUS_LABELS: Record<string, string> = {
 
 const Cases = () => {
 
+  const navigate = useNavigate();
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<any>(null);
   const [editingCase, setEditingCase] = useState<any>(null);
@@ -61,6 +64,7 @@ const Cases = () => {
     clientId: "",
     lawyerId: ""
   }
+
 
   useEffect(() => {
     loadCases();
@@ -119,9 +123,9 @@ const Cases = () => {
     }
   };
 
- const formatStatus = (status: string) => {
-  return STATUS_LABELS[status] || status;
-};
+  const formatStatus = (status: string) => {
+    return STATUS_LABELS[status] || status;
+  };
 
   const createCase = async () => {
     await createCaseService({
@@ -256,7 +260,7 @@ const Cases = () => {
     setStatusModalOpen(true);
   };
 
-  
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -289,6 +293,7 @@ const Cases = () => {
               <th className="px-6 py-4 text-left">Area</th>
               <th className="px-6 py-4 text-left">Abogado</th>
               <th className="px-6 py-4 text-left">Estado</th>
+              <th className="px-6 py-4 text-center">Expedientes</th>
               <th className="px-6 py-4 text-right">Acciones</th>
             </tr>
           </thead>
@@ -325,7 +330,6 @@ const Cases = () => {
 
                 <td
                   className="px-6 py-4"
-                  onClick={() => openStatusModal(a)}
                 >
                   <span
                     onClick={() => openStatusModal(a)}
@@ -339,6 +343,15 @@ const Cases = () => {
                   >
                     {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
                   </span>
+                </td>
+
+                <td className="text-gray-600 text-center" >
+                  <button
+                    className="text-blue-500 hover:text-blue-600"
+                     onClick={() => navigate(`/dashboard/asuntos/${a.id}/expedientes`)}
+                  >
+                    <FaRegFileAlt size={20} />
+                  </button>
                 </td>
 
                 <td className="px-6 py-4 text-right">
