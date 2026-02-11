@@ -11,6 +11,7 @@ export const createEventService = async (payload: any) => {
 };
 
 export const updateEventService = async (id: number, payload: any) => {
+  console.log("///Esto se manda al servicio de editar:", payload);
   const { data } = await api.put(`/events/${id}`, payload);
   return data;
 };

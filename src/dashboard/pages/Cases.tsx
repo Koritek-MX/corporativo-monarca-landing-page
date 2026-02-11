@@ -1,69 +1,222 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
+import Swal from "sweetalert2";
+import { createCaseService, deleteCaseService, getCaseService, updateCaseService } from "../../services/case.services";
+import { getClientsService } from "../../services/client.service";
+import { getUsersService } from "../../services/user.services";
 
 const STATUS_STYLES: Record<
   string,
   { bg: string; text: string }
 > = {
-  "por iniciar": {
+  "POR_INICIAR": {
     bg: "bg-blue-100",
     text: "text-blue-700",
   },
-  "en proceso": {
+  "EN_PROCESO": {
     bg: "bg-yellow-100",
     text: "text-yellow-800",
   },
-  "resuelto": {
+  "RESUELTO": {
     bg: "bg-green-100",
     text: "text-green-700",
   },
-  "archivado": {
+  "ARCHIVADO": {
     bg: "bg-gray-100",
     text: "text-gray-600",
   },
 };
 
-const MOCK_CASES = [
-  {
-    id: "A-1023",
-    title: "Audiencia laboral",
-    client: "Juan Pérez",
-    area: "Derecho Laboral",
-    lawyer: "Braulio Reyes",
-    status: "por iniciar",
-    startDate: "2024-01-10",
-  },
-  {
-    id: "C-2045",
-    title: "Contrato mercantil",
-    client: "Empresa XYZ",
-    area: "Derecho Mercantil",
-    lawyer: "Conny",
-    status: "en proceso",
-    startDate: "2024-02-05",
-  },
-  {
-    id: "C-2045",
-    title: "Contrato mercantil",
-    client: "Empresa XYZ",
-    area: "Derecho Mercantil",
-    lawyer: "Conny",
-    status: "resuelto",
-    startDate: "2024-02-05",
-  },
-  {
-    id: "C-2045",
-    title: "Contrato mercantil",
-    client: "Empresa XYZ",
-    area: "Derecho Mercantil",
-    lawyer: "Conny",
-    status: "archivado",
-    startDate: "2024-02-05",
-  }
-];
-
 const Cases = () => {
+
+  const [editingCase, setEditingCase] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [cases, setCases] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [form, setForm] = useState({
+    title: "",
+    folio: "",
+    area: "",
+    description: "",
+    status: "",
+    clientId: "",
+    lawyerId: ""
+  });
+  const emptyForm = {
+    title: "",
+    folio: "",
+    area: "",
+    description: "",
+    status: "POR_INICIAR",
+    clientId: "",
+    lawyerId: ""
+  }
+
+  useEffect(() => {
+    loadCases();
+    loadClients();
+    loadUsers();
+  }, []);
+
+  const loadCases = async () => {
+    try {
+      Swal.fire({
+        title: "Cargando asuntos...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      const [data] = await Promise.all([
+        getCaseService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+      console.log("---> Asuntos cargados:", data);
+      setCases(data);
+
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los asuntos", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
+  const loadClients = async () => {
+    try {
+      const [data] = await Promise.all([
+        getClientsService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+      console.log("---> Clientes cargados:", data);
+      setClients(data);
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
+  const loadUsers = async () => {
+    try {
+      const [data] = await Promise.all([
+        getUsersService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+      console.log("---> Usuarios cargados:", data);
+      setUsers(data);
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
+  const formatStatus = (status: string) => {
+    return status
+      .replaceAll("_", " ");
+  };
+
+  const createCase = async () => {
+    await createCaseService({
+      ...form,
+      clientId: Number(form.clientId),
+      lawyerId: Number(form.lawyerId),
+    });
+
+    await Swal.fire({
+      icon: "success",
+      title: "Asunto creado",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  const updateCase = async () => {
+    if (!editingCase) return;
+
+    await updateCaseService(editingCase.id, {
+      ...form,
+      clientId: Number(form.clientId),
+      lawyerId: Number(form.lawyerId),
+    });
+
+    await Swal.fire({
+      icon: "success",
+      title: "Asunto editado",
+      timer: 1500,
+      showConfirmButton: false,
+    });
+  };
+
+  const saveCase = async () => {
+    try {
+      if (!form.title || !form.clientId || !form.lawyerId) {
+        await Swal.fire("Error", "Completa los campos", "warning");
+        return;
+      }
+
+      editingCase ? await updateCase() : await createCase();
+      setForm(emptyForm);
+      setEditingCase(null);
+      setIsModalOpen(false);
+      loadCases();
+
+    } catch (error) {
+      console.error(error);
+      await Swal.fire("Error", "No se pudo guardar", "error");
+    }
+  };
+
+  const openEditCase = (caseItem: any) => {
+    setEditingCase(caseItem);
+
+    setForm({
+      folio: caseItem.folio || "",
+      area: caseItem.area || "",
+      title: caseItem.title || "",
+      description: caseItem.description || "",
+      status: caseItem.status || "POR_INICIAR",
+      clientId: caseItem.clientId || "",
+      lawyerId: caseItem.lawyerId || "",
+    });
+
+    setIsModalOpen(true);
+  };
+
+
+  const deleteCase = (id: number) => {
+    Swal.fire({
+      title: "¿Eliminar asunto?",
+      text: "Esta acción no se puede deshacer",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Eliminar",
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#dc2626",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        try {
+          await deleteCaseService(id);
+          // Actualizar lista local
+          setCases((prev) => prev.filter((c) => c.id !== id));
+
+          Swal.fire({
+            icon: "success",
+            title: "Asunto eliminado",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        } catch (error) {
+          console.error(error);
+
+          Swal.fire({
+            icon: "error",
+            title: "Error al eliminar",
+            text: "No se pudo eliminar el asunto",
+          });
+        }
+      }
+    });
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -93,7 +246,7 @@ const Cases = () => {
               <th className="px-6 py-4 text-left">Folio</th>
               <th className="px-6 py-4 text-left">Asunto</th>
               <th className="px-6 py-4 text-left">Cliente</th>
-              <th className="px-6 py-4 text-left">Área</th>
+              <th className="px-6 py-4 text-left">Area</th>
               <th className="px-6 py-4 text-left">Abogado</th>
               <th className="px-6 py-4 text-left">Estado</th>
               <th className="px-6 py-4 text-right">Acciones</th>
@@ -101,7 +254,7 @@ const Cases = () => {
           </thead>
 
           <tbody>
-            {MOCK_CASES.map((a, index) => (
+            {cases.map((a, index) => (
               <tr
                 key={a.id}
                 className={`
@@ -111,7 +264,7 @@ const Cases = () => {
               `}
               >
                 <td className="px-6 py-4 font-semibold text-primary">
-                  {a.id}
+                  {a.folio}
                 </td>
 
                 <td className="px-6 py-4 text-gray-700">
@@ -119,7 +272,7 @@ const Cases = () => {
                 </td>
 
                 <td className="px-6 py-4 text-gray-600">
-                  {a.client}
+                  {a.client.name + " " + a.client.lastName}
                 </td>
 
                 <td className="px-6 py-4 text-gray-600">
@@ -127,7 +280,7 @@ const Cases = () => {
                 </td>
 
                 <td className="px-6 py-4 text-gray-600">
-                  {a.lawyer}
+                  {a.lawyer.name}
                 </td>
 
                 <td className="px-6 py-4">
@@ -140,16 +293,22 @@ const Cases = () => {
                     ${STATUS_STYLES[a.status]?.text}
                   `}
                   >
-                    {a.status}
+                    {formatStatus(a.status)}
                   </span>
                 </td>
 
                 <td className="px-6 py-4 text-right">
                   <div className="inline-flex gap-2">
-                    <button className="text-primary hover:text-secondary">
+                    <button
+                      className="text-primary hover:text-secondary"
+                      onClick={() => openEditCase(a)}
+                    >
                       <HiOutlinePencil size={22} />
                     </button>
-                    <button className="text-red-500 hover:text-red-600">
+                    <button
+                      className="text-red-500 hover:text-red-600"
+                      onClick={() => deleteCase(a.id)}
+                    >
                       <HiOutlineTrash size={22} />
                     </button>
                   </div>
@@ -175,12 +334,62 @@ const Cases = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
+                  Folio
+                </label>
+                <input
+                  type="text"
+                  value={form.folio}
+                  onChange={(e) =>
+                    setForm({ ...form, folio: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                  placeholder="Ej. LAB-2026-001"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Área legal
+                </label>
+                <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                  value={form.area}
+                  onChange={(e) =>
+                    setForm({ ...form, area: e.target.value })
+                  }>
+                  <option value="Derecho Laboral">Derecho Laboral</option>
+                  <option value="Derecho Civil">Derecho Civil</option>
+                  <option value="Derecho Penal">Derecho Penal</option>
+                  <option value="Derecho Mercantil">Derecho Mercantil</option>
+                  <option value="Derecho Familiar">Derecho Familiar</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
                   Título del asunto
                 </label>
                 <input
                   type="text"
-                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+                  value={form.title}
+                  onChange={(e) =>
+                    setForm({ ...form, title: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
                   placeholder="Ej. Audiencia laboral"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Descripcion del asunto
+                </label>
+                <textarea
+                  value={form.description}
+                  onChange={(e) =>
+                    setForm({ ...form, description: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                  placeholder="Ej. La empresa ofrece 3 meses de salario; el trabajador pide 4. Si no hay acuerdo, se procede al juicio"
                 />
               </div>
 
@@ -188,21 +397,19 @@ const Cases = () => {
                 <label className="block text-sm font-medium mb-1">
                   Cliente
                 </label>
-                <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary">
-                  <option>Selecciona un cliente</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Área legal
-                </label>
-                <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary">
-                  <option>Derecho Laboral</option>
-                  <option>Derecho Civil</option>
-                  <option>Derecho Penal</option>
-                  <option>Derecho Mercantil</option>
-                  <option>Derecho Familiar</option>
+                <select
+                  value={form.clientId}
+                  onChange={(e) =>
+                    setForm({ ...form, clientId: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                >
+                  <option value="">Selecciona cliente</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.lastName}
+                    </option>
+                  ))}
                 </select>
               </div>
 
@@ -210,35 +417,22 @@ const Cases = () => {
                 <label className="block text-sm font-medium mb-1">
                   Abogado responsable
                 </label>
-                <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary">
-                  <option>Braulio Reyes</option>
-                  <option>Conny</option>
-                  <option>Jesús Meza</option>
+                <select
+                  value={form.lawyerId}
+                  onChange={(e) =>
+                    setForm({ ...form, lawyerId: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                >
+                  <option value="">Selecciona abogado</option>
+                  {users.map(u => (
+                    <option key={u.id} value={u.id}>
+                      {u.name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Fecha de inicio
-                  </label>
-                  <input
-                    type="date"
-                    className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium mb-1">
-                    Estado
-                  </label>
-                  <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary">
-                    <option>Activo</option>
-                    <option>En proceso</option>
-                    <option>Cerrado</option>
-                  </select>
-                </div>
-              </div>
 
             </div>
 
@@ -251,7 +445,8 @@ const Cases = () => {
               </button>
 
               <button
-                className="px-6 py-2 rounded-lg font-semibold bg-primary text-white hover:bg-primary/90 transition"
+                onClick={saveCase}
+                className="px-6 py-2 rounded-lg font-semibold bg-primary text-white"
               >
                 Guardar asunto
               </button>

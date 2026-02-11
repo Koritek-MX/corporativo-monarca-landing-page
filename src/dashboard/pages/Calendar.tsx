@@ -15,6 +15,7 @@ import {
   deleteEventService
 } from "../../services/event.service";
 import { getUsersService } from "../../services/user.services";
+import { getCaseService } from "../../services/case.services";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -24,19 +25,10 @@ const CATEGORY_COLORS: Record<string, string> = {
   revision: "#FF6500",
 };
 
-/* ⚖️ Asuntos */
-const CASES = [
-  { id: "A-1023", name: "Expediente laboral – Juan Pérez" },
-  { id: "C-2045", name: "Contrato mercantil – Empresa XYZ" },
-  { id: "P-3301", name: "Proceso penal – María López" },
-  { id: "F-4412", name: "Divorcio – Carlos Hernández" },
-  { id: "0", name: "Ninguno" },
-];
-
-
 const Calendar = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [cases, setCases] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [mode, setMode] = useState<"create" | "edit">("create");
   const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
@@ -54,6 +46,7 @@ const Calendar = () => {
   useEffect(() => {
     loadEvents();
     loadUsers();
+    loadCases();
   }, []);
 
   const loadEvents = async () => {
@@ -76,9 +69,12 @@ const Calendar = () => {
         end: e.end,
         extendedProps: {
           category: e.category,
+          caseId: e.caseId,
+          guests: e.guests?.map((g: any) => g.name) || [],
         },
       }));
 
+      console.log("---> Eventos cargados:", formatted);
       setEvents(formatted);
 
     } catch (error) {
@@ -90,25 +86,36 @@ const Calendar = () => {
 
   const loadUsers = async () => {
     try {
-      Swal.fire({
-        title: "Cargando usuarios...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-
       const [data] = await Promise.all([
         getUsersService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-
       const formatted = data.map((u: any) => ({
         value: u.id,
         label: u.name,
       }));
 
+      console.log("---> Usuarios cargados:", formatted);
       setUsers(formatted);
+
     } catch (error) {
+      console.error(error);
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
+  const loadCases = async () => {
+    try {
+      const [data] = await Promise.all([
+        getCaseService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+      setCases(data);
+    } catch (error) {
+      console.error(error);
+      Swal.fire("Error", "No se pudieron cargar los casos", "error");
     } finally {
       Swal.close();
     }
@@ -157,20 +164,19 @@ const Calendar = () => {
   };
 
   const openEditFromDetail = () => {
+    console.log('Selected event for edit', selectedEvent)
     if (!selectedEvent) return;
 
     setForm({
-      title: selectedEvent.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, ""),
+      title: selectedEvent.title,
       category: selectedEvent.extendedProps.category,
       start: selectedEvent.startStr.slice(0, 16),
-      end:
-        selectedEvent.endStr?.slice(0, 16) ||
-        selectedEvent.startStr.slice(0, 16),
-      guests: (selectedEvent.extendedProps.guests || []).map((g: string) => ({
-        value: g,
-        label: g,
-      })),
+      end: selectedEvent.endStr?.slice(0, 16) || "",
       caseId: selectedEvent.extendedProps.caseId || "",
+      guests: (selectedEvent.extendedProps.guests || []).map((g: any) => ({
+        value: g.id,
+        label: g.name,
+      })),
     });
 
     setActiveEvent(selectedEvent);
@@ -193,13 +199,22 @@ const Calendar = () => {
         return;
       }
 
+      console.log('---->', form.guests.map(g => ({
+        id: g.value,
+        name: g.label,
+      })));
+
       await createEventService({
         title: form.title,
         start: form.start,
         end: form.end,
         category: form.category,
-        caseId: 1, // 👈 temporal hasta servicio de casos
-        userId: 1 // 👈 temporal hasta login
+        caseId: form.caseId ? Number(form.caseId) : null,
+        userId: 1,
+        guests: form.guests.map(g => ({
+          id: g.value,
+          name: g.label,
+        })),
       });
 
       await loadEvents(); // refresca calendario
@@ -214,6 +229,7 @@ const Calendar = () => {
 
     } catch (error) {
       console.error(error);
+      Swal.fire("Error", "No se pudo crear el evento", "error");
     }
   };
 
@@ -230,13 +246,18 @@ const Calendar = () => {
         });
         return;
       }
+
+      console.log('Selected event', selectedEvent)
       await updateEventService(Number(activeEvent.id), {
         title: form.title,
         start: form.start,
         end: form.end,
         category: form.category,
-        caseId: form.caseId || null,
-        guests: form.guests.map((g) => g.value),
+        caseId: form.caseId ? Number(form.caseId) : null,
+        guests: form.guests.map(g => ({
+          id: g.value,
+          name: g.label,
+        }))
       });
 
       // 🔥 Refrescar calendario desde backend
@@ -296,13 +317,15 @@ const Calendar = () => {
     const now = new Date();
     const plusOne = new Date(now.getTime() + 60 * 60 * 1000);
 
-    const format = (date: Date) => {
-      return date.toISOString().slice(0, 16);
+    const formatLocal = (date: Date) => {
+      const pad = (n: number) => String(n).padStart(2, "0");
+
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
     };
 
     return {
-      start: format(now),
-      end: format(plusOne),
+      start: formatLocal(now),
+      end: formatLocal(plusOne),
     };
   };
 
@@ -456,9 +479,9 @@ const Calendar = () => {
                   className="w-full border rounded-lg px-4 py-3 mt-1"
                 >
                   <option value="">Selecciona un asunto</option>
-                  {CASES.map((c) => (
+                  {cases.map((c) => (
                     <option key={c.id} value={c.id}>
-                      {c.name}
+                      {c.title}
                     </option>
                   ))}
                 </select>
@@ -581,10 +604,14 @@ const Calendar = () => {
               )}
 
               {selectedEvent.extendedProps.guests?.length > 0 && (
-                <p>
-                  <strong>Invitados:</strong>{" "}
-                  {selectedEvent.extendedProps.guests.join(", ")}
-                </p>
+                <div>
+                  <strong>Invitados:</strong>
+                  <ul className="list-disc ml-5 mt-1">
+                    {selectedEvent.extendedProps.guests.map((g: string, i: number) => (
+                      <li key={i}>{g}</li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
 
