@@ -1,38 +1,40 @@
-import { useState } from "react";
+import { deleteContactService, getAllContactsService } from "../../services/contact.service";
+import { formatPhone } from "../../components/common/formatPhone";
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import {
     HiOutlineTrash,
     HiOutlineEye,
 } from "react-icons/hi";
-import { formatPhone } from "../../components/common/formatPhone";
-import Swal from "sweetalert2";
 
-/* 📩 Mock contactos */
-const MOCK_CONTACTS = [
-    {
-        id: 1,
-        name: "Juan Pérez",
-        email: "juan@email.com",
-        phone: "3525616329",
-        message: "Necesito asesoría laboral. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.",
-        date: "2026-02-03",
-        status: "nuevo",
-        city: "La Piedad, Michoacán",
-    },
-    {
-        id: 2,
-        name: "Empresa XYZ",
-        email: "contacto@xyz.com",
-        phone: "5551234567",
-        message: "Revisión contrato mercantil.",
-        date: "2026-02-01",
-        status: "contactado",
-        city: "Arandas, Jalisco",
-    },
-];
 
 const Contacts = () => {
-    const [contacts, setContacts] = useState(MOCK_CONTACTS);
+    const [contacts, setContacts] = useState<any[]>([]);
     const [selected, setSelected] = useState<any>(null);
+
+    useEffect(() => {
+        loadContacts();
+    }, []);
+
+    const loadContacts = async () => {
+        try {
+            Swal.fire({
+                title: "Cargando contactos...",
+                allowOutsideClick: false,
+                didOpen: () => Swal.showLoading(),
+            });
+            const [data] = await Promise.all([
+                getAllContactsService(),
+                new Promise((resolve) => setTimeout(resolve, 700)),
+            ]);
+            console.log("---> Asuntos cargados:", data);
+            setContacts(data);
+        } catch (error) {
+            Swal.fire("Error", "No se pudieron cargar los contactos", "error");
+        } finally {
+            Swal.close();
+        }
+    };
 
     const deleteContact = (id: number) => {
         Swal.fire({
@@ -43,9 +45,26 @@ const Contacts = () => {
             confirmButtonText: "Eliminar",
             cancelButtonText: "Cancelar",
             confirmButtonColor: "#dc2626",
-        }).then((result) => {
+        }).then(async (result) => {
             if (result.isConfirmed) {
-                setContacts(contacts.filter((c) => c.id !== id));
+                try {
+                    await deleteContactService(id);
+
+                    await Swal.fire({
+                        icon: "success",
+                        title: "Contacto eliminado",
+                        showConfirmButton: false,
+                        timer: 1500,
+                    });
+
+                    await loadContacts();
+                } catch (error) {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Error al eliminar",
+                        text: "No se pudo eliminar el contacto",
+                    });
+                }
             }
         });
     };
@@ -91,12 +110,11 @@ const Contacts = () => {
                                 <td className="px-6 py-4 font-semibold text-primary">
                                     {c.name}
                                 </td>
-
                                 <td className="px-6 py-4">{c.email}</td>
                                 <td className="px-6 py-4">{formatPhone(c.phone)}</td>
-                                <td className="px-6 py-4">{c.date}</td>
-
-
+                                <td className="px-6 py-4">
+                                    {new Date(c.createdAt).toLocaleDateString("es-MX")}
+                                </td>
                                 <td className="px-6 py-4">{c.city}</td>
                                 <td className="px-6 py-4 max-w-xs truncate">
                                     {c.message}
@@ -152,7 +170,8 @@ const Contacts = () => {
                             </p>
 
                             <p>
-                                <b>Fecha:</b> {selected.date}
+                                <b>Fecha:</b> {new Date(selected.createdAt).toLocaleDateString("es-MX")}
+
                             </p>
 
                             <div>
