@@ -6,6 +6,11 @@ export const getAllBlogsService = async (limit?: number) => {
     return data;
 };
 
+export const getAllBlogsByUserIdService = async (userId?: number) => {
+      const { data } = await api.get(`/blogs/user/${userId}`);
+    return data;
+};
+
 export const createBlogService = async (payload: any) => {
     const { data } = await api.post("/blogs", payload);
     return data;

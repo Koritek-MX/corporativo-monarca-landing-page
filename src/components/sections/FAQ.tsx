@@ -25,7 +25,7 @@ const faqs = [
   {
     question: "¿En qué ciudades brindan atención?",
     answer:
-      "Ofrecemos atención presencial y remota, lo que nos permite trabajar con clientes en toda la República Mexicana.",
+      "Ofrecemos atención presencial en La Piedad de Cavadas, Michoacán, y tambien de manera remota, lo que nos permite trabajar con clientes en toda la República Mexicana.",
   },
 ];
 
