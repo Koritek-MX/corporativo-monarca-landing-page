@@ -1,34 +1,39 @@
-const posts = [
-  {
-    title: "¿Qué hacer ante un despido injustificado?",
-    excerpt:
-      "Conoce los pasos legales que debes seguir para proteger tus derechos laborales y actuar de forma correcta.",
-    category: "Derecho Laboral",
-    date: "15 Feb 2026",
-    image:
-      "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c",
-  },
-  {
-    title: "Importancia de los contratos en las empresas",
-    excerpt:
-      "Un contrato bien estructurado evita conflictos legales y protege los intereses de tu negocio.",
-    category: "Derecho Corporativo",
-    date: "08 Feb 2026",
-    image:
-      "https://images.unsplash.com/photo-1521791136064-7986c2920216",
-  },
-  {
-    title: "¿Qué hacer si te llega una carta invitación del SAT?",
-    excerpt:
-      "Te explicamos si eres persona física o moral y si estás obligad@ al pago de contribuciones,",
-    category: "Derecho Fiscal",
-    date: "01 Feb 2026",
-    image:
-      "https://images.milenio.com/91vCgNe_QxPdcDClxYh5xLVTAqQ=/345x194/uploads/media/2023/03/21/sat-agencia-enfoque.jpg",
-  },
-];
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
+import { getAllBlogsService } from "../../services/blog.service";
+import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
+  const [blogs, setBlogs] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    loadBlogs();
+  }, []);
+
+  const loadBlogs = async () => {
+    try {
+      const [data] = await Promise.all([
+        getAllBlogsService(3),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+
+      // 👉 Ordena por fecha (últimos primero)
+      const sorted = data.sort(
+        (a: any, b: any) =>
+          new Date(b.createdAt).getTime() -
+          new Date(a.createdAt).getTime()
+      );
+
+      setBlogs(sorted);
+
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los blogs", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
   return (
     <section id="blog" className="py-24 bg-gray-50">
       <div className="max-w-7xl mx-auto px-6">
@@ -49,55 +54,66 @@ const Blog = () => {
           </p>
         </div>
 
-        {/* Posts */}
+        {/* Blogs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {posts.map((post, index) => (
+          {blogs.slice(0, 3).map((blog, index) => (
             <article
               key={index}
               className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition flex flex-col"
             >
-              {/* Image */}
               <div className="h-52 w-full overflow-hidden">
                 <img
-                  src={post.image}
-                  alt={post.title}
+                  src={blog.imageUrl}
+                  alt={blog.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
                 />
               </div>
 
-              {/* Content */}
               <div className="p-8 flex flex-col flex-1">
-                {/* Meta */}
                 <div className="flex items-center justify-between mb-3 text-xs uppercase tracking-wider">
                   <span className="text-secondary font-medium">
-                    {post.category}
+                    {blog.area}
                   </span>
-                  <span className="text-gray-400">{post.date}</span>
+                  <span className="text-gray-400">
+                    {new Date(blog.createdAt).toLocaleDateString("es-MX")}
+                  </span>
                 </div>
 
-                {/* Title */}
                 <h3 className="text-lg font-semibold text-primary mb-3 leading-snug">
-                  {post.title}
+                  {blog.title}
                 </h3>
 
-                {/* Excerpt */}
                 <p className="text-sm text-gray-600 leading-relaxed mb-6 flex-1">
-                  {post.excerpt}
+                  {blog.subtitle}
                 </p>
 
-                {/* Read more */}
                 <div className="mt-6 text-right">
-                {/* <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
-                  Ver más
-                  <span className="transform group-hover:translate-x-1 transition">
-                    →
+                  <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
+                    Ver más →
                   </span>
-                </span> */}
-              </div>
+                </div>
               </div>
             </article>
           ))}
         </div>
+
+        {/* 👉 BOTÓN VER MÁS */}
+
+        <div className="text-center mt-14">
+          <button
+            onClick={() => navigate("/blog")}
+            className="
+                px-8 py-3
+                bg-primary text-white
+                rounded-xl font-semibold
+                hover:bg-primary/90
+                transition
+              "
+          >
+            Ver más artículos
+          </button>
+        </div>
+
 
       </div>
     </section>
