@@ -64,19 +64,24 @@ const AboutUs = () => {
                         </div>
 
                         {/* Image with play button */}
-                        <div className="relative group cursor-pointer" onClick={() => setIsOpen(true)}>
+                        {/* <div className="relative group cursor-pointer" onClick={() => setIsOpen(true)}>
                             <img
                                 src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
                                 alt="Video institucional"
                                 className="rounded-2xl shadow-lg object-cover w-full h-[400px]"
                             />
-
-                            {/* Overlay */}
                             <div className="absolute inset-0 bg-primary/30 rounded-2xl flex items-center justify-center">
                                 <div className="w-20 h-20 rounded-full bg-secondary flex items-center justify-center shadow-lg group-hover:scale-110 transition">
                                     <FaPlay className="text-primary ml-1" size={28} />
                                 </div>
                             </div>
+                        </div> */}
+                        <div className="relative group cursor-pointer">
+                            <img
+                                src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
+                                alt="Video institucional"
+                                className="rounded-2xl shadow-lg object-cover w-full h-[400px]"
+                            />
                         </div>
                     </div>
 
