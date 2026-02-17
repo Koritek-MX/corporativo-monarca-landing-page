@@ -65,6 +65,7 @@ const Billing = () => {
         getPaymentsService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
+      console.log(data)
       setPayments(data);
 
     } catch (error) {
@@ -319,8 +320,16 @@ const Billing = () => {
           <tbody>
             {payments.map((c: any, index: number) => {
 
-              const paid = Number(c.initialPaid || 0);
+              // 👉 Sumar todos los abonos del cobro
+              const paid = (c.installments || []).reduce(
+                (acc: number, i: any) => acc + Number(i.amount || 0),
+                0
+              );
+
+              // 👉 Total del cobro (incluye IVA)
               const total = Number(c.finalAmount || 0);
+
+              // 👉 Saldo pendiente
               const balance = total - paid;
 
               return (
