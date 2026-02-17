@@ -25,5 +25,10 @@ export const getCaseByIdService = async (id: number) => {
   return data;
 };
 
+export const getCasesByClientIdService = async (id: number) => {
+  const { data } = await api.get(`/cases/client/${id}`);
+  return data;
+};
+
 
 
