@@ -24,6 +24,7 @@ import Lawyers from "./dashboard/pages/Lawyers.tsx";
 import CaseFiles from "./dashboard/pages/CaseFiles.tsx";
 import PaymentInstallments from "./dashboard/pages/PaymentInstallments.tsx";
 import AllBlogs from "./components/sections/AllBlogs.tsx";
+import BlogDetail from "./components/sections/BlogDetail.tsx";
 
 export default function App() {
   return (
@@ -37,6 +38,9 @@ export default function App() {
 
       {/* Blog */}
       <Route path="/blog" element={<AllBlogs />} />
+
+      {/* Detalle del blog */}
+      <Route path="/blog/:id" element={<BlogDetail />} />
 
       {/* Register */}
       <Route path="/register" element={<Register />} />

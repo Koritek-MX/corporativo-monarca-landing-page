@@ -100,10 +100,14 @@ const AllBlogs = () => {
                   </p>
 
                   <div className="mt-6 text-right">
-                    <span className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 group-hover:text-secondary transition">
+                    <button
+                      onClick={() => navigate(`/blog/${blog.id}`)}
+                      className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 hover:text-secondary transition"
+                    >
                       Ver más →
-                    </span>
+                    </button>
                   </div>
+
                 </div>
               </article>
             ))}
