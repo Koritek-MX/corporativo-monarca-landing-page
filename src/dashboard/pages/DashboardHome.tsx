@@ -1,3 +1,8 @@
+
+import { getDashboardStatsService } from "../../services/stats.service";
+import { getTodayEventsService } from "../../services/event.service";
+import { useEffect, useState } from "react";
+import Swal from "sweetalert2";
 import {
   HiOutlineUserGroup,
   HiOutlineBriefcase,
@@ -7,62 +12,85 @@ import {
   HiOutlineClock
 } from "react-icons/hi";
 
-const stats = [
-  {
-    label: "Clientes activos",
-    value: 128,
-    icon: HiOutlineUserGroup,
-    color: "bg-blue-50 text-blue-600",
-  },
-  {
-    label: "Asuntos en curso",
-    value: 42,
-    icon: HiOutlineBriefcase,
-    color: "bg-purple-50 text-purple-600",
-  },
-  {
-    label: "Pagos pendientes",
-    value: "$24,500",
-    icon: HiOutlineCash,
-    color: "bg-yellow-50 text-yellow-600",
-  },
-  {
-    label: "Citas hoy",
-    value: 6,
-    icon: HiOutlineCalendar,
-    color: "bg-green-50 text-green-600",
-  },
-];
-
-const pendingEvents = [
-  {
-    title: "Audiencia laboral",
-    time: "10:30 AM",
-    client: "Juan Pérez",
-  },
-  {
-    title: "Cita con cliente",
-    time: "1:00 PM",
-    client: "María González",
-  },
-  {
-    title: "Revisión de expediente",
-    time: "4:00 PM",
-    client: "Corporativo ABC",
-  },
-  {
-    title: "Reunión con DIF",
-    time: "5:00 PM",
-    client: "DIF La Piedad",
-  },
-  {
-    title: "Reunión con el alcalde",
-    time: "6:00 PM",
-    client: "Ayuntamiento de La Piedad",
-  }  
-];
+interface DashboardStats {
+  activeCases: number;
+  clients: number;
+  pendingPayments: number;
+};
 
 const DashboardHome = () => {
+
+  const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
+    activeCases: 0,
+    clients: 0,
+    pendingPayments: 0,
+  });
+  const [events, setEvents] = useState<any[]>([]);
+  const [userId, setUserId] = useState(1);
+
+  useEffect(() => {
+    loadDashboardStats();
+    loadTodayEvents(userId);
+  }, []);
+
+  const loadDashboardStats = async () => {
+    try {
+      Swal.fire({
+        title: "Cargando información...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+      const [data] = await Promise.all([
+        getDashboardStatsService(),
+        new Promise((resolve) => setTimeout(resolve, 700)),
+      ]);
+      console.log("---> Estadistas cargadas:", data);
+      setDashboardStats(data);
+    } catch (error) {
+      Swal.fire("Error", "No se pudo cargar la información", "error");
+    } finally {
+      Swal.close();
+    }
+  };
+
+  const loadTodayEvents = async (userId: number) => {
+    try {
+      const data = await getTodayEventsService(userId);
+      console.log("---> Eventos:", data);
+      setEvents(data);
+    } catch (error) {
+      Swal.fire("Error", "No se pudieron cargar los eventos", "error");
+    }
+  };
+
+  const stats = [
+    {
+      label: "Clientes activos",
+      value: dashboardStats?.clients || 0,
+      icon: HiOutlineUserGroup,
+      color: "bg-blue-50 text-blue-600",
+    },
+    {
+      label: "Asuntos en curso",
+      value: dashboardStats?.activeCases || 0,
+      icon: HiOutlineBriefcase,
+      color: "bg-purple-50 text-purple-600",
+    },
+    {
+      label: "Pagos pendientes",
+      value: `$${(dashboardStats?.pendingPayments || 0).toLocaleString()} MXN`,
+      icon: HiOutlineCash,
+      color: "bg-yellow-50 text-yellow-600",
+    },
+    {
+      label: "Citas hoy",
+      value: events.length || 0,
+      icon: HiOutlineCalendar,
+      color: "bg-green-50 text-green-600",
+    },
+  ];
+
+
   return (
     <div className="space-y-10">
 
@@ -115,7 +143,7 @@ const DashboardHome = () => {
                 Nuevo cliente
               </p>
               <p className="text-sm text-gray-500">
-                Registrar cliente
+                Clientes
               </p>
             </div>
             <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
@@ -125,7 +153,7 @@ const DashboardHome = () => {
           <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
             <div>
               <p className="font-semibold text-primary">
-                Agendar cita
+                Crear evento
               </p>
               <p className="text-sm text-gray-500">
                 Calendario
@@ -141,7 +169,7 @@ const DashboardHome = () => {
                 Nuevo asunto
               </p>
               <p className="text-sm text-gray-500">
-                Abrir expediente
+                Asuntos
               </p>
             </div>
             <div className="w-10 h-10 rounded-full bg-secondary/20 text-secondary flex items-center justify-center">
@@ -151,7 +179,7 @@ const DashboardHome = () => {
           <button className="p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition text-left flex items-center justify-between">
             <div>
               <p className="font-semibold text-primary">
-                Registar pago
+                Registar cobro
               </p>
               <p className="text-sm text-gray-500">
                 Cobros
@@ -175,7 +203,7 @@ const DashboardHome = () => {
         </div>
 
         <div className="space-y-4">
-          {pendingEvents.map((event, index) => (
+          {events.map((event, index) => (
             <div
               key={index}
               className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
@@ -185,13 +213,23 @@ const DashboardHome = () => {
                   {event.title}
                 </p>
                 <p className="text-sm text-gray-500">
-                  {event.client}
+                  {event.category}
                 </p>
               </div>
 
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <HiOutlineClock />
-                {event.time}
+                {new Date(event.start).toLocaleTimeString("es-MX", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+                {" - "}
+                {new Date(event.end).toLocaleTimeString("es-MX", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
               </div>
             </div>
           ))}

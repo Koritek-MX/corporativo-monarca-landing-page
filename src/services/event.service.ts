@@ -5,6 +5,11 @@ export const getEventService = async () => {
   return data;
 };
 
+export const getTodayEventsService = async (id: number,) => {
+  const { data } = await api.get(`/events/today/${id}`);
+  return data;
+};
+
 export const createEventService = async (payload: any) => {
   const { data } = await api.post("/events", payload);
   return data;

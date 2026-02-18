@@ -89,18 +89,25 @@ const Topbar = ({ onMenuClick }: Props) => {
           <HiOutlineMenu size={26} />
         </button>
 
-        <h1 className="hidden md:block text-lg font-semibold text-primary">
-          {getGreeting()}
-        </h1>
+        <div className="hidden md:flex items-center gap-4">
 
-        {/* 🕒 RELOJ */}
-        <div className="hidden md:flex flex-col leading-tight">
-          <span className="text-sm font-semibold text-gray-600">
-            {formatTime(time)}
-          </span>
-          <span className="text-xs text-gray-400 capitalize">
-            {formatDate(time)}
-          </span>
+          <h1 className="text-lg font-semibold text-primary">
+            {getGreeting()}
+          </h1>
+
+          {/* 👉 Línea vertical */}
+          <div className="w-px h-8 bg-gray-300"></div>
+
+          {/* 🕒 RELOJ */}
+          <div className="flex flex-col leading-tight">
+            <span className="text-sm font-semibold text-gray-600">
+              {formatTime(time)}
+            </span>
+            <span className="text-xs text-gray-400 capitalize">
+              {formatDate(time)}
+            </span>
+          </div>
+
         </div>
       </div>
 
@@ -161,7 +168,7 @@ const Topbar = ({ onMenuClick }: Props) => {
 
       <SettingsModal
         open={settingsOpen}
-        onClose={() => {}}
+        onClose={() => { }}
       />
     </header>
   );
