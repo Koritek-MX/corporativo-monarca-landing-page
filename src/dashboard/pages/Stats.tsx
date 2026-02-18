@@ -71,7 +71,7 @@ const Stats = () => {
   /* 👉 KPIs dinámicos */
   const STATS = [
     {
-      label: "Clientes",
+      label: "Clientes activos",
       value: kpis?.clients || 0,
       icon: HiOutlineUserGroup,
       color: "bg-blue-100 text-blue-700",
@@ -80,7 +80,7 @@ const Stats = () => {
       label: "Asuntos activos",
       value: kpis?.activeCases || 0,
       icon: HiOutlineBriefcase,
-      color: "bg-yellow-100 text-yellow-800",
+      color: "bg-purple-50 text-purple-600",
     },
     {
       label: "Ingresos del mes",

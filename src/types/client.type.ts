@@ -2,7 +2,7 @@ export type ClientType = "FISICA" | "MORAL";
 
 export interface Client {
   id: number;
-  type: ClientType;
+  type: string;
   name: string;
   lastName: string;
   phone: string;
