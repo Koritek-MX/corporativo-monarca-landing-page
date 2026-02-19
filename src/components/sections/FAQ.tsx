@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FaPlus, FaMinus } from "react-icons/fa";
 
 const faqs = [
@@ -25,23 +25,51 @@ const faqs = [
   {
     question: "¿En qué ciudades brindan atención?",
     answer:
-      "Ofrecemos atención presencial en La Piedad de Cavadas, Michoacán, y tambien de manera remota, lo que nos permite trabajar con clientes en toda la República Mexicana.",
+      "Ofrecemos atención presencial en La Piedad de Cavadas, Michoacán, y también de manera remota, lo que nos permite trabajar con clientes en toda la República Mexicana.",
   },
 ];
 
 const FAQ = () => {
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
+  const [visible, setVisible] = useState(false);
+  const sectionRef = useRef<HTMLDivElement | null>(null);
 
   const toggle = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
 
+  /* 👉 Animación scroll reveal */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <section id="faq" className="py-24 bg-white">
+    <section
+      ref={sectionRef}
+      id="faq"
+      className="py-24 bg-white overflow-hidden"
+    >
       <div className="max-w-5xl mx-auto px-6">
 
         {/* Header */}
-        <div className="text-center max-w-2xl mx-auto mb-16">
+        <div
+          className={`
+            text-center max-w-2xl mx-auto mb-16 transition-all duration-700
+            ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-10"}
+          `}
+        >
           <span className="inline-flex items-center mb-4 px-4 py-2 rounded-full bg-primary/5 text-secondary text-xs tracking-widest uppercase">
             Preguntas Frecuentes
           </span>
@@ -56,12 +84,17 @@ const FAQ = () => {
           </p>
         </div>
 
-        {/* FAQ List */}
+        {/* FAQ */}
         <div className="space-y-4">
           {faqs.map((faq, index) => (
             <div
               key={index}
-              className="border border-gray-200 rounded-xl overflow-hidden transition"
+              style={{ transitionDelay: `${index * 120}ms` }}
+              className={`
+                border border-gray-200 rounded-xl overflow-hidden
+                transition-all duration-500 hover:shadow-md
+                ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-12"}
+              `}
             >
               {/* Question */}
               <button
@@ -72,7 +105,12 @@ const FAQ = () => {
                   {faq.question}
                 </span>
 
-                <span className="ml-4 text-secondary">
+                <span
+                  className={`
+                    ml-4 text-secondary transition-transform duration-300
+                    ${activeIndex === index ? "rotate-180" : ""}
+                  `}
+                >
                   {activeIndex === index ? (
                     <FaMinus size={16} />
                   ) : (
@@ -83,11 +121,14 @@ const FAQ = () => {
 
               {/* Answer */}
               <div
-                className={`px-6 transition-all duration-300 ease-in-out ${
-                  activeIndex === index
-                    ? "max-h-40 pb-6 opacity-100"
-                    : "max-h-0 opacity-0 overflow-hidden"
-                }`}
+                className={`
+                  px-6 transition-all duration-500 ease-in-out
+                  ${
+                    activeIndex === index
+                      ? "max-h-40 pb-6 opacity-100"
+                      : "max-h-0 opacity-0 overflow-hidden"
+                  }
+                `}
               >
                 <p className="text-gray-600 leading-relaxed text-sm md:text-base">
                   {faq.answer}

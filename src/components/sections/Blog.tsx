@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Swal from "sweetalert2";
 import { getAllBlogsService } from "../../services/blog.service";
 import { useNavigate } from "react-router-dom";
@@ -6,9 +6,28 @@ import { useNavigate } from "react-router-dom";
 const Blog = () => {
   const [blogs, setBlogs] = useState<any[]>([]);
   const navigate = useNavigate();
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
     loadBlogs();
+  }, []);
+
+  /* 👉 Animación scroll reveal */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => observer.disconnect();
   }, []);
 
   const loadBlogs = async () => {
@@ -18,7 +37,6 @@ const Blog = () => {
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      // 👉 Ordena por fecha (últimos primero)
       const sorted = data.sort(
         (a: any, b: any) =>
           new Date(b.createdAt).getTime() -
@@ -27,19 +45,26 @@ const Blog = () => {
 
       setBlogs(sorted);
 
-    } catch (error) {
+    } catch {
       Swal.fire("Error", "No se pudieron cargar los blogs", "error");
-    } finally {
-      Swal.close();
     }
   };
 
   return (
-    <section id="blog" className="py-24 bg-gray-50">
+    <section
+      ref={sectionRef}
+      id="blog"
+      className="py-24 bg-gray-50 overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-6">
 
         {/* Header */}
-        <div className="max-w-3xl mb-16">
+        <div
+          className={`
+            max-w-3xl mb-16 transition-all duration-700
+            ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-10"}
+          `}
+        >
           <span className="inline-flex items-center mb-4 px-4 py-2 rounded-full bg-primary/5 text-secondary text-xs tracking-widest uppercase">
             Blog
           </span>
@@ -59,16 +84,35 @@ const Blog = () => {
           {blogs.slice(0, 3).map((blog, index) => (
             <article
               key={index}
-              className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-lg transition flex flex-col"
+              style={{ transitionDelay: `${index * 150}ms` }}
+              className={`
+                group bg-white border border-gray-100 rounded-2xl
+                overflow-hidden shadow-sm hover:shadow-xl
+                transition-all duration-500 flex flex-col
+                ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-12"}
+              `}
             >
-              <div className="h-52 w-full overflow-hidden">
+              {/* Imagen */}
+              <div className="h-52 w-full overflow-hidden relative">
                 <img
                   src={blog.imageUrl}
                   alt={blog.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                  className="
+                    w-full h-full object-cover
+                    group-hover:scale-110
+                    transition-transform duration-700
+                  "
                 />
+
+                {/* Overlay elegante */}
+                <div className="
+                  absolute inset-0 bg-primary/0
+                  group-hover:bg-primary/20
+                  transition
+                " />
               </div>
 
+              {/* Contenido */}
               <div className="p-8 flex flex-col flex-1">
                 <div className="flex items-center justify-between mb-3 text-xs uppercase tracking-wider">
                   <span className="text-secondary font-medium">
@@ -90,7 +134,13 @@ const Blog = () => {
                 <div className="mt-6 text-right">
                   <button
                     onClick={() => navigate(`/blog/${blog.id}`)}
-                    className="inline-flex items-center gap-2 text-sm font-medium text-primary/70 hover:text-secondary transition"
+                    className="
+                      inline-flex items-center gap-2
+                      text-sm font-medium
+                      text-primary/70
+                      hover:text-secondary
+                      transition
+                    "
                   >
                     Ver más →
                   </button>
@@ -100,23 +150,28 @@ const Blog = () => {
           ))}
         </div>
 
-        {/* 👉 BOTÓN VER MÁS */}
-
-        <div className="text-center mt-14">
+        {/* Botón */}
+        <div
+          className={`
+            text-center mt-14 transition-all duration-700
+            ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-10"}
+          `}
+        >
           <button
             onClick={() => navigate("/blog")}
             className="
-                px-8 py-3
-                bg-primary text-white
-                rounded-xl font-semibold
-                hover:bg-primary/90
-                transition
-              "
+              px-8 py-3
+              bg-primary text-white
+              rounded-xl font-semibold
+              hover:bg-primary/90
+              hover:scale-105
+              transition
+              shadow-md hover:shadow-lg
+            "
           >
             Ver más artículos
           </button>
         </div>
-
 
       </div>
     </section>

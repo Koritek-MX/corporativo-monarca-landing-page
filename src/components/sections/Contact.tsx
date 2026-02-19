@@ -1,6 +1,6 @@
 import Swal from "sweetalert2";
 import { createContactService } from "../../services/contact.service";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   FaPhoneAlt,
   FaEnvelope,
@@ -8,6 +8,9 @@ import {
 } from "react-icons/fa";
 
 const Contact = () => {
+
+  const sectionRef = useRef<HTMLDivElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
   const [form, setForm] = useState({
     name: "",
@@ -17,6 +20,23 @@ const Contact = () => {
     city: "",
     message: "",
   });
+
+  /* 👉 Scroll reveal */
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setVisible(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.25 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    return () => observer.disconnect();
+  }, []);
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
@@ -30,7 +50,7 @@ const Contact = () => {
         name: form.name,
         email: form.email,
         phone: form.phone,
-        city: `${form.city}, ${form.state}`, // 👈 concatenado
+        city: `${form.city}, ${form.state}`,
         message: form.message,
       };
 
@@ -53,7 +73,7 @@ const Contact = () => {
         message: "",
       });
 
-    } catch (error) {
+    } catch {
       Swal.fire("Error", "No se pudo enviar", "error");
     }
   };
@@ -66,15 +86,22 @@ const Contact = () => {
     form.message.trim();
 
   return (
-    <section id="contacto" className="py-24 bg-white">
+    <section
+      ref={sectionRef}
+      id="contacto"
+      className="py-24 bg-white overflow-hidden"
+    >
       <div className="max-w-7xl mx-auto px-6">
 
-        {/* Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-start">
 
-          {/* Left column */}
-          <div>
-            {/* Header */}
+          {/* LEFT COLUMN */}
+          <div
+            className={`
+              transition-all duration-700
+              ${visible ? "fade-up opacity-100" : "opacity-0 translate-y-10"}
+            `}
+          >
             <span className="inline-flex items-center mb-4 px-4 py-2 rounded-full bg-primary/5 text-secondary text-xs tracking-widest uppercase">
               Contacto
             </span>
@@ -85,13 +112,13 @@ const Contact = () => {
 
             <p className="text-gray-600 mb-10">
               Nuestro equipo está listo para brindarte una asesoría legal clara,
-              profesional y confidencial.
-              Te respondemos en menos de 24 horas.
+              profesional y confidencial. Te respondemos en menos de 24 horas.
             </p>
 
-            {/* Info */}
+            {/* INFO */}
             <div className="space-y-8">
-              <div className="flex items-start gap-4">
+
+              <div className="flex items-start gap-4 hover:translate-x-1 transition">
                 <FaPhoneAlt className="text-secondary mt-1" />
                 <div>
                   <p className="font-semibold text-primary">Teléfono</p>
@@ -104,7 +131,7 @@ const Contact = () => {
                 </div>
               </div>
 
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-4 hover:translate-x-1 transition">
                 <FaEnvelope className="text-secondary mt-1" />
                 <div>
                   <p className="font-semibold text-primary">
@@ -118,33 +145,39 @@ const Contact = () => {
                   </a>
                 </div>
               </div>
+
               <div className="flex items-start gap-4">
                 <FaMapMarkerAlt className="text-secondary mt-1" />
+
                 <div className="w-full">
-                  <p className="font-semibold text-primary mb-2">Ubicación</p>
+                  <p className="font-semibold text-primary mb-2">
+                    Ubicación
+                  </p>
 
                   <p className="text-gray-600 mb-4">
-                    Juan Escutia #10, int 3, Col. Centro, CP. 59300, <br />
+                    Juan Escutia #10, int 3, Col. Centro, CP. 59300,
                     La Piedad de Cabadas, Michoacán, México
                   </p>
 
-                  {/* Google Map */}
-                  <div className="w-full h-56 rounded-xl overflow-hidden border border-gray-200">
+                  {/* MAP */}
+                  <div className="
+                    w-full h-56 rounded-xl overflow-hidden
+                    border border-gray-200
+                    hover:shadow-xl transition
+                  ">
                     <iframe
                       title="Ubicación Corporativo Monarca"
                       src="https://www.google.com/maps?q=Juan%20Escutia%2010%20La%20Piedad%20de%20Cabadas%20Michoacan&output=embed"
                       className="w-full h-full border-0"
                       loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
                     />
                   </div>
                 </div>
               </div>
-
             </div>
           </div>
 
-          {/* Form */}
+          {/* FORM */}
           <form
             className="bg-white rounded-2xl p-8 shadow-lg border border-gray-100 space-y-6"
             onSubmit={handleSubmit}
@@ -278,8 +311,8 @@ const Contact = () => {
               className={`
               w-full font-semibold py-4 rounded-xl transition
               ${isFormValid
-                            ? "bg-primary text-white hover:bg-primary/90"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed"}
+                  ? "bg-primary text-white hover:bg-primary/90"
+                  : "bg-gray-300 text-gray-500 cursor-not-allowed"}
             `}
             >
               Enviar mensaje

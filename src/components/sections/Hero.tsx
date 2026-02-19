@@ -30,12 +30,12 @@ const Hero = () => {
           <div className="max-w-2xl text-white">
 
             {/* Badge */}
-            <span className="inline-flex items-center mb-6 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm text-xs tracking-widest uppercase text-secondary">
+            <span className="inline-flex items-center mb-6 px-4 py-2 rounded-full bg-white/5 backdrop-blur-sm text-xs tracking-widest uppercase text-secondary opacity-0 animate-fadeUp animate-delay-1">
               Bienvenidos a Corporativo Monarca
             </span>
 
             {/* Headline */}
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 uppercase">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6 uppercase opacity-0 animate-fadeUp animate-delay-2">
               Defendemos tus derechos <br />
               <span className="text-white">
                 con experiencia y compromiso
@@ -46,7 +46,7 @@ const Hero = () => {
             <a
               href="#contacto"
               onClick={handleScrollToContact}
-              className="inline-flex items-center justify-center bg-secondary text-white font-semibold px-10 py-4 rounded-xl text-sm md:text-base hover:bg-secondary/90 transition"
+              className="inline-flex items-center justify-center bg-secondary text-white font-semibold px-10 py-4 rounded-xl text-sm md:text-base hover:bg-secondary/90 transition opacity-0 animate-fadeUp animate-delay-3"
             >
               CONTÁCTANOS
             </a>
