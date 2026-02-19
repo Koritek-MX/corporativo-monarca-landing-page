@@ -282,6 +282,21 @@ const Billing = () => {
     setIsModalOpen(true);
   };
 
+  const total = Number(form.totalAmount || 0);
+  const initial = Number(form.initialPaid || 0);
+  const iva = Number(form.iva || 0);
+
+  const isPaymentValid =
+    form.clientId &&
+    form.clientId !== "0" &&
+    form.caseId &&
+    form.currency &&
+    form.status &&
+    total > 0 &&
+    initial >= 0 &&
+    initial <= total &&
+    (!includeIva || iva >= 0);
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -514,22 +529,6 @@ const Billing = () => {
                 </select>
               </div>
 
-              {/* Moneda */}
-              <div>
-                <label className="block text-sm font-medium mb-1">Moneda</label>
-                <select
-                  value={form.currency}
-                  onChange={(e) =>
-                    setForm({ ...form, currency: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
-                >
-                  <option value="MXN">MXN</option>
-                  <option value="USD">USD</option>
-                </select>
-              </div>
-
-
               {/* Estado de la factura */}
               <div>
                 <label className="block text-sm font-medium mb-1">Estado del folio</label>
@@ -651,9 +650,18 @@ const Billing = () => {
                 Cancelar
               </button>
 
-              <button className="px-6 py-2 rounded-lg font-semibold bg-primary text-white hover:bg-primary/90 transition"
-                onClick={savePayment}>
-                Guardar cobro
+              <button
+                onClick={savePayment}
+                disabled={!isPaymentValid}
+                className={`
+                px-6 py-2 rounded-lg font-semibold transition
+                ${isPaymentValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
+              `}
+              >
+                {editingPayment ? "Editar cobro" : "Crear cobro"}
               </button>
             </div>
 

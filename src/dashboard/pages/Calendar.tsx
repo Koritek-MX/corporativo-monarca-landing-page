@@ -11,7 +11,6 @@ import Swal from "sweetalert2";
 import {
   createEventService,
   updateEventService,
-  getEventService,
   deleteEventService,
   getEventsByUserService
 } from "../../services/event.service";
@@ -76,7 +75,6 @@ const Calendar = () => {
         },
       }));
 
-      console.log("---> Eventos cargados:", formatted);
       setEvents(formatted);
 
     } catch (error) {
@@ -95,24 +93,17 @@ const Calendar = () => {
       }));
       setUsers(formatted);
     } catch (error) {
-      console.error(error);
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
-    } finally {
-      Swal.close();
-    }
+    } 
   };
 
   const loadCases = async () => {
     try {
       const data = await getCasesByLawyerIdService(userId);
       setCases(data);
-      console.log('CASOS: ', data)
     } catch (error) {
-      console.error(error);
       Swal.fire("Error", "No se pudieron cargar los casos", "error");
-    } finally {
-      Swal.close();
-    }
+    } 
   };
 
 
@@ -158,7 +149,6 @@ const Calendar = () => {
   };
 
   const openEditFromDetail = () => {
-    console.log('Selected event for edit', selectedEvent)
     if (!selectedEvent) return;
 
     setForm({
@@ -193,11 +183,6 @@ const Calendar = () => {
         return;
       }
 
-      console.log('---->', form.guests.map(g => ({
-        id: g.value,
-        name: g.label,
-      })));
-
       await createEventService({
         title: form.title,
         start: form.start,
@@ -222,7 +207,6 @@ const Calendar = () => {
       });
 
     } catch (error) {
-      console.error(error);
       Swal.fire("Error", "No se pudo crear el evento", "error");
     }
   };
@@ -241,7 +225,6 @@ const Calendar = () => {
         return;
       }
 
-      console.log('Selected event', selectedEvent)
       await updateEventService(Number(activeEvent.id), {
         title: form.title,
         start: form.start,
@@ -267,7 +250,6 @@ const Calendar = () => {
       });
 
     } catch (error) {
-      console.error(error);
       Swal.fire("Error", "No se pudo actualizar", "error");
     }
   };
@@ -300,7 +282,6 @@ const Calendar = () => {
           });
 
         } catch (error) {
-          console.error(error);
           Swal.fire("Error", "No se pudo eliminar", "error");
         }
       }
@@ -322,6 +303,13 @@ const Calendar = () => {
       end: formatLocal(plusOne),
     };
   };
+
+  const isFormValid =
+    form.title?.trim() &&
+    form.category &&
+    form.caseId &&
+    form.start &&
+    form.end;
 
   return (
     <div className="h-full flex flex-col gap-6">
@@ -538,7 +526,14 @@ const Calendar = () => {
               </button>
               <button
                 onClick={mode === "create" ? handleCreateEvent : handleUpdateEvent}
-                className="bg-primary text-white px-6 py-2 rounded-lg"
+                disabled={!isFormValid}
+                className={`
+                px-6 py-2 rounded-lg font-semibold transition
+                ${isFormValid
+                                ? "bg-primary text-white hover:bg-primary/90"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                              }
+              `}
               >
                 {mode === "create" ? "Crear evento" : "Guardar cambios"}
               </button>

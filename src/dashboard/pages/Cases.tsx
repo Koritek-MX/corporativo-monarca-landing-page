@@ -36,6 +36,17 @@ const STATUS_LABELS: Record<string, string> = {
   ARCHIVADO: "Archivado",
 };
 
+const emptyForm = {
+  title: "",
+  folio: "",
+  area: "",
+  description: "",
+  status: "POR_INICIAR",
+  clientId: "",
+  lawyerId: ""
+}
+
+
 const Cases = () => {
 
   const navigate = useNavigate();
@@ -47,25 +58,7 @@ const Cases = () => {
   const [clients, setClients] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loadingCases, setLoadingCases] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    folio: "",
-    area: "",
-    description: "",
-    status: "",
-    clientId: "",
-    lawyerId: ""
-  });
-  const emptyForm = {
-    title: "",
-    folio: "",
-    area: "",
-    description: "",
-    status: "POR_INICIAR",
-    clientId: "",
-    lawyerId: ""
-  }
-
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
     loadCases();
@@ -259,7 +252,13 @@ const Cases = () => {
     setStatusModalOpen(true);
   };
 
-
+  const isFormValid =
+    form.folio?.trim() &&
+    form.area &&
+    form.title?.trim() &&
+    form.description?.trim() &&
+    form.clientId &&
+    form.lawyerId;
 
   return (
     <div className="flex flex-col gap-6">
@@ -518,9 +517,16 @@ const Cases = () => {
 
               <button
                 onClick={saveCase}
-                className="px-6 py-2 rounded-lg font-semibold bg-primary text-white"
+                disabled={!isFormValid}
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
+                  ${isFormValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
+                `}
               >
-                Guardar asunto
+                Crear asunto
               </button>
             </div>
 
