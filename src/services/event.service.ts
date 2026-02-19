@@ -5,6 +5,11 @@ export const getEventService = async () => {
   return data;
 };
 
+export const getEventsByUserService = async (id: number,) => {
+  const { data } = await api.get(`/events/user/${id}`);
+  return data;
+};
+
 export const getTodayEventsService = async (id: number,) => {
   const { data } = await api.get(`/events/today/${id}`);
   return data;
@@ -16,7 +21,6 @@ export const createEventService = async (payload: any) => {
 };
 
 export const updateEventService = async (id: number, payload: any) => {
-  console.log("///Esto se manda al servicio de editar:", payload);
   const { data } = await api.put(`/events/${id}`, payload);
   return data;
 };

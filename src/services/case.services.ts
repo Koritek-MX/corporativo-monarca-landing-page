@@ -30,5 +30,11 @@ export const getCasesByClientIdService = async (id: number) => {
   return data;
 };
 
+export const getCasesByLawyerIdService = async (id: number) => {
+  const { data } = await api.get(`/cases/lawyer/${id}`);
+  return data;
+};
+
+
 
 

@@ -12,10 +12,11 @@ import {
   createEventService,
   updateEventService,
   getEventService,
-  deleteEventService
+  deleteEventService,
+  getEventsByUserService
 } from "../../services/event.service";
 import { getUsersService } from "../../services/user.services";
-import { getCaseService } from "../../services/case.services";
+import { getCasesByLawyerIdService } from "../../services/case.services";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -26,6 +27,7 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const Calendar = () => {
+  const [userId, setUserId] = useState(1);
   const [events, setEvents] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
@@ -58,7 +60,7 @@ const Calendar = () => {
       });
 
       const [data] = await Promise.all([
-        getEventService(),
+        getEventsByUserService(userId),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
@@ -86,18 +88,12 @@ const Calendar = () => {
 
   const loadUsers = async () => {
     try {
-      const [data] = await Promise.all([
-        getUsersService(),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getUsersService();
       const formatted = data.map((u: any) => ({
         value: u.id,
         label: u.name,
       }));
-
-      console.log("---> Usuarios cargados:", formatted);
       setUsers(formatted);
-
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
@@ -108,11 +104,9 @@ const Calendar = () => {
 
   const loadCases = async () => {
     try {
-      const [data] = await Promise.all([
-        getCaseService(),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getCasesByLawyerIdService(userId);
       setCases(data);
+      console.log('CASOS: ', data)
     } catch (error) {
       console.error(error);
       Swal.fire("Error", "No se pudieron cargar los casos", "error");
@@ -469,7 +463,7 @@ const Calendar = () => {
               {/* Asunto */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Asunto legal
+                  Asuntos
                 </label>
                 <select
                   value={form.caseId}
