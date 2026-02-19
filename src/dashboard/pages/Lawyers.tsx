@@ -40,6 +40,7 @@ const Lawyers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [form, setForm] = useState(emptyForm);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     loadUsers();
@@ -48,6 +49,7 @@ const Lawyers = () => {
   /* 👉 Cargar abogados */
   const loadUsers = async () => {
     try {
+      setLoadingUsers(true);
       Swal.fire({
         title: "Cargando abogados...",
         allowOutsideClick: false,
@@ -63,6 +65,7 @@ const Lawyers = () => {
     } catch {
       Swal.fire("Error", "No se pudieron cargar", "error");
     } finally {
+      setLoadingUsers(false);
       Swal.close();
     }
   };
@@ -224,73 +227,90 @@ const Lawyers = () => {
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-primary text-white uppercase text-xs">
-            <tr>
-              <th className="px-6 py-4 text-left">Nombre</th>
-              <th className="px-6 py-4 text-left">Correo electrónico</th>
-              <th className="px-6 py-4 text-left">Teléfono</th>
-              <th className="px-6 py-4 text-left">Especialidad</th>
-              <th className="px-6 py-4 text-left">Rol</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
 
-          <tbody>
-            {users.map((l, index) => (
-              <tr
-                key={l.id}
-                className={`${index % 2 ? "bg-gray-200" : ""}`}
-              >
-                <td className="px-6 py-4 font-semibold text-primary">
-                  <div className="flex items-center gap-3">
+      {loadingUsers ? (
+        <div className="py-10 text-center text-gray-500">
+          Cargando abogados...
+        </div>
+      ) : users.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">⚖️</div>
+          <p className="font-semibold text-lg">
+            No hay abogados registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-primary text-white uppercase text-xs">
+              <tr>
+                <th className="px-6 py-4 text-left">Nombre</th>
+                <th className="px-6 py-4 text-left">Correo electrónico</th>
+                <th className="px-6 py-4 text-left">Teléfono</th>
+                <th className="px-6 py-4 text-left">Especialidad</th>
+                <th className="px-6 py-4 text-left">Rol</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
 
-                    <img
-                      src={l.avatar || "/avatar-default.png"}
-                      alt={l.name}
-                      className="w-9 h-9 rounded-full object-cover border"
-                    />
+            <tbody>
+              {users.map((l, index) => (
+                <tr
+                  key={l.id}
+                  className={`${index % 2 ? "bg-gray-200" : ""}`}
+                >
+                  <td className="px-6 py-4 font-semibold text-primary">
+                    <div className="flex items-center gap-3">
 
-                    <span>{l.name}</span>
+                      <img
+                        src={l.avatar || "/avatar-default.png"}
+                        alt={l.name}
+                        className="w-9 h-9 rounded-full object-cover border"
+                      />
 
-                  </div>
-                </td>
-                <td className="px-6 py-4">{l.email}</td>
-                <td className="px-6 py-4">{formatPhone(l.phone)}</td>
-                <td className="px-6 py-4">{l.specialty}</td>
-                <td className="px-6 py-4">
-                  <span
-                    className={`
+                      <span>{l.name}</span>
+
+                    </div>
+                  </td>
+                  <td className="px-6 py-4">{l.email}</td>
+                  <td className="px-6 py-4">{formatPhone(l.phone)}</td>
+                  <td className="px-6 py-4">{l.specialty}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`
                       inline-flex items-center px-3 py-1 rounded-full
                       text-xs font-semibold uppercase
                       ${ROLE_STYLES[l.role]?.bg || "bg-gray-100"}
                       ${ROLE_STYLES[l.role]?.text || "text-gray-700"}
                     `}
-                  >
-                    {l.role}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right flex justify-end gap-3">
-                  <button
-                    onClick={() => openEditUser(l)}
-                    className="text-primary"
-                  >
-                    <HiOutlinePencil size={22} />
-                  </button>
+                    >
+                      {l.role}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-right flex justify-end gap-3">
+                    <button
+                      onClick={() => openEditUser(l)}
+                      className="text-primary"
+                    >
+                      <HiOutlinePencil size={22} />
+                    </button>
 
-                  <button
-                    onClick={() => deleteUser(l.id)}
-                    className="text-red-500"
-                  >
-                    <HiOutlineTrash size={22} />
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                    <button
+                      onClick={() => deleteUser(l.id)}
+                      className="text-red-500"
+                    >
+                      <HiOutlineTrash size={22} />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* MODAL */}
       {isModalOpen && (

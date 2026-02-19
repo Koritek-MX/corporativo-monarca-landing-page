@@ -36,6 +36,7 @@ const Billing = () => {
   const [cases, setCases] = useState<any[]>([]);
   const navigate = useNavigate();
   const [editingPayment, setEditingPayment] = useState<any>(null);
+  const [loadingPayments, setLoadingPayments] = useState(false);
   const [form, setForm] = useState({
     currency: "MXN",
     totalAmount: "",
@@ -56,6 +57,7 @@ const Billing = () => {
 
   const loadPayments = async () => {
     try {
+      setLoadingPayments(true);
       Swal.fire({
         title: "Cargando cobros...",
         allowOutsideClick: false,
@@ -71,6 +73,7 @@ const Billing = () => {
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los cobros", "error");
     } finally {
+      setLoadingPayments(false);
       Swal.close();
     }
   };
@@ -301,122 +304,139 @@ const Billing = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-            <tr>
-              <th className="px-6 py-4 text-left">Folio</th>
-              <th className="px-6 py-4 text-left">Cliente</th>
-              <th className="px-6 py-4 text-left">Asunto</th>
-              <th className="px-6 py-4 text-right">Total</th>
-              <th className="px-6 py-4 text-right">Pagado</th>
-              <th className="px-6 py-4 text-right">Saldo</th>
-              <th className="px-6 py-4 text-right">Fecha</th>
-              <th className="px-6 py-4 text-left">Estado</th>
-              <th className="px-6 py-4 text-center">Abonos</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {payments.map((c: any, index: number) => {
 
-              // 👉 Sumar todos los abonos del cobro
-              const paid = (c.installments || []).reduce(
-                (acc: number, i: any) => acc + Number(i.amount || 0),
-                0
-              );
+      {loadingPayments ? (
+        <div className="py-10 text-center text-gray-500">
+          Cargando cobros...
+        </div>
+      ) : payments.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">💵</div>
+          <p className="font-semibold text-lg">
+            No hay cobros registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+              <tr>
+                <th className="px-6 py-4 text-left">Folio</th>
+                <th className="px-6 py-4 text-left">Cliente</th>
+                <th className="px-6 py-4 text-left">Asunto</th>
+                <th className="px-6 py-4 text-right">Total</th>
+                <th className="px-6 py-4 text-right">Pagado</th>
+                <th className="px-6 py-4 text-right">Saldo</th>
+                <th className="px-6 py-4 text-right">Fecha</th>
+                <th className="px-6 py-4 text-left">Estado</th>
+                <th className="px-6 py-4 text-center">Abonos</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {payments.map((c: any, index: number) => {
 
-              // 👉 Total del cobro (incluye IVA)
-              const total = Number(c.finalAmount || 0);
+                // 👉 Sumar todos los abonos del cobro
+                const paid = (c.installments || []).reduce(
+                  (acc: number, i: any) => acc + Number(i.amount || 0),
+                  0
+                );
 
-              // 👉 Saldo pendiente
-              const balance = total - paid;
+                // 👉 Total del cobro (incluye IVA)
+                const total = Number(c.finalAmount || 0);
 
-              return (
-                <tr
-                  key={c.id}
-                  className={`
+                // 👉 Saldo pendiente
+                const balance = total - paid;
+
+                return (
+                  <tr
+                    key={c.id}
+                    className={`
                     border-t transition
                     ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                     hover:bg-primary/5
                   `}
-                >
-                  {/* Folio */}
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    #{c.id}
-                  </td>
+                  >
+                    {/* Folio */}
+                    <td className="px-6 py-4 font-semibold text-primary">
+                      #{c.id}
+                    </td>
 
-                  {/* Cliente */}
-                  <td className="px-6 py-4">
-                    {c.client?.name + " " + c.client?.lastName || "-"}
-                  </td>
+                    {/* Cliente */}
+                    <td className="px-6 py-4">
+                      {c.client?.name + " " + c.client?.lastName || "-"}
+                    </td>
 
-                  {/* Caso */}
-                  <td className="px-6 py-4">
-                    {c.case?.folio + " - " + c.case?.title || "-"}
-                  </td>
+                    {/* Caso */}
+                    <td className="px-6 py-4">
+                      {c.case?.folio + " - " + c.case?.title || "-"}
+                    </td>
 
-                  {/* Total */}
-                  <td className="px-6 py-4 text-right">
-                    <strong> ${total.toLocaleString()} </strong>
-                  </td>
+                    {/* Total */}
+                    <td className="px-6 py-4 text-right">
+                      <strong> ${total.toLocaleString()} </strong>
+                    </td>
 
-                  {/* Pagado */}
-                  <td className="px-6 py-4 text-right text-green-700">
-                    ${paid.toLocaleString()}
-                  </td>
+                    {/* Pagado */}
+                    <td className="px-6 py-4 text-right text-green-700">
+                      ${paid.toLocaleString()}
+                    </td>
 
-                  {/* Saldo */}
-                  <td className="px-6 py-4 text-right font-semibold text-red-600">
-                    ${balance.toLocaleString()}
-                  </td>
+                    {/* Saldo */}
+                    <td className="px-6 py-4 text-right font-semibold text-red-600">
+                      ${balance.toLocaleString()}
+                    </td>
 
-                  {/* Fecha */}
-                  <td className="px-6 py-4 text-right">
-                    {new Date(c.createdAt).toLocaleDateString("es-MX")}
-                  </td>
+                    {/* Fecha */}
+                    <td className="px-6 py-4 text-right">
+                      {new Date(c.createdAt).toLocaleDateString("es-MX")}
+                    </td>
 
-                  {/* Estado */}
-                  <td className="px-6 py-4">
-                    <span
-                      className={`inline-flex uppercase px-3 py-1 rounded-full text-xs font-semibold
+                    {/* Estado */}
+                    <td className="px-6 py-4">
+                      <span
+                        className={`inline-flex uppercase px-3 py-1 rounded-full text-xs font-semibold
                         ${PAYMENT_STATUS[c.status.toLowerCase()]?.bg}
                         ${PAYMENT_STATUS[c.status.toLowerCase()]?.text}`}
-                    >
-                      {c.status}
-                    </span>
-                  </td>
-
-                  {/* Botón abono */}
-                  <td className="px-6 py-4 text-center">
-                    <button
-                      className="text-green-600 hover:text-green-700"
-                      onClick={() => navigate(`/dashboard/cobros/${c.id}/abonos`)}
-                    >
-                      <MdAttachMoney size={25} />
-                    </button>
-                  </td>
-
-                  {/* Acciones */}
-                  <td className="px-6 py-4 text-right">
-                    <div className="inline-flex gap-2">
-                      <button className="text-primary hover:text-secondary"
-                        onClick={() => openEditPayment(c)}>
-                        <HiOutlinePencil size={22} />
-                      </button>
-                      <button className="text-red-500 hover:text-red-600"
-                        onClick={() => deletePayment(c.id)}
                       >
-                        <HiOutlineTrash size={22} />
+                        {c.status}
+                      </span>
+                    </td>
+
+                    {/* Botón abono */}
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        className="text-green-600 hover:text-green-700"
+                        onClick={() => navigate(`/dashboard/cobros/${c.id}/abonos`)}
+                      >
+                        <MdAttachMoney size={25} />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                    </td>
+
+                    {/* Acciones */}
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex gap-2">
+                        <button className="text-primary hover:text-secondary"
+                          onClick={() => openEditPayment(c)}>
+                          <HiOutlinePencil size={22} />
+                        </button>
+                        <button className="text-red-500 hover:text-red-600"
+                          onClick={() => deletePayment(c.id)}
+                        >
+                          <HiOutlineTrash size={22} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* MODAL – Nuevo Cobro */}
       {isModalOpen && (

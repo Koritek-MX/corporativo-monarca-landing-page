@@ -32,6 +32,7 @@ const BlogAdmin = () => {
   const [posts, setPosts] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
+  const [loadingBlogs, setLoadingBlogs] = useState(false);
 
   const [form, setForm] = useState({
     title: "",
@@ -48,6 +49,7 @@ const BlogAdmin = () => {
 
   const loadBlogs = async () => {
     try {
+      setLoadingBlogs(true);
       Swal.fire({
         title: "Cargando blogs...",
         allowOutsideClick: false,
@@ -59,11 +61,12 @@ const BlogAdmin = () => {
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      setPosts(data);
+      // setPosts(data);
 
     } catch {
       Swal.fire("Error", "No se pudieron cargar los blogs", "error");
     } finally {
+      setLoadingBlogs(false);
       Swal.close();
     }
   };
@@ -196,76 +199,92 @@ const BlogAdmin = () => {
       </div>
 
       {/* TABLA */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-primary text-white uppercase text-xs">
-            <tr>
+      {loadingBlogs ? (
+        <div className="py-10 text-center text-gray-500">
+          Cargando blogs...
+        </div>
+      ) : posts.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">📰</div>
+          <p className="font-semibold text-lg">
+            No hay blogs registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-primary text-white uppercase text-xs">
+              <tr>
 
-              <th className="px-6 py-4 text-left">Imagen</th>
-              <th className="px-6 py-4 text-left">Título</th>
-              <th className="px-6 py-4 text-left">Área</th>
-              <th className="px-6 py-4 text-left">Fecha</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
+                <th className="px-6 py-4 text-left">Imagen</th>
+                <th className="px-6 py-4 text-left">Título</th>
+                <th className="px-6 py-4 text-left">Área</th>
+                <th className="px-6 py-4 text-left">Fecha</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {posts.map((post, index) => (
-              <tr
-                key={post.id}
-                className={`
+            <tbody>
+              {posts.map((post, index) => (
+                <tr
+                  key={post.id}
+                  className={`
                   border-t transition
                   ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                   hover:bg-primary/5
                 `}
-              >
-                <td className="px-6 py-4">
-                  {post.imageUrl ? (
-                    <img
-                      src={post.imageUrl}
-                      alt={post.title}
-                      className="w-14 h-14 object-cover rounded-lg border"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-500">
-                      Sin imagen
+                >
+                  <td className="px-6 py-4">
+                    {post.imageUrl ? (
+                      <img
+                        src={post.imageUrl}
+                        alt={post.title}
+                        className="w-14 h-14 object-cover rounded-lg border"
+                      />
+                    ) : (
+                      <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-500">
+                        Sin imagen
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-6 py-4 font-semibold text-primary">
+                    {post.title}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-600">
+                    {post.area}
+                  </td>
+
+                  <td className="px-6 py-4">
+                    {new Date(post.createdAt).toLocaleDateString("es-MX")}
+                  </td>
+
+                  <td className="px-6 py-4 text-right">
+                    <div className="flex justify-end gap-3">
+                      <button
+                        className="text-primary hover:text-secondary"
+                        onClick={() => openEditPost(post)}
+                      >
+                        <HiOutlinePencil size={22} />
+                      </button>
+
+                      <button
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => handleDelete(post.id)}
+                      >
+                        <HiOutlineTrash size={22} />
+                      </button>
                     </div>
-                  )}
-                </td>
-                <td className="px-6 py-4 font-semibold text-primary">
-                  {post.title}
-                </td>
-
-                <td className="px-6 py-4 text-gray-600">
-                  {post.area}
-                </td>
-
-                <td className="px-6 py-4">
-                  {new Date(post.createdAt).toLocaleDateString("es-MX")}
-                </td>
-
-                <td className="px-6 py-4 text-right">
-                  <div className="flex justify-end gap-3">
-                    <button
-                      className="text-primary hover:text-secondary"
-                      onClick={() => openEditPost(post)}
-                    >
-                      <HiOutlinePencil size={22} />
-                    </button>
-
-                    <button
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => handleDelete(post.id)}
-                    >
-                      <HiOutlineTrash size={22} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* MODAL */}
       {isModalOpen && (

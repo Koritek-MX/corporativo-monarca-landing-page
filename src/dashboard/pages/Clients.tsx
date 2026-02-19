@@ -39,6 +39,7 @@ const Clients = () => {
   const [editing, setEditing] = useState<Client | null>(null);
   const [form, setForm] = useState<Client>(emptyClient);
   const [passwordModalOpen, setPasswordModalOpen] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
   const [passwordForm, setPasswordForm] = useState({
     password: "",
     confirmPassword: "",
@@ -52,6 +53,7 @@ const Clients = () => {
 
   const loadClients = async () => {
     try {
+      setLoadingUsers(true);
       Swal.fire({
         title: "Cargando clientes...",
         allowOutsideClick: false,
@@ -68,6 +70,7 @@ const Clients = () => {
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los clientes", "error");
     } finally {
+      setLoadingUsers(false);
       Swal.close();
     }
   };
@@ -221,72 +224,89 @@ const Clients = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[900px] md:min-w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-              <tr>
-                <th className="px-6 py-4 text-left">Cliente</th>
-                <th className="px-6 py-4 text-left">Régimen fiscal</th>
-                <th className="px-6 py-4 text-left">Correo</th>
-                <th className="px-6 py-4 text-left">Teléfono</th>
-                <th className="px-6 py-4 text-left">RFC</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+      {loadingUsers ? (
+        <div className="py-10 text-center text-gray-500">
+          Cargando clientes...
+        </div>
+      ) : clients.length === 0 ? (<>
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">👨🏻‍💼</div>
+          <p className="font-semibold text-lg">
+            No hay clientes registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      </>) : (<>
+        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] md:min-w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="px-6 py-4 text-left">Cliente</th>
+                  <th className="px-6 py-4 text-left">Régimen fiscal</th>
+                  <th className="px-6 py-4 text-left">Correo</th>
+                  <th className="px-6 py-4 text-left">Teléfono</th>
+                  <th className="px-6 py-4 text-left">RFC</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {clients.map((c, index) => (
-                <tr
-                  key={c.id}
-                  className={`
+              <tbody>
+                {clients.map((c, index) => (
+                  <tr
+                    key={c.id}
+                    className={`
                 border-t transition
                 ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                 hover:bg-primary/5
               `}
-                >
-                  <td className="px-6 py-4 font-medium">
-                    {c.name} {c.lastName}
+                  >
+                    <td className="px-6 py-4 font-medium">
+                      {c.name} {c.lastName}
 
-                  </td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`
+                    </td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`
                     inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
                     ${c.type === "FISICA"
-                          ? "bg-secondary/20 text-secondary"
-                          : "bg-primary/20 text-primary"
-                        }
+                            ? "bg-secondary/20 text-secondary"
+                            : "bg-primary/20 text-primary"
+                          }
                   `}
-                    >
-                      {c.type === "FISICA" ? "Física" : "Moral"}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{c.email}</td>
-                  <td className="px-6 py-4 text-gray-600">
-                    {formatPhone(c.phone)}
-                  </td>
-                  <td className="px-6 py-4">{c.rfc}</td>
-                  <td className="px-6 py-4 text-right space-x-3">
-                    <button
-                      onClick={() => openEdit(c)}
-                      className="text-primary hover:text-secondary"
-                    >
-                      <HiOutlinePencil size={22} />
-                    </button>
-                    <button
-                      onClick={() => deleteClient(c.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
-                      <HiOutlineTrash size={22} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                      >
+                        {c.type === "FISICA" ? "Física" : "Moral"}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{c.email}</td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {formatPhone(c.phone)}
+                    </td>
+                    <td className="px-6 py-4">{c.rfc}</td>
+                    <td className="px-6 py-4 text-right space-x-3">
+                      <button
+                        onClick={() => openEdit(c)}
+                        className="text-primary hover:text-secondary"
+                      >
+                        <HiOutlinePencil size={22} />
+                      </button>
+                      <button
+                        onClick={() => deleteClient(c.id)}
+                        className="text-red-500 hover:text-red-700"
+                      >
+                        <HiOutlineTrash size={22} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
-      </div>
+      </>)}
+
 
       {/* MODAL */}
       {open && (

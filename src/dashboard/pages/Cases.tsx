@@ -46,6 +46,7 @@ const Cases = () => {
   const [cases, setCases] = useState<any[]>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [loadingCases, setLoadingCases] = useState(false);
   const [form, setForm] = useState({
     title: "",
     folio: "",
@@ -74,6 +75,7 @@ const Cases = () => {
 
   const loadCases = async () => {
     try {
+      setLoadingCases(true);
       Swal.fire({
         title: "Cargando asuntos...",
         allowOutsideClick: false,
@@ -83,12 +85,11 @@ const Cases = () => {
         getCaseService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      console.log("---> Asuntos cargados:", data);
       setCases(data);
-
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los asuntos", "error");
     } finally {
+      setLoadingCases(false);
       Swal.close();
     }
   };
@@ -99,7 +100,6 @@ const Cases = () => {
         getClientsService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      console.log("---> Clientes cargados:", data);
       setClients(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los clientes", "error");
@@ -114,7 +114,6 @@ const Cases = () => {
         getUsersService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      console.log("---> Usuarios cargados:", data);
       setUsers(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
@@ -283,98 +282,114 @@ const Cases = () => {
       </div>
 
       {/* Tabla */}
-      <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-            <tr>
-              <th className="px-6 py-4 text-left">Folio</th>
-              <th className="px-6 py-4 text-left">Asunto</th>
-              <th className="px-6 py-4 text-left">Cliente</th>
-              <th className="px-6 py-4 text-left">Area</th>
-              <th className="px-6 py-4 text-left">Abogado</th>
-              <th className="px-6 py-4 text-left">Estado</th>
-              <th className="px-6 py-4 text-center">Expedientes</th>
-              <th className="px-6 py-4 text-right">Acciones</th>
-            </tr>
-          </thead>
+      {loadingCases ? (
+        <div className="py-10 text-center text-gray-500">
+          Cargando asuntos...
+        </div>
+      ) : cases.length === 0 ? (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">💼</div>
+          <p className="font-semibold text-lg">
+            No hay asuntos registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+              <tr>
+                <th className="px-6 py-4 text-left">Folio</th>
+                <th className="px-6 py-4 text-left">Asunto</th>
+                <th className="px-6 py-4 text-left">Cliente</th>
+                <th className="px-6 py-4 text-left">Area</th>
+                <th className="px-6 py-4 text-left">Abogado</th>
+                <th className="px-6 py-4 text-left">Estado</th>
+                <th className="px-6 py-4 text-center">Expedientes</th>
+                <th className="px-6 py-4 text-right">Acciones</th>
+              </tr>
+            </thead>
 
-          <tbody>
-            {cases.map((a, index) => (
-              <tr
-                key={a.id}
-                className={`
+            <tbody>
+              {cases.map((a, index) => (
+                <tr
+                  key={a.id}
+                  className={`
                 border-t transition
                 ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                 hover:bg-primary/5
               `}
-              >
-                <td className="px-6 py-4 font-semibold text-primary">
-                  {a.folio}
-                </td>
-
-                <td className="px-6 py-4 text-gray-700">
-                  {a.title}
-                </td>
-
-                <td className="px-6 py-4 text-gray-600">
-                  {a.client.name + " " + a.client.lastName}
-                </td>
-
-                <td className="px-6 py-4 text-gray-600">
-                  {a.area}
-                </td>
-
-                <td className="px-6 py-4 text-gray-600">
-                  {a.lawyer.name}
-                </td>
-
-                <td
-                  className="px-6 py-4"
                 >
-                  <span
-                    onClick={() => openStatusModal(a)}
-                    className={`
+                  <td className="px-6 py-4 font-semibold text-primary">
+                    {a.folio}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-700">
+                    {a.title}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-600">
+                    {a.client.name + " " + a.client.lastName}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-600">
+                    {a.area}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-600">
+                    {a.lawyer.name}
+                  </td>
+
+                  <td
+                    className="px-6 py-4"
+                  >
+                    <span
+                      onClick={() => openStatusModal(a)}
+                      className={`
                     inline-flex items-center
                     px-3 py-1 rounded-full
                     text-xs font-semibold capitalize uppercase
                     ${STATUS_STYLES[a.status]?.bg}
                     ${STATUS_STYLES[a.status]?.text}
                   `}
-                  >
-                    {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
-                  </span>
-                </td>
-
-                <td className="text-gray-600 text-center" >
-                  <button
-                    className="text-blue-500 hover:text-blue-600"
-                     onClick={() => navigate(`/dashboard/asuntos/${a.id}/expedientes`)}
-                  >
-                    <FaRegFileAlt size={20} />
-                  </button>
-                </td>
-
-                <td className="px-6 py-4 text-right">
-                  <div className="inline-flex gap-2">
-                    <button
-                      className="text-primary hover:text-secondary"
-                      onClick={() => openEditCase(a)}
                     >
-                      <HiOutlinePencil size={22} />
-                    </button>
+                      {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
+                    </span>
+                  </td>
+
+                  <td className="text-gray-600 text-center" >
                     <button
-                      className="text-red-500 hover:text-red-600"
-                      onClick={() => deleteCase(a.id)}
+                      className="text-blue-500 hover:text-blue-600"
+                      onClick={() => navigate(`/dashboard/asuntos/${a.id}/expedientes`)}
                     >
-                      <HiOutlineTrash size={22} />
+                      <FaRegFileAlt size={20} />
                     </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+                  </td>
+
+                  <td className="px-6 py-4 text-right">
+                    <div className="inline-flex gap-2">
+                      <button
+                        className="text-primary hover:text-secondary"
+                        onClick={() => openEditCase(a)}
+                      >
+                        <HiOutlinePencil size={22} />
+                      </button>
+                      <button
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => deleteCase(a.id)}
+                      >
+                        <HiOutlineTrash size={22} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
 
       {/* MODAL – Crear / Editar Asunto */}
       {isModalOpen && (

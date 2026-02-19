@@ -6,7 +6,6 @@ import Swal from "sweetalert2";
 import {
   HiOutlineUserGroup,
   HiOutlineBriefcase,
-  HiOutlineCash,
   HiOutlineCalendar,
   HiOutlinePlus,
   HiOutlineClock
@@ -71,7 +70,6 @@ const DashboardHome = () => {
         getDashboardStatsService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      console.log("---> Estadistas cargadas:", data);
       setDashboardStats(data);
     } catch (error) {
       Swal.fire("Error", "No se pudo cargar la información", "error");
@@ -83,7 +81,6 @@ const DashboardHome = () => {
   const loadTodayEvents = async (userId: number) => {
     try {
       const data = await getTodayEventsService(userId);
-      console.log("---> Eventos:", data);
       setEvents(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los eventos", "error");
@@ -280,48 +277,60 @@ const DashboardHome = () => {
       </div>
 
       {/* Calendar / Pending */}
-      <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-primary">
-            Pendientes de hoy
-          </h2>
+      {events.length > 0 ? (
+        <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-primary">
+              Pendientes de hoy
+            </h2>
 
-          <HiOutlineCalendar className="text-primary" size={22} />
-        </div>
+            <HiOutlineCalendar className="text-primary" size={22} />
+          </div>
 
-        <div className="space-y-4">
-          {events.map((event, index) => (
-            <div
-              key={index}
-              className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
-            >
-              <div>
-                <p className="font-semibold text-primary">
-                  {event.title}
-                </p>
-                <p className="text-sm text-gray-500">
-                  {event.category}
-                </p>
+          <div className="space-y-4">
+            {events.map((event, index) => (
+              <div
+                key={index}
+                className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
+              >
+                <div>
+                  <p className="font-semibold text-primary">
+                    {event.title}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {event.category}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <HiOutlineClock />
+                  {new Date(event.start).toLocaleTimeString("es-MX", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                  {" - "}
+                  {new Date(event.end).toLocaleTimeString("es-MX", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    hour12: true,
+                  })}
+                </div>
               </div>
-
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <HiOutlineClock />
-                {new Date(event.start).toLocaleTimeString("es-MX", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-                {" - "}
-                {new Date(event.end).toLocaleTimeString("es-MX", {
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  hour12: true,
-                })}
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="flex flex-col items-center justify-center py-16 text-gray-500">
+          <div className="text-5xl mb-3">📅</div>
+          <p className="font-semibold text-lg">
+            No hay eventos hoy registrados
+          </p>
+          <p className="text-sm">
+            Cuando agregues uno aparecerá aquí.
+          </p>
+        </div>
+      )}
 
       {openClientModal && (
         <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
