@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import logo from "../../assets/images/monarca-gold.webp";
 import loginBg from "../../assets/images/hero.webp";
 import { useNavigate } from "react-router-dom";
@@ -11,19 +11,12 @@ const Login = () => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
-    email: "braulio@monarca.com",
-    password: "123456",
+    email: "",
+    password: "",
   });
-
-  useEffect(() => {
-    Swal.fire({
-      title: "Cargando...",
-      allowOutsideClick: false,
-      timer: 1000,
-      didOpen: () => Swal.showLoading(),
-    });
-  }, []);
-
+  const goToLanding = () => {
+    navigate("/");
+  };
 
   const isFormValid = form.email.trim() !== "" && form.password.trim() !== "";
 
@@ -40,29 +33,47 @@ const Login = () => {
     if (!isFormValid) return;
 
     try {
-      await loginService(form.email, form.password);
-
-      await Swal.fire({
+      Swal.fire({
         title: "Iniciando sesión...",
-        timer: 1200,
         allowOutsideClick: false,
-        showConfirmButton: false,
         didOpen: () => Swal.showLoading(),
       });
+
+      await loginService(form.email, form.password);
+
+      Swal.close();
 
       navigate("/dashboard");
 
     } catch (error: any) {
-      Swal.fire(
-        "Error",
-        error?.response?.data?.message || "Credenciales incorrectas",
-        "error"
-      );
+      Swal.close();
+
+      await Swal.fire({
+        icon: "error",
+        title: "Error",
+        text:
+          error?.response?.data?.message ||
+          "Credenciales incorrectas",
+      });
     }
   };
 
   return (
     <div className="min-h-screen flex relative">
+      {/* Botón volver */}
+      <button
+        onClick={goToLanding}
+        className="
+        absolute top-6 right-6 z-20
+        text-sm font-semibold
+        text-primary
+        hover:text-secondary
+        transition
+      "
+      >
+        ← Volver al sitio
+      </button>
+
 
       {/* Left - Image */}
       <div
@@ -83,7 +94,10 @@ const Login = () => {
 
       {/* Right - Form */}
       <div className="w-full lg:w-1/2 flex items-center justify-center bg-white px-6">
+
+
         <div className="w-full max-w-md">
+
 
           {/* Logo mobile */}
           <div className="lg:hidden flex justify-center mb-10">

@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "http://localhost:4000/api",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -24,14 +24,21 @@ api.interceptors.request.use((config) => {
 /* ================================
    RESPONSE INTERCEPTOR CON REFRESH
 ================================ */
-
 api.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
 
-    // 👉 Si es 401 y no hemos intentado refresh aún
+    /* 🚫 NO aplicar refresh en login o refresh */
+    if (
+      originalRequest?.url?.includes("/auth/login") ||
+      originalRequest?.url?.includes("/auth/refresh")
+    ) {
+      return Promise.reject(error);
+    }
+
+    /* 👉 Si es 401 intentar refresh */
     if (
       error.response?.status === 401 &&
       !originalRequest._retry
@@ -39,33 +46,30 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        const refreshToken =
-          localStorage.getItem("refreshToken");
+        const refreshToken = localStorage.getItem("refreshToken");
 
         if (!refreshToken) {
           throw new Error("No refresh token");
         }
 
-        // 👉 Pedir nuevo access token
+        /* 👉 pedir nuevo access token */
         const { data } = await axios.post(
-          "http://localhost:4000/api/auth/refresh",
+          `${import.meta.env.VITE_API_URL}/auth/refresh`,
           { refreshToken }
         );
 
-        // 👉 Guardar nuevo token
-        localStorage.setItem(
-          "token",
-          data.accessToken
-        );
+        /* 👉 guardar nuevo token */
+        localStorage.setItem("token", data.accessToken);
 
-        // 👉 Reintentar petición original
+        /* 👉 actualizar header */
         originalRequest.headers.Authorization =
           `Bearer ${data.accessToken}`;
 
+        /* 👉 reintentar request */
         return api(originalRequest);
 
       } catch (refreshError) {
-        // ❌ Si falla refresh → logout real
+        /* ❌ refresh falló → logout */
         localStorage.clear();
         window.location.href = "/login";
       }
