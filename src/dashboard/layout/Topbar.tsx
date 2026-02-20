@@ -3,7 +3,6 @@ import { useState, useRef, useEffect } from "react";
 import SettingsModal from "../pages/SettingsModal";
 import ProfileModal from "../pages/ProfileModal";
 import { useNavigate } from "react-router-dom";
-import { NavLink } from "react-router-dom";
 import {
   HiOutlineMenu,
   HiOutlineUserCircle,

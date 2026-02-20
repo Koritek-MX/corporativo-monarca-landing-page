@@ -168,7 +168,6 @@ const DashboardHome = () => {
     try {
       const data = await getClientsService();
       setClients(data);
-      console.log("CLIENTES: ", data)
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los clientes", "error");
     }

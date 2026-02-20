@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { MdAttachMoney } from "react-icons/md";
 import { FaRegFilePdf } from "react-icons/fa6";
 import { useEffect, useState } from "react";
-import { FaWhatsapp } from "react-icons/fa";
 import html2canvas from "html2canvas";
 import {
   deletePaymentsService,
@@ -74,7 +73,6 @@ const Billing = () => {
         getPaymentsService(),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      console.log(data)
       setPayments(data);
 
     } catch (error) {
@@ -329,31 +327,31 @@ const Billing = () => {
     pdf.save(fileName);
   };
 
-  const sendWhatsApp = (payment: any) => {
-    console.log(payment.client);
-    let phone = payment.client?.phone || "";
+  // const sendWhatsApp = (payment: any) => {
+  //   console.log(payment.client);
+  //   let phone = payment.client?.phone || "";
 
-    // 👉 limpiar todo menos números
-    phone = phone.replace(/\D/g, "");
+  //   // 👉 limpiar todo menos números
+  //   phone = phone.replace(/\D/g, "");
 
-    // 👉 agregar lada México si no la tiene
-    if (!phone.startsWith("52")) {
-      phone = "52" + phone;
-    }
+  //   // 👉 agregar lada México si no la tiene
+  //   if (!phone.startsWith("52")) {
+  //     phone = "52" + phone;
+  //   }
 
-    if (!phone) {
-      Swal.fire("Error", "El cliente no tiene teléfono", "warning");
-      return;
-    }
+  //   if (!phone) {
+  //     Swal.fire("Error", "El cliente no tiene teléfono", "warning");
+  //     return;
+  //   }
 
-    const message = encodeURIComponent(
-      `Hola ${payment.client?.name}, te enviamos tu comprobante de pago del asunto ${payment.case?.title}.`
-    );
+  //   const message = encodeURIComponent(
+  //     `Hola ${payment.client?.name}, te enviamos tu comprobante de pago del asunto ${payment.case?.title}.`
+  //   );
 
-    const url = `https://wa.me/${phone}?text=${message}`;
+  //   const url = `https://wa.me/${phone}?text=${message}`;
 
-    window.open(url, "_blank");
-  };
+  //   window.open(url, "_blank");
+  // };
 
   return (
     <div className="flex flex-col gap-6">

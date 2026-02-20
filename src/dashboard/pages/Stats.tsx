@@ -1,3 +1,4 @@
+import { getStatsService } from "../../services/stats.service";
 import { useEffect, useState } from "react";
 import {
   HiOutlineUserGroup,
@@ -6,7 +7,6 @@ import {
   HiOutlineClock,
 } from "react-icons/hi";
 import Swal from "sweetalert2";
-
 import {
   ResponsiveContainer,
   LineChart,
@@ -19,7 +19,6 @@ import {
   Cell,
 } from "recharts";
 
-import { getStatsService } from "../../services/stats.service";
 
 const CASE_STATUS_LABELS: Record<string, string> = {
   POR_INICIAR: "Por iniciar",
@@ -50,13 +49,10 @@ const Stats = () => {
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      // 👇 Aquí transformamos los estatus
       const formattedCases = data.cases.map((c: any) => ({
         name: CASE_STATUS_LABELS[c.name] || c.name,
         value: Number(c.value || 0),
       }));
-
-      console.log("STATS BACK:", data);
 
       setKpis(data.kpis);
       setIncomeData(data.income);
@@ -201,7 +197,7 @@ const Stats = () => {
                 outerRadius={90}
                 paddingAngle={4}
               >
-                {casesData.map((entry, index) => (
+                {casesData.map((index) => (
                   <Cell
                     key={index}
                     fill={
