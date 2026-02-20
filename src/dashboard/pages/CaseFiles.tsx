@@ -1,16 +1,21 @@
-import { useEffect, useState } from "react";
+import { getCaseByIdService } from "../../services/case.services";
 import { HiOutlinePlus, HiOutlineTrash } from "react-icons/hi";
 import { useParams, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import {
+  createCaseFileService,
+  deleteCaseFileService,
+  getFilesByCaseService
+} from "../../services/caseFile.service";
 import Swal from "sweetalert2";
-import { createCaseFileService, deleteCaseFileService, getFilesByCaseService } from "../../services/caseFile.service";
-import { getCaseByIdService } from "../../services/case.services";
-
+import { useAuth } from "../../components/hooks/AuthContext";
 
 
 const CaseFiles = () => {
+
+  const { user } = useAuth();
   const { caseId } = useParams();
   const navigate = useNavigate();
-
   const [files, setFiles] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [caseInfo, setCaseInfo] = useState<any>(null);
@@ -23,10 +28,11 @@ const CaseFiles = () => {
 
   useEffect(() => {
     if (!caseId) return;
+    if (!user?.id) return;
 
     loadFiles();
     loadCaseInfo();
-  }, [caseId]);
+  }, [caseId, user]);
 
   /* 👉 Cargar expedientes */
   const loadFiles = async () => {
@@ -73,7 +79,7 @@ const CaseFiles = () => {
       await createCaseFileService({
         ...form,
         caseId: Number(caseId),
-        userId: 1, // luego puedes usar usuario logueado
+        userId: user.id
       });
 
       await Swal.fire({

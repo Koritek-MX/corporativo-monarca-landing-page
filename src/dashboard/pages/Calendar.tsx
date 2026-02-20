@@ -1,3 +1,6 @@
+import { getCasesByLawyerIdService } from "../../services/case.services";
+import { getUsersService } from "../../services/user.services";
+import { useAuth } from "../../components/hooks/AuthContext";
 import interactionPlugin from "@fullcalendar/interaction";
 import esLocale from "@fullcalendar/core/locales/es";
 import type { EventApi } from "@fullcalendar/core";
@@ -14,8 +17,6 @@ import {
   deleteEventService,
   getEventsByUserService
 } from "../../services/event.service";
-import { getUsersService } from "../../services/user.services";
-import { getCasesByLawyerIdService } from "../../services/case.services";
 
 /* 🎨 Colores por categoría */
 const CATEGORY_COLORS: Record<string, string> = {
@@ -26,7 +27,8 @@ const CATEGORY_COLORS: Record<string, string> = {
 };
 
 const Calendar = () => {
-  const [userId, setUserId] = useState(1);
+
+  const { user } = useAuth();
   const [events, setEvents] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
@@ -45,10 +47,11 @@ const Calendar = () => {
   });
 
   useEffect(() => {
+    if (!user?.id) return;
     loadEvents();
     loadUsers();
     loadCases();
-  }, []);
+  }, [user]);
 
   const loadEvents = async () => {
     try {
@@ -59,7 +62,7 @@ const Calendar = () => {
       });
 
       const [data] = await Promise.all([
-        getEventsByUserService(userId),
+        getEventsByUserService(user.id),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
@@ -94,16 +97,16 @@ const Calendar = () => {
       setUsers(formatted);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
-    } 
+    }
   };
 
   const loadCases = async () => {
     try {
-      const data = await getCasesByLawyerIdService(userId);
+      const data = await getCasesByLawyerIdService(user.id);
       setCases(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los casos", "error");
-    } 
+    }
   };
 
 
@@ -189,7 +192,7 @@ const Calendar = () => {
         end: form.end,
         category: form.category,
         caseId: form.caseId ? Number(form.caseId) : null,
-        userId: 1,
+        userId: user.id,
         guests: form.guests.map(g => ({
           id: g.value,
           name: g.label,
@@ -530,9 +533,9 @@ const Calendar = () => {
                 className={`
                 px-6 py-2 rounded-lg font-semibold transition
                 ${isFormValid
-                                ? "bg-primary text-white hover:bg-primary/90"
-                                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                              }
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
               `}
               >
                 {mode === "create" ? "Crear evento" : "Guardar cambios"}

@@ -1,10 +1,12 @@
-
 import { createCaseService, getCasesByClientIdService, getCasesByLawyerIdService } from "../../services/case.services";
-import { getDashboardStatsService } from "../../services/stats.service";
+import { createInstallmentService } from "../../services/paymentInstallments.service";
 import { createEventService, getTodayEventsService } from "../../services/event.service";
 import { createClientService, getClientsService } from "../../services/client.service";
+import { getDashboardStatsService } from "../../services/stats.service";
+import { createPaymentsService } from "../../services/payment.service";
 import type { Client, ClientType } from "../../types/client.type";
 import { getUsersService } from "../../services/user.services";
+import { useAuth } from "../../components/hooks/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Select from "react-select";
@@ -16,8 +18,6 @@ import {
   HiOutlinePlus,
   HiOutlineClock
 } from "react-icons/hi";
-import { createPaymentsService } from "../../services/payment.service";
-import { createInstallmentService } from "../../services/paymentInstallments.service";
 
 interface DashboardStats {
   activeCases: number;
@@ -88,6 +88,7 @@ const initialStats = {
 
 const DashboardHome = () => {
 
+  const { user } = useAuth();
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>(initialStats);
   const [openPaymentModal, setOpenPaymentModal] = useState(false);
   const [openClientModal, setOpenClientModal] = useState(false);
@@ -102,16 +103,16 @@ const DashboardHome = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
-  const [userId, setUserId] = useState(1);
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user?.id) return;
     loadDashboardStats();
-    loadTodayEvents(userId);
-    loadCases();
+    loadTodayEvents(user.id);
+    loadCases(user.id);
     loadUsers();
     loadClients();
-  }, []);
+  }, [user]);
 
   const loadDashboardStats = async () => {
     try {
@@ -141,9 +142,9 @@ const DashboardHome = () => {
     }
   };
 
-  const loadCases = async () => {
+  const loadCases = async (id: any) => {
     try {
-      const data = await getCasesByLawyerIdService(userId);
+      const data = await getCasesByLawyerIdService(id);
       setCases(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los casos", "error");
@@ -310,7 +311,7 @@ const DashboardHome = () => {
         end: formEvent.end,
         category: formEvent.category,
         caseId: formEvent.caseId ? Number(formEvent.caseId) : null,
-        userId: userId,
+        userId: user.id,
         guests: formEvent.guests.map((g: { value: any; label: any; }) => ({
           id: g.value,
           name: g.label,

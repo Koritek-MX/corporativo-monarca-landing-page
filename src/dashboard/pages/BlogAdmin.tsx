@@ -12,6 +12,7 @@ import {
   updateBlogService,
   deleteBlogService,
 } from "../../services/blog.service";
+import { useAuth } from "../../components/hooks/AuthContext";
 
 const LEGAL_AREAS = [
   "Derecho Penal",
@@ -28,7 +29,7 @@ const LEGAL_AREAS = [
 
 const BlogAdmin = () => {
 
-  const [userId, setUserId] = useState(1);
+  const { user } = useAuth();
   const [posts, setPosts] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
@@ -44,8 +45,9 @@ const BlogAdmin = () => {
 
   /* 👉 Cargar blogs */
   useEffect(() => {
+    if (!user?.id) return;
     loadBlogs();
-  }, []);
+  }, [user]);
 
   const loadBlogs = async () => {
     try {
@@ -57,7 +59,7 @@ const BlogAdmin = () => {
       });
 
       const [data] = await Promise.all([
-        getAllBlogsByUserIdService(userId),
+        getAllBlogsByUserIdService(user.id),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
@@ -84,7 +86,7 @@ const BlogAdmin = () => {
         area: form.area,
         content: form.content,
         imageUrl: form.imageUrl,
-        userId: userId, // luego auth real
+        userId: user.id
       };
 
       if (editingPost) {
