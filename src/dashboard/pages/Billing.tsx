@@ -1,21 +1,26 @@
 import { createInstallmentService } from "../../services/paymentInstallments.service";
 import { getCasesByClientIdService } from "../../services/case.services";
 import { getClientsService } from "../../services/client.service";
+import { LiaFileInvoiceDollarSolid } from "react-icons/lia";
 import { useNavigate } from "react-router-dom";
 import { MdAttachMoney } from "react-icons/md";
+import { FaRegFilePdf } from "react-icons/fa6";
+import { useEffect, useState } from "react";
+import { FaWhatsapp } from "react-icons/fa";
+import html2canvas from "html2canvas";
 import {
   deletePaymentsService,
   getPaymentsService,
   createPaymentsService,
   updatePaymentsService
 } from "../../services/payment.service";
-import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import {
   HiOutlinePlus,
   HiOutlinePencil,
   HiOutlineTrash,
 } from "react-icons/hi";
+import jsPDF from "jspdf";
 
 /* 🎨 Estilos por estatus */
 const PAYMENT_STATUS: Record<string, { bg: string; text: string }> = {
@@ -29,12 +34,14 @@ const PAYMENT_STATUS: Record<string, { bg: string; text: string }> = {
 
 const Billing = () => {
 
+  const navigate = useNavigate();
+  const [receiptOpen, setReceiptOpen] = useState(false);
+  const [selectedPayment, setSelectedPayment] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [includeIva, setIncludeIva] = useState(true);
   const [payments, setPayments] = useState<any>([]);
   const [clients, setClients] = useState<any[]>([]);
   const [cases, setCases] = useState<any[]>([]);
-  const navigate = useNavigate();
   const [editingPayment, setEditingPayment] = useState<any>(null);
   const [loadingPayments, setLoadingPayments] = useState(false);
   const [form, setForm] = useState({
@@ -297,6 +304,57 @@ const Billing = () => {
     initial <= total &&
     (!includeIva || iva >= 0);
 
+  const openReceipt = (payment: any) => {
+    setSelectedPayment(payment);
+    setReceiptOpen(true);
+  };
+
+  const generatePDF = async (payment: any) => {
+
+    const fileName = `Comprobante-${payment.case?.folio}.pdf`;
+    const element = document.getElementById("receipt");
+
+    if (!element) return;
+
+    const canvas = await html2canvas(element, { scale: 2 });
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF("p", "mm", "a4");
+
+    const imgWidth = 210;
+    const imgHeight =
+      (canvas.height * imgWidth) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", 0, 0, imgWidth, imgHeight);
+    pdf.save(fileName);
+  };
+
+  const sendWhatsApp = (payment: any) => {
+    console.log(payment.client);
+    let phone = payment.client?.phone || "";
+
+    // 👉 limpiar todo menos números
+    phone = phone.replace(/\D/g, "");
+
+    // 👉 agregar lada México si no la tiene
+    if (!phone.startsWith("52")) {
+      phone = "52" + phone;
+    }
+
+    if (!phone) {
+      Swal.fire("Error", "El cliente no tiene teléfono", "warning");
+      return;
+    }
+
+    const message = encodeURIComponent(
+      `Hola ${payment.client?.name}, te enviamos tu comprobante de pago del asunto ${payment.case?.title}.`
+    );
+
+    const url = `https://wa.me/${phone}?text=${message}`;
+
+    window.open(url, "_blank");
+  };
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -348,6 +406,7 @@ const Billing = () => {
                 <th className="px-6 py-4 text-right">Fecha</th>
                 <th className="px-6 py-4 text-left">Estado</th>
                 <th className="px-6 py-4 text-center">Abonos</th>
+                <th className="px-6 py-4 text-center">Comprobante</th>
                 <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
@@ -428,6 +487,16 @@ const Billing = () => {
                         onClick={() => navigate(`/dashboard/cobros/${c.id}/abonos`)}
                       >
                         <MdAttachMoney size={25} />
+                      </button>
+                    </td>
+
+                    {/* Botón comprobante */}
+                    <td className="px-6 py-4 text-center">
+                      <button
+                        onClick={() => openReceipt(c)}
+                        className="text-primary hover:text-secondary transition"
+                      >
+                        <LiaFileInvoiceDollarSolid size={25} />
                       </button>
                     </td>
 
@@ -668,6 +737,274 @@ const Billing = () => {
           </div>
         </div>
       )}
+
+      {/* MODAL COMPROBANTE */}
+      {receiptOpen && selectedPayment && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+
+          <div className="bg-white rounded-2xl w-full max-w-3xl shadow-xl flex flex-col max-h-[90vh]">
+
+            {/* HEADER (FIJO) */}
+            <div className="px-6 py-4 border-b flex justify-between items-center shrink-0">
+              <h2 className="font-bold text-primary">
+                Comprobante de pago
+              </h2>
+
+              <button
+                onClick={() => setReceiptOpen(false)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* CONTENIDO SCROLLABLE */}
+            <div className="overflow-y-auto px-6 py-6 flex-1">
+              <div
+                id="receipt"
+                style={{
+                  backgroundColor: "#ffffff",
+                  color: "#1f2937",
+                  fontFamily: "Arial, sans-serif",
+                  padding: "40px",
+                  maxWidth: "800px",
+                  margin: "auto"
+                }}
+              >
+                {/* HEADER */}
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    borderBottom: "3px solid #1A3263",
+                    paddingBottom: "20px",
+                    marginBottom: "30px"
+                  }}
+                >
+                  <div>
+                    <img
+                      src="/monarca-blue.png"
+                      alt="Corporativo Monarca"
+                      style={{ height: "100px", marginBottom: "8px" }}
+                    />
+
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      Corporativo Monarca - Consultoria jurídica y empresarial
+                    </p>
+                     <p style={{ fontSize: "12px", margin: 0 }}>
+                      RFC: MON123456ABC
+                    </p>
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      Juan Escutia #10 Int. 3, Col. Centro, CP. 59300
+                    </p>
+
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      La Piedad de Cabadas, Michoacán, México
+                    </p>
+
+                     <p style={{ fontSize: "12px", margin: 0 }}>
+                      monarcacorporativo@outlook.com
+                    </p>
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      Tel: 352-501-5754
+                    </p>
+                  </div>
+
+                  <div style={{ textAlign: "right" }}>
+                    <h2 style={{ marginBottom: 20, color: "#1A3263" }}>
+                      COMPROBANTE DE PAGO
+                    </h2>
+
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      Folio: #{selectedPayment.id}
+                    </p>
+
+                    <p style={{ fontSize: "12px", margin: 0 }}>
+                      Fecha:
+                      {new Date(
+                        selectedPayment.createdAt
+                      ).toLocaleDateString("es-MX")}
+                    </p>
+                  </div>
+                </div>
+
+                {/* CLIENTE */}
+                <div style={{ marginBottom: "25px" }}>
+                  <h3 style={{ marginBottom: "8px", color: "#1A3263" }}>
+                    Datos del cliente
+                  </h3>
+
+                  <p>
+                    <strong>Cliente:</strong>{" "}
+                    {selectedPayment.client?.name}{" "}
+                    {selectedPayment.client?.lastName}
+                  </p>
+
+                  <p>
+                    <strong>Asunto:</strong>{" "}
+                    {selectedPayment.case?.folio} -
+                    {selectedPayment.case?.title}
+                  </p>
+
+                   <p>
+                    <strong>Responsable:</strong>{" "}
+                    {selectedPayment.case?.lawyer.name}
+                  </p>
+
+                  <p>
+                    <strong>Estado:</strong>{" "}
+                    {selectedPayment.status}
+                  </p>
+                </div>
+
+                {/* RESUMEN FINANCIERO */}
+                <div
+                  style={{
+                    border: "1px solid #e5e7eb",
+                    borderRadius: "12px",
+                    padding: "20px",
+                    marginBottom: "25px"
+                  }}
+                >
+                  <h3 style={{ marginBottom: "15px", color: "#1A3263" }}>
+                    Resumen financiero
+                  </h3>
+
+                  <p>
+                    Subtotal: $
+                    {Number(selectedPayment.totalAmount).toLocaleString()} MXN
+                  </p>
+
+                  <p>
+                    IVA ({selectedPayment.iva || 0}%): $
+                    {(
+                      (Number(selectedPayment.totalAmount) *
+                        Number(selectedPayment.iva || 0)) /
+                      100
+                    ).toLocaleString()} MXN
+                  </p>
+
+                  <p style={{ fontWeight: "bold" }}>
+                    Total: $
+                    {Number(selectedPayment.finalAmount).toLocaleString()} MXN
+                  </p>
+                </div>
+
+                {/* ABONOS */}
+                {selectedPayment.installments?.length > 0 && (
+                  <div style={{ marginBottom: "25px" }}>
+                    <h3 style={{ marginBottom: "10px", color: "#1A3263" }}>
+                      Historial de abonos
+                    </h3>
+
+                    <table
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        fontSize: "13px"
+                      }}
+                    >
+                      <thead>
+                        <tr style={{ backgroundColor: "#f3f4f6" }}>
+                          <th style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                            Fecha
+                          </th>
+                          <th style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                            Método
+                          </th>
+                          <th style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                            Monto
+                          </th>
+                        </tr>
+                      </thead>
+
+                      <tbody>
+                        {selectedPayment.installments.map((i: any) => (
+                          <tr key={i.id}>
+                            <td style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                              {new Date(i.createdAt).toLocaleDateString("es-MX")}
+                            </td>
+
+                            <td style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                              {i.method}
+                            </td>
+
+                            <td style={{ padding: "8px", border: "1px solid #e5e7eb" }}>
+                              ${Number(i.amount).toLocaleString()} MXN
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+
+                {/* SALDO */}
+                <div
+                  style={{
+                    textAlign: "right",
+                    fontSize: "16px",
+                    fontWeight: "bold",
+                    marginBottom: "30px"
+                  }}
+                >
+                  Saldo pendiente: $
+                  {(
+                    Number(selectedPayment.finalAmount) -
+                    (selectedPayment.installments || []).reduce(
+                      (acc: number, i: any) => acc + Number(i.amount),
+                      0
+                    )
+                  ).toLocaleString()} MXN
+                </div>
+
+                {/* FOOTER */}
+                <div
+                  style={{
+                    borderTop: "2px solid #e5e7eb",
+                    paddingTop: "15px",
+                    textAlign: "center",
+                    fontSize: "11px",
+                    color: "#6b7280"
+                  }}
+                >
+                  © {new Date().getFullYear()} Corporativo Monarca.
+                  Todos los derechos reservados.
+
+                  <br />
+
+                  Este documento se emite como comprobante interno de pago y
+                  no sustituye una factura fiscal.
+                </div>
+              </div>
+
+            </div>
+
+            {/* FOOTER (FIJO) */}
+            <div className="flex justify-end gap-3 px-6 py-4 border-t shrink-0 bg-white">
+              <button
+                onClick={() => generatePDF(selectedPayment)}
+                className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
+              >
+                Descargar PDF
+                <FaRegFilePdf />
+              </button>
+
+              {/* <button
+                onClick={() => sendWhatsApp(selectedPayment)}
+                className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
+              >
+                Enviar WhatsApp
+                <FaWhatsapp />
+              </button> */}
+            </div>
+
+          </div>
+        </div>
+      )}
+
+
     </div>
   );
 };

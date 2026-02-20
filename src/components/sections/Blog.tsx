@@ -4,6 +4,7 @@ import { getAllBlogsService } from "../../services/blog.service";
 import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
+  
   const [blogs, setBlogs] = useState<any[]>([]);
   const navigate = useNavigate();
   const sectionRef = useRef<HTMLDivElement | null>(null);

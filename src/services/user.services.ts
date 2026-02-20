@@ -5,6 +5,11 @@ export const getUsersService = async () => {
   return data;
 };
 
+export const getUsersPublicService = async () => {
+  const { data } = await api.get("/users/public");
+  return data;
+};
+
 export const getUserByIdService = async (id: number) => {
   const { data } = await api.get(`/users/${id}`);
   return data;

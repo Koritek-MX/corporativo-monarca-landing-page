@@ -1,39 +1,18 @@
-import { FaEnvelope, FaWhatsapp } from "react-icons/fa";
-import Brau from "../../assets/images/brau.webp";
-import Cony from "../../assets/images/cony.webp";
-import Jesus from "../../assets/images/jesus.webp";
+import { getUsersPublicService } from "../../services/user.services";
+import { FaEnvelope, FaPhoneAlt, FaWhatsapp } from "react-icons/fa";
 import { useEffect, useRef, useState } from "react";
 import FAQ from "./FAQ";
 
-const lawyers = [
-  {
-    name: "Lic. Braulio Reyes Cervantes",
-    role: "litigio estratégico",
-    image: Brau,
-    phone: "+52 352 527 1774",
-    email: "juan.perez@corporativomonarca.com",
-  },
-  {
-    name: "Lic. María Concepcion Mora Sánchez",
-    role: "litigio contencioso",
-    image: Cony,
-    phone: "+52 352 146 4834",
-    email: "juan.perez@corporativomonarca.com",
-  },
-  {
-    name: "Lic. Jesús Meza López",
-    role: "derecho civil",
-    image: Jesus,
-    phone: "+52 352 501 5754",
-    email: "juan.perez@corporativomonarca.com",
-  },
-];
-
 const AboutUs = () => {
+
+  const [lawyers, setLawyers] = useState<any[]>([]);
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
 
-  /* 👉 Detectar cuando entra al viewport */
+  useEffect(() => {
+    loadLawyers();
+  }, []);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -49,6 +28,15 @@ const AboutUs = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const loadLawyers = async () => {
+    try {
+      const data = await getUsersPublicService();
+      setLawyers(data);
+    } catch {
+      console.error('Ocurrio un error al obtener los abogados');
+    }
+  };
 
   return (
     <>
@@ -133,7 +121,7 @@ const AboutUs = () => {
                   {/* IMAGE */}
                   <div className="h-64 w-full overflow-hidden">
                     <img
-                      src={lawyer.image}
+                      src={lawyer.avatar}
                       alt={lawyer.name}
                       className="
                         w-full h-full object-cover
@@ -151,31 +139,39 @@ const AboutUs = () => {
                     </h4>
 
                     <p className="text-sm text-gray-600 mb-4">
-                      Especialista en {lawyer.role}
+                      Especialista en {lawyer.specialty}
                     </p>
 
                     {/* Social */}
                     <div className="flex items-center gap-4 mb-6">
                       <a
-                        // href={`https://wa.me/${lawyer.phone.replace(/\D/g, "")}`}
-                        // target="_blank"
+                        href={`https://wa.me/${lawyer.phone.replace(/\D/g, "")}`}
+                        target="_blank"
                         className="text-primary/60 hover:text-secondary transition hover:scale-110 duration-300"
                       >
                         <FaWhatsapp size={22} />
                       </a>
 
                       <a
-                        // href={`mailto:${lawyer.email}`}
+                        href={`mailto:${lawyer.email}`}
                         className="text-primary/60 hover:text-secondary transition hover:scale-110 duration-300"
                       >
                         <FaEnvelope size={22} />
+                      </a>
+
+                      <a
+                        href={`tel:${lawyer.phone.replace(/\D/g, "")}`}
+                        target="_blank"
+                        className="text-primary/60 hover:text-secondary transition hover:scale-110 duration-300"
+                      >
+                        <FaPhoneAlt size={22} />
                       </a>
                     </div>
 
                     {/* Footer */}
                     <div className="mt-auto pt-6 border-t border-gray-100">
                       <span className="text-xs font-medium text-secondary uppercase tracking-wider">
-                        {lawyer.role}
+                        CONTACTAME DE MANERA DIRECTA
                       </span>
                     </div>
 
