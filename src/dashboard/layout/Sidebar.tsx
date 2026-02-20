@@ -1,4 +1,9 @@
+import { logoutService } from "../../services/auth.service";
+import logo from "../../assets/images/monarca-gold.webp";
+import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
+import { VscLaw } from "react-icons/vsc";
+import Swal from "sweetalert2";
 import {
   HiOutlineHome,
   HiOutlineUserGroup,
@@ -11,9 +16,6 @@ import {
   HiOutlineNewspaper,
   HiOutlineClipboardList
 } from "react-icons/hi";
-import { VscLaw } from "react-icons/vsc";
-import logo from "../../assets/images/monarca-gold.webp";
-import Swal from "sweetalert2";
 
 interface Props {
   open: boolean;
@@ -34,27 +36,33 @@ const links = [
 
 const Sidebar = ({ open, onClose }: Props) => {
 
-  const handleLogout = () => {
-    console.log("Cerrar sesión");
-    // aquí irá la lógica real de logout
+  const navigate = useNavigate();
 
-    Swal.fire({
+  const handleLogout = async () => {
+    const result = await Swal.fire({
       title: "¿Seguro que deseas cerrar sesión?",
+      text: "Tu sesión se cerrará",
+      icon: "warning",
       showCancelButton: true,
       confirmButtonText: "Cerrar sesión",
       cancelButtonText: "Cancelar",
+      confirmButtonColor: "#1A3263",
       cancelButtonColor: "#CB942F",
-      confirmButtonColor: "#1A3263"
-    }).then((result) => {
-      if (result.isConfirmed) {
-        Swal.fire("Saved!", "", "success");
-      } else if (result.isDismissed) {
-        Swal.fire("Changes are not saved", "", "info");
-      }
     });
+
+    if (!result.isConfirmed) return;
+
+    logoutService(); // 👉 elimina token y user
+
+    await Swal.fire({
+      icon: "success",
+      title: "Sesión cerrada",
+      timer: 1000,
+      showConfirmButton: false,
+    });
+
+    navigate("/login", { replace: true });
   };
-
-
 
   return (
     <>

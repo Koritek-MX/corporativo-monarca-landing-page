@@ -71,7 +71,7 @@ const Billing = () => {
       setPayments(data);
 
     } catch (error) {
-      Swal.fire("Error", "No se pudieron cargar los cobros", "error");
+      await Swal.fire("Error", "No se pudieron cargar los cobros", "error");
     } finally {
       setLoadingPayments(false);
       Swal.close();
@@ -83,7 +83,7 @@ const Billing = () => {
       const data = await getClientsService();
       setClients(data);
     } catch (error) {
-      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+      console.error("Error: No se pudieron cargar los clientes");
     }
   };
 

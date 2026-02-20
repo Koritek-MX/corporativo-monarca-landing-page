@@ -3,17 +3,18 @@ import { Routes, Route } from "react-router-dom";
 // Pages
 import Home from "./components/Home.tsx";
 import Login from "./dashboard/auth/Auth.tsx";
+import Register from "./dashboard/auth/Register.tsx";
 
 // Dashboard
 import DashboardLayout from "./dashboard/layout/DashboardLayout.tsx";
 import DashboardHome from "./dashboard/pages/DashboardHome.tsx";
 import BlogAdmin from "./dashboard/pages/BlogAdmin.tsx";
 
-// Guard
+// Guards
 import ProtectedRoute from "./guards/ProtectedRoute.tsx";
+import PublicRoute from "./guards/PublicRoute.tsx";
 
 import NotFound from "./dashboard/pages/NotFound.tsx";
-import Register from "./dashboard/auth/Register.tsx";
 import Clients from "./dashboard/pages/Clients.tsx";
 import Calendar from "./dashboard/pages/Calendar.tsx";
 import Cases from "./dashboard/pages/Cases.tsx";
@@ -30,22 +31,16 @@ export default function App() {
   return (
     <Routes>
 
-      {/* Landing pública */}
-      <Route path="/" element={<Home />} />
+      {/* 🔐 Rutas publicas */}
+      <Route element={<PublicRoute />}>
+        <Route path="/blog" element={<AllBlogs />} />
+        <Route path="/blog/:id" element={<BlogDetail />} />
+        <Route path="/" element={<Home />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+      </Route>
 
-      {/* Login */}
-      <Route path="/login" element={<Login />} />
-
-      {/* Blog */}
-      <Route path="/blog" element={<AllBlogs />} />
-
-      {/* Detalle del blog */}
-      <Route path="/blog/:id" element={<BlogDetail />} />
-
-      {/* Register */}
-      <Route path="/register" element={<Register />} />
-
-      {/* Dashboard protegido */}
+      {/* 🔒 Dashboard protegido */}
       <Route element={<ProtectedRoute />}>
         <Route element={<DashboardLayout />}>
           <Route path="/dashboard" element={<DashboardHome />} />

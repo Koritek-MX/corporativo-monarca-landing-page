@@ -61,7 +61,7 @@ const BlogAdmin = () => {
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      // setPosts(data);
+      setPosts(data);
 
     } catch {
       Swal.fire("Error", "No se pudieron cargar los blogs", "error");

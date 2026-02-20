@@ -1,19 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import logo from "../../assets/images/monarca-gold.webp";
 import loginBg from "../../assets/images/hero.webp";
-import { FcGoogle } from "react-icons/fc";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import Swal from 'sweetalert2'
+import { loginService } from "../../services/auth.service";
 
 const Login = () => {
 
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
-    email: "admin@gmail.com",
-    password: "",
+    email: "braulio@monarca.com",
+    password: "123456",
   });
+
+  useEffect(() => {
+    Swal.fire({
+      title: "Cargando...",
+      allowOutsideClick: false,
+      timer: 1000,
+      didOpen: () => Swal.showLoading(),
+    });
+  }, []);
+
 
   const isFormValid = form.email.trim() !== "" && form.password.trim() !== "";
 
@@ -25,45 +35,30 @@ const Login = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
 
+    try {
+      await loginService(form.email, form.password);
 
+      await Swal.fire({
+        title: "Iniciando sesión...",
+        timer: 1200,
+        allowOutsideClick: false,
+        showConfirmButton: false,
+        didOpen: () => Swal.showLoading(),
+      });
 
-    let timerInterval = 100;
-    Swal.fire({
-      title: "Iniciando sesión...",
-      timer: 1500,
-      timerProgressBar: true,
-      didOpen: () => {
-        Swal.showLoading();
-        const popup = Swal.getPopup();
-        const timer = popup?.querySelector("b");
-        if (timer) {
-          timerInterval = setInterval(() => {
-            timer.textContent = `${Swal.getTimerLeft()}`;
-          }, 100);
-        }
-      },
-      willClose: () => {
-        clearInterval(timerInterval);
-      }
-    }).then((result) => {
-      if (result.dismiss === Swal.DismissReason.timer) {
-        console.log("I was closed by the timer");
-      }
-    });
-
-    setTimeout(() => {
-      console.log("Login form submitted", form);
-      // aquí va la lógica real de login
       navigate("/dashboard");
-    }, 1500);
-  };
 
-  const handleGoogleLogin = () => {
-    // aquí va login con Google
+    } catch (error: any) {
+      Swal.fire(
+        "Error",
+        error?.response?.data?.message || "Credenciales incorrectas",
+        "error"
+      );
+    }
   };
 
   return (
@@ -179,36 +174,14 @@ const Login = () => {
             </button>
           </form>
 
-          {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
-            <div className="flex-1 h-px bg-gray-200" />
-            <span className="text-xs text-gray-400 uppercase">o</span>
-            <div className="flex-1 h-px bg-gray-200" />
-          </div>
 
-          {/* Google Login */}
-          <button
-            onClick={handleGoogleLogin}
-            className="
-              w-full flex items-center justify-center gap-3
-              bg-white border border-gray-300
-              rounded-xl py-3
-              text-sm font-medium text-gray-700
-              hover:bg-gray-50 transition
-            "
-          >
-            <FcGoogle size={18} />
-            Continuar con Google
-          </button>
-
-          {/* Register */}
+          {/* Forgot password */}
           <p className="text-sm text-gray-600 text-center mt-6">
-            ¿No tienes cuenta?{" "}
+            ¿Olvidaste tu contraseña?{" "}
             <a
-              href="/register"
               className="text-secondary font-semibold hover:underline"
             >
-              Regístrate
+              Recuperala aqui
             </a>
           </p>
 
@@ -216,7 +189,6 @@ const Login = () => {
           <p className="text-xs text-gray-400 text-center mt-8">
             © {new Date().getFullYear()} Corporativo Monarca
           </p>
-
         </div>
       </div>
     </div>
