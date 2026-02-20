@@ -5,6 +5,11 @@ export const getUsersService = async () => {
   return data;
 };
 
+export const getUserByIdService = async (id: number) => {
+  const { data } = await api.get(`/users/${id}`);
+  return data;
+};
+
 export const createUserService = async (payload: any) => {
   const { data } = await api.post("/users", payload);
   return data;
