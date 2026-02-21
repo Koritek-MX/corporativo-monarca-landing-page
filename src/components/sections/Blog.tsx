@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from "react";
-import Swal from "sweetalert2";
 import { getAllBlogsService } from "../../services/blog.service";
 import { useNavigate } from "react-router-dom";
 
