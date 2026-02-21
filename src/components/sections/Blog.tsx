@@ -47,7 +47,7 @@ const Blog = () => {
       setBlogs(sorted);
 
     } catch {
-      Swal.fire("Error", "No se pudieron cargar los blogs", "error");
+      console.log('Error al cargar los blogs');
     }
   };
 
