@@ -10,6 +10,11 @@ export const getEventsByUserService = async (id: number,) => {
   return data;
 };
 
+export const getEventByIdService = async (id: number) => {
+  const { data } = await api.get(`/events/${id}`);
+  return data;
+};
+
 export const getTodayEventsService = async (id: number,) => {
   const { data } = await api.get(`/events/today/${id}`);
   return data;

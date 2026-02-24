@@ -5,9 +5,11 @@ import { useNavigate } from "react-router-dom";
 import { HiOutlineEye, HiOutlineEyeOff } from "react-icons/hi";
 import Swal from 'sweetalert2'
 import { loginService } from "../../services/auth.service";
+import { useAuth } from "../../components/hooks/AuthContext";
 
 const Login = () => {
 
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
@@ -39,11 +41,16 @@ const Login = () => {
         didOpen: () => Swal.showLoading(),
       });
 
-      await loginService(form.email, form.password);
+      const data = await loginService(
+        form.email,
+        form.password
+      );
+
+      login(data); // 👈 actualiza contexto
 
       Swal.close();
 
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
 
     } catch (error: any) {
       Swal.close();

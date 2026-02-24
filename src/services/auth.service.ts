@@ -9,16 +9,9 @@ export const loginService = async (
     password,
   });
 
-  /* 👉 Guardar tokens */
-  localStorage.setItem("token", data.accessToken);
-  localStorage.setItem("refreshToken", data.refreshToken);
-  localStorage.setItem("user", JSON.stringify(data.user));
-
-  return data;
+  return data; // 👈 solo devuelve
 };
 
 export const logoutService = () => {
-  localStorage.removeItem("token");
-  localStorage.removeItem("refreshToken");
-  localStorage.removeItem("user");
+  localStorage.clear();
 };

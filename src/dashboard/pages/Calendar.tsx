@@ -15,7 +15,8 @@ import {
   createEventService,
   updateEventService,
   deleteEventService,
-  getEventsByUserService
+  getEventsByUserService,
+  getEventByIdService
 } from "../../services/event.service";
 
 /* 🎨 Colores por categoría */
@@ -90,13 +91,27 @@ const Calendar = () => {
   const loadUsers = async () => {
     try {
       const data = await getUsersService();
-      const formatted = data.map((u: any) => ({
-        value: u.id,
-        label: u.name,
-      }));
+
+      const formatted = data
+        .filter((u: any) => u.id !== user?.id) 
+        .map((u: any) => ({
+          value: u.id,
+          label: u.name,
+        }));
+
       setUsers(formatted);
+
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
+    }
+  };
+
+  const loadInfoUser = async (userId: number) => {
+    try {
+      const data = await getEventByIdService(userId);
+      return data;
+    } catch (error) {
+      console.error("Ocurrio un error al obtener la información del usuario.");
     }
   };
 
@@ -151,16 +166,30 @@ const Calendar = () => {
     setDetailOpen(true);
   };
 
-  const openEditFromDetail = () => {
-    if (!selectedEvent) return;
+
+  const openEditFromDetail = async () => {
+    const currentUserInfo = await loadInfoUser(selectedEvent.id);
+
+    console.log("USER INFO", currentUserInfo);
+
+    if (!currentUserInfo) return;
+
+    const formatForInput = (date: string) => {
+      const d = new Date(date);
+      const pad = (n: number) => String(n).padStart(2, "0");
+
+      return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
+        d.getDate()
+      )}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+    };
 
     setForm({
-      title: selectedEvent.title,
-      category: selectedEvent.extendedProps.category,
-      start: selectedEvent.startStr.slice(0, 16),
-      end: selectedEvent.endStr?.slice(0, 16) || "",
-      caseId: selectedEvent.extendedProps.caseId || "",
-      guests: (selectedEvent.extendedProps.guests || []).map((g: any) => ({
+      title: currentUserInfo.title,
+      start: formatForInput(currentUserInfo.start),
+      end: currentUserInfo.end ? formatForInput(currentUserInfo.end) : "",
+      category: currentUserInfo.category,
+      caseId: currentUserInfo.caseId?.toString() || "",
+      guests: (currentUserInfo.guests || []).map((g: any) => ({
         value: g.id,
         label: g.name,
       })),
@@ -186,6 +215,21 @@ const Calendar = () => {
         return;
       }
 
+      console.log("CREAR: ",
+        {
+          title: form.title,
+          start: form.start,
+          end: form.end,
+          category: form.category,
+          caseId: form.caseId ? Number(form.caseId) : null,
+          userId: user.id,
+          guests: form.guests.map(g => ({
+            id: g.value,
+            name: g.label,
+          })),
+        }
+      );
+
       await createEventService({
         title: form.title,
         start: form.start,
@@ -199,7 +243,7 @@ const Calendar = () => {
         })),
       });
 
-      await loadEvents(); // refresca calendario
+      await loadEvents();
       setIsModalOpen(false);
 
       Swal.fire({

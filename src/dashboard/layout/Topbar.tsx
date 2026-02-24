@@ -1,4 +1,5 @@
-import { getUserByIdService } from "../../services/user.services";
+import { useAuth } from "../../components/hooks/AuthContext";
+import { logoutService } from "../../services/auth.service";
 import { useState, useRef, useEffect } from "react";
 import SettingsModal from "../pages/SettingsModal";
 import ProfileModal from "../pages/ProfileModal";
@@ -9,47 +10,21 @@ import {
   HiOutlineLogout,
 } from "react-icons/hi";
 import Swal from "sweetalert2";
-import { logoutService } from "../../services/auth.service";
 
 interface Props {
   onMenuClick: () => void;
 }
 
 const Topbar = ({ onMenuClick }: Props) => {
-
   const navigate = useNavigate();
+  const { user } = useAuth();
+
   const [profileOpen, setProfileOpen] = useState(false);
   const [myprofileOpen, setmyProfileOpen] = useState(false);
-  const [user, setUser] = useState<any>(null);
-  const [userId] = useState(1);
   const [settingsOpen] = useState(false);
   const [time, setTime] = useState(new Date());
 
   const menuRef = useRef<HTMLDivElement>(null);
-
-  /* 👉 Obtener usuario */
-  const refreshUser = async () => {
-    try {
-      const data = await getUserByIdService(userId);
-      setUser(data);
-    } catch (error) {
-      console.error("Error cargando usuario:", error);
-    }
-  };
-
-  /* 👉 Carga inicial */
-  useEffect(() => {
-    refreshUser();
-  }, [userId]);
-
-  /* 👉 Auto refresh cada 30s (opcional pero recomendado) */
-  useEffect(() => {
-    const interval = setInterval(() => {
-      refreshUser();
-    }, 30000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   /* 👉 Reloj en vivo */
   useEffect(() => {
@@ -99,7 +74,7 @@ const Topbar = ({ onMenuClick }: Props) => {
   };
 
   /* Avatar fallback */
-  const avatarUrl = (userName: string) =>
+  const avatarUrl = (userName?: string) =>
     `https://ui-avatars.com/api/?name=${encodeURIComponent(
       userName || "Usuario"
     )}&background=1A3263&color=FFFFFF&rounded=true&size=128&bold=true`;
@@ -135,12 +110,12 @@ const Topbar = ({ onMenuClick }: Props) => {
 
   return (
     <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6">
+
       {/* IZQUIERDA */}
       <div className="flex items-center gap-6">
         <button
           onClick={onMenuClick}
           className="md:hidden text-primary"
-          aria-label="Abrir menú"
         >
           <HiOutlineMenu size={26} />
         </button>
@@ -204,9 +179,9 @@ const Topbar = ({ onMenuClick }: Props) => {
               Mi perfil
             </button>
 
-            <button 
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50"
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50"
             >
               <HiOutlineLogout />
               Cerrar sesión
@@ -215,13 +190,9 @@ const Topbar = ({ onMenuClick }: Props) => {
         )}
       </div>
 
-      {/* MODALES */}
       <ProfileModal
         open={myprofileOpen}
-        onClose={() => {
-          setmyProfileOpen(false);
-          refreshUser(); // refresca info al cerrar
-        }}
+        onClose={() => setmyProfileOpen(false)}
         user={user}
       />
 

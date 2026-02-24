@@ -221,7 +221,7 @@ const DashboardHome = () => {
       color: "bg-red-100 text-red-700",
     },
     {
-      label: "Citas hoy",
+      label: "Eventos hoy",
       value: events.length || 0,
       icon: HiOutlineCalendar,
       color: "bg-green-50 text-green-600",
@@ -567,7 +567,7 @@ const DashboardHome = () => {
         <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold text-primary">
-              Pendientes de hoy
+              Eventos pendientes de hoy
             </h2>
 
             <HiOutlineCalendar className="text-primary" size={22} />
