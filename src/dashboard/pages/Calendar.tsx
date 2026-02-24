@@ -66,15 +66,17 @@ const Calendar = () => {
         getEventsByUserService(user.id),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-
       const formatted = data.map((e: any) => ({
         id: e.id,
         title: e.title,
         start: e.start,
         end: e.end,
         extendedProps: {
+          userId: e.userId,
           category: e.category,
           caseId: e.caseId,
+          userName: e.user.name,
+          caseTitle: e.case?.title || "",
           guests: e.guests?.map((g: any) => g.name) || [],
         },
       }));
@@ -93,7 +95,7 @@ const Calendar = () => {
       const data = await getUsersService();
 
       const formatted = data
-        .filter((u: any) => u.id !== user?.id) 
+        .filter((u: any) => u.id !== user?.id)
         .map((u: any) => ({
           value: u.id,
           label: u.name,
@@ -161,7 +163,6 @@ const Calendar = () => {
   /* 🔵 Click en evento */
   const handleEventClick = (info: any) => {
     const event = info.event;
-
     setSelectedEvent(event);
     setDetailOpen(true);
   };
@@ -620,6 +621,11 @@ const Calendar = () => {
                 {selectedEvent.extendedProps.category}
               </p>
 
+               <p>
+                <strong>Responsable:</strong>{" "}
+                {selectedEvent.extendedProps.userName}
+              </p>
+
               <p>
                 <strong>Inicio:</strong>{" "}
                 {new Date(selectedEvent.start).toLocaleString("es-MX")}
@@ -632,10 +638,10 @@ const Calendar = () => {
                 </p>
               )}
 
-              {selectedEvent.extendedProps.caseId && (
+              {selectedEvent.extendedProps.caseTitle && (
                 <p>
                   <strong>Asunto:</strong>{" "}
-                  {selectedEvent.extendedProps.caseId}
+                  {selectedEvent.extendedProps.caseTitle}
                 </p>
               )}
 
@@ -659,10 +665,16 @@ const Calendar = () => {
               >
                 Cerrar
               </button>
-
               <button
+                disabled={selectedEvent?.extendedProps.userId !== user?.id}
                 onClick={openEditFromDetail}
-                className="bg-primary text-white px-6 py-2 rounded-lg"
+                className={`
+                px-6 py-2 rounded-lg text-white transition
+                ${selectedEvent?.extendedProps.userId === user?.id
+                                ? "bg-primary hover:bg-primary/90"
+                                : "bg-gray-300 cursor-not-allowed"
+                              }
+              `}
               >
                 Editar
               </button>

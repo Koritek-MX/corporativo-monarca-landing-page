@@ -1,4 +1,3 @@
-import { createCaseService, getCasesByClientIdService, getCasesByLawyerIdService } from "../../services/case.services";
 import { createInstallmentService } from "../../services/paymentInstallments.service";
 import { createEventService, getTodayEventsService } from "../../services/event.service";
 import { createClientService, getClientsService } from "../../services/client.service";
@@ -9,6 +8,11 @@ import { getUsersService } from "../../services/user.services";
 import { useAuth } from "../../components/hooks/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
+import {
+  createCaseService,
+  getCasesByClientIdService,
+  getCasesByLawyerIdService
+} from "../../services/case.services";
 import Select from "react-select";
 import Swal from "sweetalert2";
 import {
@@ -96,8 +100,10 @@ const DashboardHome = () => {
   const [openCaseModal, setOpenCaseModal] = useState(false);
   const [formPayment, setFormPayment] = useState<any>(emptyPayments);
   const [formClient, setFormClient] = useState<any>(emptyClient);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [formEvent, setFormEvent] = useState<any>(emptyEvent);
   const [formCase, setFormCase] = useState<any>(emptyCase);
+  const [detailOpen, setDetailOpen] = useState(false);
   const [includeIva, setIncludeIva] = useState(true);
   const [clients, setClients] = useState<any[]>([]);
   const [events, setEvents] = useState<any[]>([]);
@@ -136,6 +142,7 @@ const DashboardHome = () => {
   const loadTodayEvents = async (userId: number) => {
     try {
       const data = await getTodayEventsService(userId);
+      console.log("EVENTOS DE HOY", data);
       setEvents(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los eventos", "error");
@@ -408,6 +415,11 @@ const DashboardHome = () => {
     }
   };
 
+  const openDetailEvent = (event: any) => {
+    console.log(event)
+    setSelectedEvent(event);
+    setDetailOpen(true);
+  }
 
   const isFormUserValid =
     formClient.type &&
@@ -577,11 +589,20 @@ const DashboardHome = () => {
             {events.map((event, index) => (
               <div
                 key={index}
+                onClick={() => openDetailEvent(event)}
                 className="flex items-center justify-between p-4 rounded-xl border border-gray-200 hover:bg-gray-50 transition"
               >
                 <div>
                   <p className="font-semibold text-primary">
                     {event.title}
+
+                    {event.userId !== user.id && (
+                      <span
+                        className="inline-flex uppercase px-3 py-1 ml-3 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800"
+                      >
+                        COMO INVITADO
+                      </span>
+                    )}
                   </p>
                   <p className="text-sm text-gray-500">
                     {event.category}
@@ -1339,6 +1360,77 @@ const DashboardHome = () => {
               >
                 Crear cobro
               </button>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {detailOpen && (
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+
+            {/* Header */}
+            <div className="px-6 py-4 border-b flex justify-between">
+              <h2 className="text-lg font-bold text-primary">
+                Detalle del evento
+              </h2>
+
+              <button
+                onClick={() => setDetailOpen(false)}
+                className="text-gray-500"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="px-6 py-6 space-y-4 text-sm">
+
+              <p>
+                <strong>Título:</strong>{" "}
+                {selectedEvent.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, "")}
+              </p>
+
+              <p>
+                <strong>Categoría:</strong>{" "}
+                {selectedEvent.category}
+              </p>
+
+              <p>
+                <strong>Responsable:</strong>{" "}
+                {selectedEvent.user.name}
+              </p>
+
+              <p>
+                <strong>Inicio:</strong>{" "}
+                {new Date(selectedEvent.start).toLocaleString("es-MX")}
+              </p>
+
+              {selectedEvent.end && (
+                <p>
+                  <strong>Fin:</strong>{" "}
+                  {new Date(selectedEvent.end).toLocaleString("es-MX")}
+                </p>
+              )}
+
+              {selectedEvent.case.title && (
+                <p>
+                  <strong>Asunto:</strong>{" "}
+                  {selectedEvent.case.title}
+                </p>
+              )}
+
+              {selectedEvent.guests?.length > 0 && (
+                <div>
+                  <strong>Invitados:</strong>
+                  <ul className="list-disc ml-5 mt-1">
+                    {selectedEvent.guests.map((g: any) => (
+                      <li key={g.id}>{g.name}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
 
           </div>
