@@ -1,4 +1,7 @@
 import axios from "axios";
+import Swal from "sweetalert2";
+
+let sessionExpiredAlertShown = false;
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -52,7 +55,6 @@ api.interceptors.response.use(
           throw new Error("No refresh token");
         }
 
-        /* 👉 pedir nuevo access token */
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_URL}/auth/refresh`,
           { refreshToken }
@@ -69,7 +71,18 @@ api.interceptors.response.use(
         return api(originalRequest);
 
       } catch (refreshError) {
-        /* ❌ refresh falló → logout */
+        /* 🚨 Sesión expirada REAL */
+        if (!sessionExpiredAlertShown) {
+          sessionExpiredAlertShown = true;
+
+          await Swal.fire({
+            icon: "warning",
+            title: "Sesión expirada",
+            text: "Tu sesión ha caducado. Inicia sesión nuevamente.",
+            confirmButtonColor: "#1A3263",
+          });
+        }
+
         localStorage.clear();
         window.location.href = "/login";
       }
