@@ -1,9 +1,15 @@
 import { FaWhatsapp } from "react-icons/fa";
 
-const WhatsAppButton = () => {
+interface Props {
+  hidden?: boolean;
+}
+
+const WhatsAppButton = ({ hidden }: Props) => {
+  if (hidden) return null;
+
   return (
     <div className="fixed bottom-6 right-6 z-50 group">
-      
+
       {/* Tooltip / nube */}
       <div
         className="

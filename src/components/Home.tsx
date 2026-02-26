@@ -9,12 +9,15 @@ import Footer from "../components/layout/Footer";
 import Navbar from "../components/layout/Navbar";
 import Hero from "../components/sections/Hero";
 import Blog from "../components/sections/Blog";
+import { useState } from "react";
 
 const Home = () => {
+    const [menuOpen, setMenuOpen] = useState(false);
+
     return (
         <>
             <LandingSplash>
-                <Navbar />
+                <Navbar open={menuOpen} setOpen={setMenuOpen} />
                 <main>
                     <Hero />
                     <Services />
@@ -25,7 +28,7 @@ const Home = () => {
                     <Contact />
                 </main>
                 <Footer />
-                <WhatsAppButton />
+                <WhatsAppButton hidden={menuOpen} />
             </LandingSplash>
         </>
     );
