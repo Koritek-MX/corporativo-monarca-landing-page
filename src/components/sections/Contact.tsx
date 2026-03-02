@@ -1,6 +1,8 @@
-import Swal from "sweetalert2";
 import { createContactService } from "../../services/contact.service";
 import { useState, useEffect, useRef } from "react";
+import ReCAPTCHA from "react-google-recaptcha";
+import Swal from "sweetalert2";
+
 import {
   FaPhoneAlt,
   FaEnvelope,
@@ -9,9 +11,10 @@ import {
 
 const Contact = () => {
 
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);  
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
-
+  const recaptchaRef = useRef<ReCAPTCHA>(null);
   const [form, setForm] = useState({
     name: "",
     email: "",
@@ -52,6 +55,7 @@ const Contact = () => {
         phone: form.phone,
         city: `${form.city}, ${form.state}`,
         message: form.message,
+        captchaToken
       };
 
       await createContactService(payload);
@@ -73,8 +77,14 @@ const Contact = () => {
         message: "",
       });
 
+      /* 🔥 Reset captcha */
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
+
     } catch {
       Swal.fire("Error", "No se pudo enviar", "error");
+      recaptchaRef.current?.reset();
+      setCaptchaToken(null);
     }
   };
 
@@ -83,7 +93,8 @@ const Contact = () => {
     form.email.trim() &&
     form.phone.trim() &&
     form.city.trim() &&
-    form.message.trim();
+    form.message.trim() &&
+    captchaToken;
 
   return (
     <section
@@ -304,6 +315,11 @@ const Contact = () => {
                 }
               />
             </div>
+
+            <ReCAPTCHA
+              sitekey={import.meta.env.VITE_RECAPTCHA_SITE_KEY}
+              onChange={(token) => setCaptchaToken(token)}
+            />
 
             <button
               type="submit"
