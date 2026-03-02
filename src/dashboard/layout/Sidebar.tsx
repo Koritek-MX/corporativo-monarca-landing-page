@@ -3,6 +3,7 @@ import logo from "../../assets/images/monarca-gold.webp";
 import { useNavigate } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import { VscLaw } from "react-icons/vsc";
+
 import Swal from "sweetalert2";
 import {
   HiOutlineHome,
@@ -16,6 +17,7 @@ import {
   HiOutlineNewspaper,
   HiOutlineClipboardList
 } from "react-icons/hi";
+import { useAuth } from "../../components/hooks/AuthContext";
 
 interface Props {
   open: boolean;
@@ -27,7 +29,12 @@ const links = [
   { to: "/dashboard/calendario", label: "Calendario", icon: HiOutlineCalendar },
   { to: "/dashboard/clientes", label: "Clientes", icon: HiOutlineUserGroup },
   { to: "/dashboard/asuntos", label: "Asuntos", icon: HiOutlineBriefcase },
-  { to: "/dashboard/abogados", label: "Abogados", icon: VscLaw },
+  {
+    to: "/dashboard/abogados",
+    label: "Abogados",
+    icon: VscLaw,
+    roles: ["ADMIN"]
+  },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
   { to: "/dashboard/contactos", label: "Contactos", icon: HiOutlineClipboardList },
   { to: "/dashboard/blog", label: "Blog", icon: HiOutlineNewspaper },
@@ -36,7 +43,13 @@ const links = [
 
 const Sidebar = ({ open, onClose }: Props) => {
 
+  const { user } = useAuth();
   const navigate = useNavigate();
+
+  const filteredLinks = links.filter(link => {
+    if (!link.roles) return true; // si no tiene roles, todos pueden verlo
+    return link.roles.includes(user?.role);
+  });
 
   const handleLogout = async () => {
     const result = await Swal.fire({
@@ -102,7 +115,7 @@ const Sidebar = ({ open, onClose }: Props) => {
 
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-          {links.map(({ to, label, icon: Icon }) => (
+          {filteredLinks.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
               to={to}

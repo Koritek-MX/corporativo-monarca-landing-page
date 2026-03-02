@@ -53,7 +53,9 @@ export default function App() {
           <Route path="/dashboard/estadisticas" element={<Stats />} />
           <Route path="/dashboard/blog" element={<BlogAdmin />} />
           <Route path="/dashboard/contactos" element={<Contacts />} />
-          <Route path="/dashboard/abogados" element={<Lawyers />} />
+          <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
+            <Route path="/dashboard/abogados" element={<Lawyers />} />
+          </Route>
         </Route>
       </Route>
 

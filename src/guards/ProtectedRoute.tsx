@@ -1,11 +1,24 @@
 import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "../components/hooks/AuthContext";
 
-const ProtectedRoute = () => {
-  const isAuthenticated = !!localStorage.getItem("token");
+interface Props {
+  allowedRoles?: string[];
+}
 
-  return isAuthenticated
-    ? <Outlet />
-    : <Navigate to="/login" replace />;
+const ProtectedRoute = ({ allowedRoles }: Props) => {
+  const { user } = useAuth();
+
+  // 🔒 No autenticado
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 🔒 Si se definieron roles permitidos y no coincide
+  if (allowedRoles && !allowedRoles.includes(user.role)) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  return <Outlet />;
 };
 
 export default ProtectedRoute;
