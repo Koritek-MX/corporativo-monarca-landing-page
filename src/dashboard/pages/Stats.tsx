@@ -20,13 +20,6 @@ import {
 } from "recharts";
 
 
-const CASE_STATUS_LABELS: Record<string, string> = {
-  POR_INICIAR: "Por iniciar",
-  PROCESO: "En proceso",
-  RESUELTO: "Resueltos",
-  ARCHIVADO: "Archivados",
-};
-
 const Stats = () => {
   const [kpis, setKpis] = useState<any>(null);
   const [incomeData, setIncomeData] = useState<any[]>([]);
@@ -49,14 +42,9 @@ const Stats = () => {
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      const formattedCases = data.cases.map((c: any) => ({
-        name: CASE_STATUS_LABELS[c.name] || c.name,
-        value: Number(c.value || 0),
-      }));
-
       setKpis(data.kpis);
       setIncomeData(data.income);
-      setCasesData(formattedCases);
+      setCasesData(data.cases);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los estadísticas", "error");
     } finally {
@@ -101,6 +89,12 @@ const Stats = () => {
     (acc, item) => acc + Number(item.total || 0),
     0
   );
+
+  const totalCases = casesData.reduce(
+    (acc, item) => acc + Number(item.value || 0),
+    0
+  );
+  
 
   return (
     <div className="flex flex-col gap-8">
@@ -187,48 +181,50 @@ const Stats = () => {
             Asuntos por estatus
           </h3>
 
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              <Pie
-                data={casesData}
-                dataKey="value"
-                nameKey="name"
-                innerRadius={60}
-                outerRadius={90}
-                paddingAngle={4}
-              >
-                {casesData.map((index) => (
-                  <Cell
-                    key={index}
-                    fill={
-                      [
-                        "#93C5FD",
-                        "#FCD34D",
-                        "#86EFAC",
-                        "#E5E7EB",
-                      ][index % 4]
-                    }
-                  />
-                ))}
-              </Pie>
-              <Tooltip />
-            </PieChart>
-          </ResponsiveContainer>
+          <div className="relative">
+            <ResponsiveContainer width="100%" height={260}>
+              <PieChart>
+                <Pie
+                  data={casesData}
+                  dataKey="value"
+                  nameKey="name"
+                  innerRadius={70}
+                  outerRadius={100}
+                  paddingAngle={4}
+                >
+                  {casesData.map((entry, index) => (
+                    <Cell
+                      key={`${entry.name}-${index}`}
+                      fill={entry.color}
+                    />
+                  ))}
+                </Pie>
+                <Tooltip
+                  formatter={(value: any, name: any) =>
+                    [`${value} asuntos`, name]
+                  }
+                />
+              </PieChart>
+            </ResponsiveContainer>
+
+            {/* 👇 Total en el centro */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+              <span className="text-2xl font-bold text-primary">
+                {totalCases}
+              </span>
+              <span className="text-xs text-gray-500 uppercase">
+                Total
+              </span>
+            </div>
+          </div>
 
           {/* Leyenda */}
           <div className="mt-6 grid grid-cols-2 gap-3 text-sm">
             {casesData.map((c, i) => (
-              <div key={i} className="flex items-center gap-2">
+              <div key={`${c.name}-${i}`} className="flex items-center gap-2">
                 <span
                   className="w-3 h-3 rounded-full"
-                  style={{
-                    backgroundColor: [
-                      "#93C5FD",
-                      "#FCD34D",
-                      "#86EFAC",
-                      "#E5E7EB",
-                    ][i % 4],
-                  }}
+                  style={{ backgroundColor: c.color }}
                 />
                 <span className="text-gray-600">
                   {c.name}
