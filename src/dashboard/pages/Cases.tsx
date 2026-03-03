@@ -7,6 +7,7 @@ import { getUsersService } from "../../services/user.services";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { FaRegFileAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import { LuFilter } from "react-icons/lu";
 
 const STATUS_STYLES: Record<
   string,
@@ -58,6 +59,7 @@ const Cases = () => {
   const [clients, setClients] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loadingCases, setLoadingCases] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
   const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
@@ -260,6 +262,13 @@ const Cases = () => {
     form.clientId &&
     form.lawyerId;
 
+  const filteredCases = cases.filter((c) => {
+    if (showArchived) {
+      return c.status === "ARCHIVADO";
+    }
+    return c.status !== "ARCHIVADO";
+  });
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -270,6 +279,20 @@ const Cases = () => {
           <p className="text-gray-600">
             Gestión de expedientes y casos legales
           </p>
+          <button
+            onClick={() => setShowArchived(!showArchived)}
+            className={`
+              mt-3 px-4 py-2 rounded-lg text-sm font-semibold transition
+              flex items-center gap-2
+              ${showArchived
+                ? "bg-gray-200 text-gray-700"
+                : "bg-primary/10 text-primary"
+              }
+            `}
+          >
+            <LuFilter size={18} />
+            {showArchived ? "Ver activos" : "Ver archivados"}
+          </button>
         </div>
         <button
           onClick={() => setIsModalOpen(true)}
@@ -285,7 +308,7 @@ const Cases = () => {
         <div className="py-10 text-center text-gray-500">
           Cargando asuntos...
         </div>
-      ) : cases.length === 0 ? (
+      ) : filteredCases.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <div className="text-5xl mb-3">💼</div>
           <p className="font-semibold text-lg">
@@ -312,7 +335,7 @@ const Cases = () => {
             </thead>
 
             <tbody>
-              {cases.map((a, index) => (
+              {filteredCases.map((a, index) => (
                 <tr
                   key={a.id}
                   className={`
