@@ -167,7 +167,7 @@ const Contact = () => {
 
                   <p className="text-gray-600 mb-4">
                     Juan Escutia #10, int 3, Col. Centro, CP. 59300,
-                    La Piedad de Cabadas, Michoacán, México
+                    La Piedad de Cavadas, Michoacán, México
                   </p>
 
                   {/* MAP */}
@@ -292,7 +292,7 @@ const Contact = () => {
               </label>
               <input
                 type="text"
-                placeholder="La Piedad de Cabadas"
+                placeholder="La Piedad de Cavadas"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary"
                 value={form.city}
                 onChange={(e) =>

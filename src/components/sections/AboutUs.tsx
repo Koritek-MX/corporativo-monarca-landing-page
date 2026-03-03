@@ -145,7 +145,7 @@ const AboutUs = () => {
                     {/* Social */}
                     <div className="flex items-center gap-4 mb-6">
                       <a
-                        href={`https://wa.me/${lawyer.phone.replace(/\D/g, "")}`}
+                        href={`https://wa.me/+52${lawyer.phone.replace(/\D/g, "")}`}
                         target="_blank"
                         className="text-primary/60 hover:text-secondary transition hover:scale-110 duration-300"
                       >

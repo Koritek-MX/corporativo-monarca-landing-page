@@ -8,11 +8,6 @@ const faqs = [
       "Ofrecemos asesoría y representación legal en derecho corporativo, mercantil, laboral y civil, enfocados en empresas y profesionistas.",
   },
   {
-    question: "¿Atienden a personas físicas o solo empresas?",
-    answer:
-      "Atendemos tanto a empresas como a personas físicas, brindando soluciones legales personalizadas según cada caso.",
-  },
-  {
     question: "¿Cómo puedo agendar una consulta?",
     answer:
       "Puedes contactarnos a través del formulario, por WhatsApp o vía telefónica. Un asesor se pondrá en contacto contigo a la brevedad.",

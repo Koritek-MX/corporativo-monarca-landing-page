@@ -798,7 +798,7 @@ const Billing = () => {
                     </p>
 
                     <p style={{ fontSize: "12px", margin: 0 }}>
-                      La Piedad de Cabadas, Michoacán, México
+                      La Piedad de Cavadas, Michoacán, México
                     </p>
 
                      <p style={{ fontSize: "12px", margin: 0 }}>

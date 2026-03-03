@@ -5,7 +5,7 @@ import CarteraVencida from "../../assets/images/cartera-vencida.webp";
 
 const cases = [
   {
-    title: "Resolución favorable en conflicto laboral",
+    title: "Resolución favorable en conflicto familiar",
     description:
       "Resolución de pérdida de la patria potestad en favor de nuestra clienta y su hijo, después de haber sufrido violencia familiar.",
     area: "Derecho Familiar",
