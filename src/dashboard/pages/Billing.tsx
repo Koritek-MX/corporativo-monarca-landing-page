@@ -49,7 +49,7 @@ const Billing = () => {
     finalAmount: "",
     initialPaid: "",
     iva: 16,
-    status: "pendiente",
+    status: "PENDIENTE",
     sendEmail: false,
     clientId: "",
     caseId: "",
@@ -327,32 +327,6 @@ const Billing = () => {
     pdf.save(fileName);
   };
 
-  // const sendWhatsApp = (payment: any) => {
-  //   console.log(payment.client);
-  //   let phone = payment.client?.phone || "";
-
-  //   // 👉 limpiar todo menos números
-  //   phone = phone.replace(/\D/g, "");
-
-  //   // 👉 agregar lada México si no la tiene
-  //   if (!phone.startsWith("52")) {
-  //     phone = "52" + phone;
-  //   }
-
-  //   if (!phone) {
-  //     Swal.fire("Error", "El cliente no tiene teléfono", "warning");
-  //     return;
-  //   }
-
-  //   const message = encodeURIComponent(
-  //     `Hola ${payment.client?.name}, te enviamos tu comprobante de pago del asunto ${payment.case?.title}.`
-  //   );
-
-  //   const url = `https://wa.me/${phone}?text=${message}`;
-
-  //   window.open(url, "_blank");
-  // };
-
   return (
     <div className="flex flex-col gap-6">
 
@@ -535,7 +509,7 @@ const Billing = () => {
 
               {/* Cliente */}
               <div>
-                <label className="block text-sm font-medium mb-1">Cliente</label>
+                <label className="block text-sm font-medium mb-1">Cliente *</label>
                 <select
                   value={form.clientId}
                   onChange={async (e) => {
@@ -578,7 +552,7 @@ const Billing = () => {
 
               {/* Asunto */}
               <div>
-                <label className="block text-sm font-medium mb-1">Asunto</label>
+                <label className="block text-sm font-medium mb-1">Asunto *</label>
                 <select
                   value={form.caseId}
                   onChange={(e) =>
@@ -598,7 +572,7 @@ const Billing = () => {
 
               {/* Estado de la factura */}
               <div>
-                <label className="block text-sm font-medium mb-1">Estado del folio</label>
+                <label className="block text-sm font-medium mb-1">Estado del cobro *</label>
                 <select
                   value={form.status}
                   onChange={(e) =>
@@ -606,6 +580,8 @@ const Billing = () => {
                   }
                   className="w-full border rounded-lg px-4 py-3"
                 >
+
+                  <option value="">Selecciona el estado</option>
                   <option value="PENDIENTE">Pendiente</option>
                   <option value="PAGADO">Pagado</option>
                 </select>
@@ -615,7 +591,7 @@ const Billing = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Monto total
+                    Monto total (MXN) *
                   </label>
                   <input
 
@@ -629,7 +605,7 @@ const Billing = () => {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">
-                    Abono inicial
+                    Abono inicial (MXN)
                   </label>
                   <input
                     type="number"
@@ -683,7 +659,7 @@ const Billing = () => {
 
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Total IVA
+                      Total IVA (MXN)
                     </label>
                     <input
                       value={`${form.currency} ${((Number(form.totalAmount) * Number(form.iva)) / 100).toFixed(2)}`}
@@ -694,7 +670,7 @@ const Billing = () => {
 
                   <div>
                     <label className="block text-sm font-medium mb-1">
-                      Monto total con IVA
+                      Monto total + IVA (MXN)
                     </label>
                     <input
                       value={`${form.currency} ${(Number(form.totalAmount) + ((Number(form.totalAmount) * Number(form.iva)) / 100)).toFixed(2)}`}
@@ -705,7 +681,9 @@ const Billing = () => {
                 </div>
               )}
 
-
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
 
             </div>
 
@@ -790,7 +768,7 @@ const Billing = () => {
                     <p style={{ fontSize: "12px", margin: 0 }}>
                       Corporativo Monarca - Consultoria jurídica y empresarial
                     </p>
-                     <p style={{ fontSize: "12px", margin: 0 }}>
+                    <p style={{ fontSize: "12px", margin: 0 }}>
                       RFC: MON123456ABC
                     </p>
                     <p style={{ fontSize: "12px", margin: 0 }}>
@@ -801,7 +779,7 @@ const Billing = () => {
                       La Piedad de Cavadas, Michoacán, México
                     </p>
 
-                     <p style={{ fontSize: "12px", margin: 0 }}>
+                    <p style={{ fontSize: "12px", margin: 0 }}>
                       monarcacorporativo@outlook.com
                     </p>
                     <p style={{ fontSize: "12px", margin: 0 }}>
@@ -845,7 +823,7 @@ const Billing = () => {
                     {selectedPayment.case?.title}
                   </p>
 
-                   <p>
+                  <p>
                     <strong>Responsable:</strong>{" "}
                     {selectedPayment.case?.lawyer.name}
                   </p>
@@ -988,14 +966,6 @@ const Billing = () => {
                 Descargar PDF
                 <FaRegFilePdf />
               </button>
-
-              {/* <button
-                onClick={() => sendWhatsApp(selectedPayment)}
-                className="flex items-center gap-2 bg-green-600 text-white px-5 py-3 rounded-xl font-semibold hover:bg-green-700 transition"
-              >
-                Enviar WhatsApp
-                <FaWhatsapp />
-              </button> */}
             </div>
 
           </div>

@@ -6,8 +6,7 @@ import {
   getClientsService,
   createClientService,
   updateClientService,
-  deleteClientService,
-  updatePasswordClientService
+  deleteClientService
 } from "../../services/client.service";
 import Swal from "sweetalert2";
 
@@ -32,24 +31,28 @@ const emptyClient: Client = {
   id: 0
 };
 
+const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+const phoneRegex = /^[0-9]{10}$/;
+
+
+
 const Clients = () => {
 
   const [clients, setClients] = useState<Client[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
   const [form, setForm] = useState<Client>(emptyClient);
-  const [passwordModalOpen, setPasswordModalOpen] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
-  const [passwordForm, setPasswordForm] = useState({
-    password: "",
-    confirmPassword: "",
-  });
 
   useEffect(() => {
     loadClients();
   }, []);
 
-  const passwordsMatch = editing || form.password === form.confirmPassword;
+  const isFormValid =
+    form.name.trim() &&
+    phoneRegex.test(form.phone.replace(/\D/g, "")) &&
+    form.address.state.trim() &&
+    form.address.city.trim();
 
   const loadClients = async () => {
     try {
@@ -88,19 +91,38 @@ const Clients = () => {
   };
 
   const createClient = async () => {
-    if (!form.name || !form.email) {
-      Swal.fire("Error", "Nombre y correo son obligatorios", "error");
-      return;
+
+    if (!form.name.trim()) {
+      return Swal.fire("Error", "El nombre es obligatorio", "warning");
+    }
+
+    if (!phoneRegex.test(form.phone.replace(/\D/g, ""))) {
+      return Swal.fire("Error", "El teléfono debe tener 10 dígitos", "warning");
+    }
+
+    if (form.rfc && !rfcRegex.test(form.rfc.trim().toUpperCase())) {
+      return Swal.fire("Error", "RFC inválido", "warning");
+    }
+
+    if (!form.address.state.trim() || !form.address.city.trim()) {
+      return Swal.fire("Error", "Estado y municipio son obligatorios", "warning");
     }
 
     try {
+
+      Swal.fire({
+        title: editing ? "Actualizando cliente..." : "Creando cliente...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const payload = {
         type: form.type.trim().toUpperCase() as ClientType,
         name: form.name.trim(),
         lastName: form.lastName.trim(),
-        phone: form.phone.trim(),
+        phone: form.phone.replace(/\D/g, ""),
         email: form.email.trim(),
-        rfc: form.rfc.trim(),
+        rfc: form.rfc.trim().toUpperCase(),
         address: {
           state: form.address.state.trim(),
           city: form.address.city.trim(),
@@ -114,29 +136,21 @@ const Clients = () => {
 
       if (editing) {
         await updateClientService(editing.id, payload);
-
-        Swal.fire({
-          icon: "success",
-          title: "Cliente actualizado",
-          timer: 1500,
-          showConfirmButton: false,
-        });
       } else {
         await createClientService(payload);
-
-        Swal.fire({
-          icon: "success",
-          title: "Cliente creado",
-          timer: 1500,
-          showConfirmButton: false,
-        });
       }
 
+      Swal.fire({
+        icon: "success",
+        title: editing ? "Cliente actualizado" : "Cliente creado",
+        timer: 1500,
+        showConfirmButton: false,
+      });
+
       setOpen(false);
-      loadClients(); // recarga desde backend
+      loadClients();
 
     } catch (error) {
-      console.error(error);
       Swal.fire("Error", "No se pudo guardar el cliente", "error");
     }
   };
@@ -174,31 +188,6 @@ const Clients = () => {
         }
       }
     });
-  };
-
-  const handleChangePassword = async () => {
-    if (passwordForm.password !== passwordForm.confirmPassword) {
-      Swal.fire("Error", "Las contraseñas no coinciden", "error");
-      return;
-    }
-    try {
-
-      if (editing) {
-        await updatePasswordClientService(editing.id, passwordForm.password);
-        Swal.fire({
-          icon: "success",
-          title: "Contraseña actualizada",
-          timer: 1500,
-          showConfirmButton: false,
-        });
-        setPasswordModalOpen(false);
-      } else {
-        Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
-      }
-
-    } catch (error) {
-      Swal.fire("Error", "No se pudo actualizar la contraseña", "error");
-    }
   };
 
 
@@ -335,8 +324,8 @@ const Clients = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   >
-                    <option value="FISICA">Persona Física</option>
-                    <option value="MORAL">Persona Moral</option>
+                    <option value="FISICA">Persona Física *</option>
+                    <option value="MORAL">Persona Moral *</option>
                   </select>
 
                   <input
@@ -347,14 +336,14 @@ const Clients = () => {
                   />
 
                   <input
-                    placeholder="Nombre(s)"
+                    placeholder="Nombre(s) *"
                     value={form.name}
                     onChange={(e) => setForm({ ...form, name: e.target.value })}
                     className="border rounded-lg px-4 py-3"
                   />
 
                   <input
-                    placeholder="Apellidos"
+                    placeholder="Apellido(s) "
                     value={form.lastName}
                     onChange={(e) =>
                       setForm({ ...form, lastName: e.target.value })
@@ -363,7 +352,7 @@ const Clients = () => {
                   />
 
                   <input
-                    placeholder="Teléfono"
+                    placeholder="Teléfono *"
                     value={form.phone}
                     onChange={(e) =>
                       setForm({ ...form, phone: e.target.value })
@@ -379,56 +368,15 @@ const Clients = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   />
-
-
-                  {/* SOLO cuando se crea cliente */}
-                  {!editing && (
-                    <>
-                      <input
-                        placeholder="Contraseña"
-                        value={form.password || ""}
-                        onChange={(e) =>
-                          setForm({ ...form, password: e.target.value })
-                        }
-                        className="border rounded-lg px-4 py-3"
-                      />
-
-                      <input
-                        placeholder="Confirmar contraseña"
-                        value={form.confirmPassword || ""}
-                        onChange={(e) =>
-                          setForm({ ...form, confirmPassword: e.target.value })
-                        }
-                        className="border rounded-lg px-4 py-3"
-                      />
-                    </>
-                  )}
                 </div>
-
-
-                {editing && (
-                  <h3 className="text-sm font-semibold
-                    text-primary hover:text-secondary
-                      underline transition mt-4"
-                    onClick={() => setPasswordModalOpen(true)}>
-                    Cambiar contraseña
-                  </h3>
-                )}
-
-                {!editing && form.confirmPassword && !passwordsMatch && (
-                  <p className="text-red-500 text-sm mt-1">
-                    Las contraseñas no coinciden
-                  </p>
-                )}
               </section>
-
               {/* Dirección */}
               <section>
                 <h3 className="font-semibold mb-4">Dirección</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <input
-                    placeholder="Estado"
+                    placeholder="Estado *"
                     value={form.address.state}
                     onChange={(e) =>
                       setForm({
@@ -439,7 +387,7 @@ const Clients = () => {
                     className="border px-4 py-3 rounded-lg"
                   />
                   <input
-                    placeholder="Municipio"
+                    placeholder="Municipio *"
                     value={form.address.city}
                     onChange={(e) =>
                       setForm({
@@ -504,7 +452,13 @@ const Clients = () => {
                     }
                     className="border px-4 py-3 rounded-lg"
                   />
+
+
                 </div>
+                <br />
+                <label className="text-sm font-semibold text-gray-700">
+                  (*) Los campos son obligatorios.
+                </label>
               </section>
             </div>
 
@@ -518,73 +472,16 @@ const Clients = () => {
               </button>
               <button
                 onClick={createClient}
-                disabled={!passwordsMatch}
-                className={`px-6 py-2 rounded-lg font-semibold transition
-                    ${passwordsMatch
+                disabled={!isFormValid}
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
+                  ${isFormValid
                     ? "bg-primary text-white hover:bg-primary/90"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }
-                      `}>
-                Guardar
-              </button>
-            </div>
-
-          </div>
-        </div>
-      )}
-
-      {passwordModalOpen && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-
-            {/* Header */}
-            <div className="px-6 py-4 border-b">
-              <h2 className="text-lg font-bold text-primary">
-                Cambiar contraseña
-              </h2>
-            </div>
-
-            {/* Body */}
-            <div className="px-6 py-6 space-y-4">
-
-              <input
-                type="password"
-                placeholder="Nueva contraseña"
-                value={passwordForm.password}
-                onChange={(e) =>
-                  setPasswordForm({ ...passwordForm, password: e.target.value })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              />
-
-              <input
-                type="password"
-                placeholder="Confirmar contraseña"
-                value={passwordForm.confirmPassword}
-                onChange={(e) =>
-                  setPasswordForm({
-                    ...passwordForm,
-                    confirmPassword: e.target.value,
-                  })
-                }
-                className="w-full border rounded-lg px-4 py-3"
-              />
-            </div>
-
-            {/* Footer */}
-            <div className="px-6 py-4 border-t flex justify-end gap-3">
-              <button
-                onClick={() => setPasswordModalOpen(false)}
-                className="px-4 py-2 text-gray-600"
+                `}
               >
-                Cancelar
-              </button>
-
-              <button
-                onClick={handleChangePassword}
-                className="bg-primary text-white px-6 py-2 rounded-lg font-semibold"
-              >
-                Guardar contraseña
+                {editing ? "Editar cliente" : "Crear cliente"}
               </button>
             </div>
 

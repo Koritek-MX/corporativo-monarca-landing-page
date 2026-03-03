@@ -206,30 +206,26 @@ const Calendar = () => {
   const handleCreateEvent = async () => {
     if (!form.title || !form.start) return;
 
-    try {
-      if (new Date(form.end) < new Date(form.start)) {
-        Swal.fire({
-          icon: "warning",
-          title: "Hora inválida",
-          text: "La hora de fin no puede ser antes que la hora de inicio",
-        });
-        return;
-      }
+    if (new Date(form.end) < new Date(form.start)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Hora inválida",
+        text: "La hora de fin no puede ser antes que la hora de inicio",
+      });
+      return;
+    }
 
-      console.log("CREAR: ",
-        {
-          title: form.title,
-          start: form.start,
-          end: form.end,
-          category: form.category,
-          caseId: form.caseId ? Number(form.caseId) : null,
-          userId: user.id,
-          guests: form.guests.map(g => ({
-            id: g.value,
-            name: g.label,
-          })),
-        }
-      );
+    try {
+      // 🔄 Loading
+      Swal.fire({
+        title: "Creando evento...",
+        text: "Por favor espera",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
 
       await createEventService({
         title: form.title,
@@ -244,9 +240,6 @@ const Calendar = () => {
         })),
       });
 
-      await loadEvents();
-      setIsModalOpen(false);
-
       Swal.fire({
         icon: "success",
         title: "Evento creado",
@@ -254,8 +247,17 @@ const Calendar = () => {
         showConfirmButton: false,
       });
 
+      await loadEvents();
+      setIsModalOpen(false);
+
     } catch (error) {
-      Swal.fire("Error", "No se pudo crear el evento", "error");
+      Swal.close(); // 🔴 cerrar loading si falla
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo crear el evento",
+      });
     }
   };
 
@@ -355,7 +357,6 @@ const Calendar = () => {
   const isFormValid =
     form.title?.trim() &&
     form.category &&
-    form.caseId &&
     form.start &&
     form.end;
 
@@ -465,7 +466,7 @@ const Calendar = () => {
               {/* Título */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Título del evento
+                  Título del evento *
                 </label>
                 <input
                   value={form.title}
@@ -479,7 +480,7 @@ const Calendar = () => {
               {/* Categoría */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Categoría
+                  Categoría *
                 </label>
                 <select
                   value={form.category}
@@ -493,13 +494,14 @@ const Calendar = () => {
                   <option value="cita">Cita</option>
                   <option value="revision">Revisión</option>
                   <option value="vencimiento">Vencimiento</option>
+                  <option value="sincategoria">Sin categoría</option>
                 </select>
               </div>
 
               {/* Asunto */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Asuntos
+                  Asunto
                 </label>
                 <select
                   value={form.caseId}
@@ -520,7 +522,7 @@ const Calendar = () => {
               {/* Fecha inicio */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Fecha y hora inicio
+                  Fecha y hora inicio *
                 </label>
                 <input
                   type="datetime-local"
@@ -535,7 +537,7 @@ const Calendar = () => {
               {/* Fecha fin */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Fecha y hora fin
+                  Fecha y hora fin *
                 </label>
                 <input
                   type="datetime-local"
@@ -562,6 +564,10 @@ const Calendar = () => {
                   placeholder="Selecciona invitados"
                 />
               </div>
+
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
 
             </div>
 
@@ -621,7 +627,7 @@ const Calendar = () => {
                 {selectedEvent.extendedProps.category}
               </p>
 
-               <p>
+              <p>
                 <strong>Responsable:</strong>{" "}
                 {selectedEvent.extendedProps.userName}
               </p>
@@ -671,9 +677,9 @@ const Calendar = () => {
                 className={`
                 px-6 py-2 rounded-lg text-white transition
                 ${selectedEvent?.extendedProps.userId === user?.id
-                                ? "bg-primary hover:bg-primary/90"
-                                : "bg-gray-300 cursor-not-allowed"
-                              }
+                    ? "bg-primary hover:bg-primary/90"
+                    : "bg-gray-300 cursor-not-allowed"
+                  }
               `}
               >
                 Editar

@@ -12,6 +12,7 @@ import {
   updateUserService,
 } from "../../services/user.services";
 import { formatPhone } from "../../components/common/formatPhone";
+import { useAuth } from "../../components/hooks/AuthContext";
 
 const ROLE_STYLES: Record<string, { bg: string; text: string }> = {
   ADMIN: {
@@ -36,15 +37,20 @@ const emptyForm = {
 };
 
 const Lawyers = () => {
+
+  const { user } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [form, setForm] = useState(emptyForm);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
+
   useEffect(() => {
     loadUsers();
   }, []);
+
+  const filteredUsers = users.filter(u => u.id !== user?.id);
 
   /* 👉 Cargar abogados */
   const loadUsers = async () => {
@@ -199,8 +205,21 @@ const Lawyers = () => {
     });
   };
 
+  const isCreating = !editingUser;
+
   const passwordsMatch =
-    editingUser || form.password === form.confirmPassword;
+    !isCreating || // si estamos editando no es obligatorio
+    (form.password && form.confirmPassword && form.password === form.confirmPassword);
+
+  const isFormValid =
+    form.name.trim() &&
+    form.email.trim() &&
+    form.phone?.trim() &&
+    form.specialty.trim() &&
+    form.role &&
+    form.avatar.trim() &&
+    passwordsMatch;
+
 
   return (
     <div className="flex flex-col gap-6">
@@ -257,7 +276,7 @@ const Lawyers = () => {
             </thead>
 
             <tbody>
-              {users.map((l, index) => (
+              {filteredUsers.map((l, index) => (
                 <tr
                   key={l.id}
                   className={`${index % 2 ? "bg-gray-200" : ""}`}
@@ -324,10 +343,10 @@ const Lawyers = () => {
             <div className="px-6 py-6 space-y-4">
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  Nombre completo
+                  Nombre completo *
                 </label>
                 <input
-                  placeholder="Lic. Nombre Apellido"
+                  placeholder="Ej: Lic. Juan Perez"
                   value={form.name}
                   onChange={(e) =>
                     setForm({ ...form, name: e.target.value })
@@ -338,10 +357,10 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  Correo electrónico
+                  Correo electrónico *
                 </label>
                 <input
-                  placeholder="ejemplo@correo.com"
+                  placeholder="Ej: ejemplo@correo.com"
                   value={form.email}
                   onChange={(e) =>
                     setForm({ ...form, email: e.target.value })
@@ -352,7 +371,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  Teléfono
+                  Teléfono *
                 </label>
                 <input
                   type="tel"
@@ -367,7 +386,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  Especialidad(es)
+                  Especialidad(es) *
                 </label>
                 <input
                   placeholder="Litigio, Mercantil, Familiar..."
@@ -381,7 +400,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  URL Imagen
+                  URL Imagen *
                 </label>
                 <input
                   placeholder="https://ejemplo.com/imagen.jpg"
@@ -395,7 +414,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Rol
+                  Rol *
                 </label>
                 <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
                   value={form.role}
@@ -412,7 +431,7 @@ const Lawyers = () => {
                 <>
                   <div>
                     <label className="block text-sm mb-1 font-medium">
-                      Contraseña
+                      Contraseña *
                     </label>
                     <input
                       type="password"
@@ -426,7 +445,7 @@ const Lawyers = () => {
 
                   <div>
                     <label className="block text-sm mb-1 font-medium">
-                      Confirmar contraseña
+                      Confirmar contraseña *
                     </label>
                     <input
                       type="password"
@@ -437,9 +456,17 @@ const Lawyers = () => {
                       className="w-full border rounded-lg px-4 py-3"
                     />
                   </div>
-                  {!passwordsMatch && <span className="text-red-500">Las contraseñas no coinciden</span>}
                 </>
               )}
+              {isCreating && form.confirmPassword && !passwordsMatch && (
+                <p className="text-red-500 text-sm">
+                  Las contraseñas no coinciden
+                </p>
+              )}
+
+              <p className="text-sm font-semibold text-gray-700 mt-2">
+                (*) Los campos son obligatorios.
+              </p>
 
             </div>
 
@@ -450,12 +477,16 @@ const Lawyers = () => {
 
               <button
                 onClick={saveLawyer}
-                disabled={!passwordsMatch}
-                className={`px-6 py-2 rounded-lg font-semibold text-white
-                  ${passwordsMatch ? "bg-primary" : "bg-gray-400"}
+                disabled={!isFormValid}
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
+                  ${isFormValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
                 `}
               >
-                Guardar abogado
+                {editingUser ? "Editar abogado" : "Crear abogado"}
               </button>
             </div>
 

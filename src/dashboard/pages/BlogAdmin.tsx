@@ -40,7 +40,7 @@ const BlogAdmin = () => {
     subtitle: "",
     area: "",
     content: "",
-    imageUrl: "",
+    imageUrl: ""
   });
 
   /* 👉 Cargar blogs */
@@ -166,6 +166,13 @@ const BlogAdmin = () => {
 
     setIsModalOpen(true);
   };
+
+  const isFormValid =
+    form.title.trim() &&
+    form.subtitle.trim() &&
+    form.area.trim() &&
+    form.imageUrl.trim() &&
+    form.content.trim();
 
   return (
     <div className="flex flex-col gap-6">
@@ -301,7 +308,7 @@ const BlogAdmin = () => {
 
             <div className="px-6 py-6 space-y-4">
               <label className="block text-sm font-medium mb-1">
-                Título
+                Título *
               </label>
               <input
                 value={form.title}
@@ -311,7 +318,7 @@ const BlogAdmin = () => {
                 className="w-full border rounded-lg px-4 py-3"
               />
               <label className="block text-sm font-medium mb-1">
-                Subtítulo
+                Subtítulo *
               </label>
               <input
                 value={form.subtitle}
@@ -321,7 +328,7 @@ const BlogAdmin = () => {
                 className="w-full border rounded-lg px-4 py-3"
               />
               <label className="block text-sm font-medium mb-1">
-                Área legal
+                Área legal *
               </label>
 
               <select
@@ -340,7 +347,7 @@ const BlogAdmin = () => {
                 ))}
               </select>
               <label className="block text-sm font-medium mb-1">
-                URL iamgen
+                URL iamgen *
               </label>
               <input
                 value={form.imageUrl}
@@ -350,7 +357,7 @@ const BlogAdmin = () => {
                 className="w-full border rounded-lg px-4 py-3"
               />
               <label className="block text-sm font-medium mb-1">
-                Contenido del blog
+                Contenido  *
               </label>
               <textarea
                 rows={8}
@@ -360,6 +367,10 @@ const BlogAdmin = () => {
                 }
                 className="w-full border rounded-lg px-4 py-3"
               />
+
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
             </div>
 
             <div className="flex justify-end gap-3 px-6 py-4 border-t">
@@ -370,11 +381,25 @@ const BlogAdmin = () => {
                 Cancelar
               </button>
 
-              <button
+              {/* <button
                 onClick={handleSavePost}
                 className="px-6 py-2 bg-primary text-white rounded-lg font-semibold hover:bg-primary/90"
               >
                 {editingPost ? "Actualizar" : "Publicar"}
+              </button> */}
+
+              <button
+                onClick={handleSavePost}
+                disabled={!isFormValid}
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
+                  ${isFormValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
+                `}
+              >
+                {editingPost ? "Editar Blog" : "Crear blog"}
               </button>
             </div>
 

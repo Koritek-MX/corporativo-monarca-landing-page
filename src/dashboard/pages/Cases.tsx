@@ -1,13 +1,19 @@
-import { useEffect, useState } from "react";
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
-import Swal from "sweetalert2";
-import { createCaseService, deleteCaseService, getCaseService, updateCaseService } from "../../services/case.services";
 import { getClientsService } from "../../services/client.service";
 import { getUsersService } from "../../services/user.services";
 import { MdKeyboardArrowDown } from "react-icons/md";
-import { FaRegFileAlt } from "react-icons/fa";
+import { VscFolderActive } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
-import { LuFilter } from "react-icons/lu";
+import { FaRegFileAlt } from "react-icons/fa";
+import { useEffect, useState } from "react";
+import { LuFileDown } from "react-icons/lu";
+import {
+  createCaseService,
+  deleteCaseService,
+  getCaseService,
+  updateCaseService
+} from "../../services/case.services";
+import Swal from "sweetalert2";
 
 const STATUS_STYLES: Record<
   string,
@@ -30,6 +36,20 @@ const STATUS_STYLES: Record<
     text: "text-gray-600",
   },
 };
+
+const LEGAL_AREAS = [
+  "Derecho Penal",
+  "Derecho Laboral",
+  "Derecho Familiar",
+  "Derecho Corporativo",
+  "Derecho Civil",
+  "Derecho Mercantil",
+  "Derecho Fiscal",
+  "Derecho Administrativo",
+  "Derecho Inmobiliario",
+  "Derecho Migratorio",
+];
+
 const STATUS_LABELS: Record<string, string> = {
   POR_INICIAR: "Por iniciar",
   PROCESO: "En proceso",
@@ -44,7 +64,8 @@ const emptyForm = {
   description: "",
   status: "POR_INICIAR",
   clientId: "",
-  lawyerId: ""
+  lawyerId: "",
+  authority: ""
 }
 
 
@@ -183,6 +204,7 @@ const Cases = () => {
       status: caseItem.status || "POR_INICIAR",
       clientId: caseItem.clientId || "",
       lawyerId: caseItem.lawyerId || "",
+      authority: caseItem.authority || "",
     });
 
     setIsModalOpen(true);
@@ -258,7 +280,6 @@ const Cases = () => {
     form.folio?.trim() &&
     form.area &&
     form.title?.trim() &&
-    form.description?.trim() &&
     form.clientId &&
     form.lawyerId;
 
@@ -290,8 +311,8 @@ const Cases = () => {
               }
             `}
           >
-            <LuFilter size={18} />
-            {showArchived ? "Ver activos" : "Ver archivados"}
+            {showArchived ? <VscFolderActive size={18} /> : <LuFileDown size={18} />}
+            {showArchived ? ("Ver activos") : "Ver archivados"}
           </button>
         </div>
         <button
@@ -323,7 +344,8 @@ const Cases = () => {
           <table className="w-full text-sm">
             <thead className="bg-primary text-white uppercase text-xs tracking-wider">
               <tr>
-                <th className="px-6 py-4 text-left">Folio</th>
+                <th className="px-6 py-4 text-left">No. expediente</th>
+                <th className="px-6 py-4 text-left">Autoridad</th>
                 <th className="px-6 py-4 text-left">Asunto</th>
                 <th className="px-6 py-4 text-left">Cliente</th>
                 <th className="px-6 py-4 text-left">Area</th>
@@ -346,6 +368,10 @@ const Cases = () => {
                 >
                   <td className="px-6 py-4 font-semibold text-primary">
                     {a.folio}
+                  </td>
+
+                  <td className="px-6 py-4 text-gray-700">
+                    {a.authority}
                   </td>
 
                   <td className="px-6 py-4 text-gray-700">
@@ -428,7 +454,7 @@ const Cases = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Folio
+                  Número de expediente *
                 </label>
                 <input
                   type="text"
@@ -437,30 +463,47 @@ const Cases = () => {
                     setForm({ ...form, folio: e.target.value })
                   }
                   className="w-full border rounded-lg px-4 py-3"
-                  placeholder="Ej. LAB-2026-001"
+                  placeholder="Ej. 5622/2026"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Área legal
+                  Autoridad
+                </label>
+                <input
+                  type="text"
+                  value={form.authority}
+                  onChange={(e) =>
+                    setForm({ ...form, authority: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                  placeholder="Ej. Juzgado mayor de La Piedad"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Área legal *
                 </label>
                 <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
                   value={form.area}
                   onChange={(e) =>
                     setForm({ ...form, area: e.target.value })
                   }>
-                  <option value="Derecho Laboral">Derecho Laboral</option>
-                  <option value="Derecho Civil">Derecho Civil</option>
-                  <option value="Derecho Penal">Derecho Penal</option>
-                  <option value="Derecho Mercantil">Derecho Mercantil</option>
-                  <option value="Derecho Familiar">Derecho Familiar</option>
+                  <option value="">Selecciona un área legal</option>
+                  {LEGAL_AREAS.map((area) => (
+                    <option key={area} value={area}>
+                      {area}
+                    </option>
+                  ))}
+                  <option value="Otras">Otras</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Título del asunto
+                  Título *
                 </label>
                 <input
                   type="text"
@@ -469,13 +512,13 @@ const Cases = () => {
                     setForm({ ...form, title: e.target.value })
                   }
                   className="w-full border rounded-lg px-4 py-3"
-                  placeholder="Ej. Audiencia laboral"
+                  placeholder="Ej. Despido injustificado"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Descripcion del asunto
+                  Descripción
                 </label>
                 <textarea
                   value={form.description}
@@ -489,7 +532,7 @@ const Cases = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Cliente
+                  Cliente *
                 </label>
                 <select
                   value={form.clientId}
@@ -509,7 +552,7 @@ const Cases = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Abogado responsable
+                  Abogado responsable *
                 </label>
                 <select
                   value={form.lawyerId}
@@ -526,7 +569,9 @@ const Cases = () => {
                   ))}
                 </select>
               </div>
-
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
 
             </div>
 

@@ -50,6 +50,9 @@ const emptyClient: Client = {
   id: 0
 };
 
+const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+const phoneRegex = /^[0-9]{10}$/;
+
 const emptyEvent = {
   title: "",
   category: "audiencia",
@@ -236,11 +239,32 @@ const DashboardHome = () => {
   ];
 
   const createClient = async () => {
-    if (!formClient.name || !formClient.email) {
-      Swal.fire("Error", "Nombre y correo son obligatorios", "error");
-      return;
+
+    if (!formClient.name.trim()) {
+      return Swal.fire("Error", "El nombre es obligatorio", "warning");
     }
+
+    if (!phoneRegex.test(formClient.phone.replace(/\D/g, ""))) {
+      return Swal.fire("Error", "El teléfono debe tener 10 dígitos", "warning");
+    }
+
+    if (formClient.rfc && !rfcRegex.test(formClient.rfc.trim().toUpperCase())) {
+      return Swal.fire("Error", "RFC inválido", "warning");
+    }
+
+    if (!formClient.address.state.trim() || !formClient.address.city.trim()) {
+      return Swal.fire("Error", "Estado y municipio son obligatorios", "warning");
+    }
+
+
     try {
+
+      Swal.fire({
+        title: "Creando cliente...",
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading(),
+      });
+
       const payload = {
         type: formClient.type.trim().toUpperCase() as ClientType,
         name: formClient.name.trim(),
@@ -270,6 +294,8 @@ const DashboardHome = () => {
       navigate(`/dashboard/clientes`);
     } catch (error) {
       Swal.fire("Error", "No se pudo guardar el cliente", "error");
+    } finally {
+      Swal.close();
     }
   };
 
@@ -300,17 +326,31 @@ const DashboardHome = () => {
       end: formatLocal(plusOne),
     };
   };
+
   const handleCreateEvent = async () => {
     if (!formEvent.title || !formEvent.start) return;
+
+    if (new Date(formEvent.end) < new Date(formEvent.start)) {
+      Swal.fire({
+        icon: "warning",
+        title: "Hora inválida",
+        text: "La hora de fin no puede ser antes que la hora de inicio",
+      });
+      return;
+    }
+
     try {
-      if (new Date(formEvent.end) < new Date(formEvent.start)) {
-        Swal.fire({
-          icon: "warning",
-          title: "Hora inválida",
-          text: "La hora de fin no puede ser antes que la hora de inicio",
-        });
-        return;
-      }
+      // 🔄 Loading
+      Swal.fire({
+        title: "Creando evento...",
+        text: "Por favor espera",
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        },
+      });
+
       await createEventService({
         title: formEvent.title,
         start: formEvent.start,
@@ -323,18 +363,19 @@ const DashboardHome = () => {
           name: g.label,
         })),
       });
+
       setOpenEventModal(false);
       setFormEvent(emptyEvent);
       navigate(`/dashboard/calendario`);
 
-      Swal.fire({
-        icon: "success",
-        title: "Evento creado",
-        timer: 1500,
-        showConfirmButton: false,
-      });
     } catch (error) {
-      Swal.fire("Error", "No se pudo crear el evento", "error");
+      Swal.close(); // 🔴 cerrar loading si falla
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo crear el evento",
+      });
     }
   };
 
@@ -422,22 +463,14 @@ const DashboardHome = () => {
   }
 
   const isFormUserValid =
-    formClient.type &&
-    formClient.name &&
-    formClient.lastName &&
-    formClient.phone &&
-    formClient.email &&
-    formClient.password &&
-    formClient.confirmPassword &&
-    formClient.address.state &&
-    formClient.address.city &&
-    formClient.address.colony &&
-    formClient.password === formClient.confirmPassword;
+    formClient.name.trim() &&
+    phoneRegex.test(formClient.phone.replace(/\D/g, "")) &&
+    formClient.address.state.trim() &&
+    formClient.address.city.trim();
 
   const isFormEventValid =
     formEvent.title?.trim() &&
     formEvent.category &&
-    formEvent.caseId &&
     formEvent.start &&
     formEvent.end;
 
@@ -445,7 +478,6 @@ const DashboardHome = () => {
     formCase.folio?.trim() &&
     formCase.area &&
     formCase.title?.trim() &&
-    formCase.description?.trim() &&
     formCase.clientId &&
     formCase.lawyerId;
 
@@ -668,8 +700,8 @@ const DashboardHome = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   >
-                    <option value="FISICA">Persona Física</option>
-                    <option value="MORAL">Persona Moral</option>
+                    <option value="FISICA">Persona Física *</option>
+                    <option value="MORAL">Persona Moral *</option>
                   </select>
 
                   <input
@@ -682,7 +714,7 @@ const DashboardHome = () => {
                   />
 
                   <input
-                    placeholder="Nombre(s)"
+                    placeholder="Nombre(s) *"
                     value={formClient.name}
                     onChange={(e) =>
                       setFormClient({ ...formClient, name: e.target.value })
@@ -691,7 +723,7 @@ const DashboardHome = () => {
                   />
 
                   <input
-                    placeholder="Apellidos"
+                    placeholder="Apellido(s)"
                     value={formClient.lastName}
                     onChange={(e) =>
                       setFormClient({ ...formClient, lastName: e.target.value })
@@ -700,7 +732,7 @@ const DashboardHome = () => {
                   />
 
                   <input
-                    placeholder="Teléfono"
+                    placeholder="Teléfono *"
                     value={formClient.phone}
                     onChange={(e) =>
                       setFormClient({ ...formClient, phone: e.target.value })
@@ -716,27 +748,6 @@ const DashboardHome = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   />
-
-                  <input
-                    type="password"
-                    placeholder="Contraseña"
-                    value={formClient.password || ""}
-                    onChange={(e) =>
-                      setFormClient({ ...formClient, password: e.target.value })
-                    }
-                    className="border rounded-lg px-4 py-3"
-                  />
-
-                  <input
-                    type="password"
-                    placeholder="Confirmar contraseña"
-                    value={formClient.confirmPassword || ""}
-                    onChange={(e) =>
-                      setFormClient({ ...formClient, confirmPassword: e.target.value })
-                    }
-                    className="border rounded-lg px-4 py-3"
-                  />
-
                 </div>
 
                 {formClient.confirmPassword &&
@@ -754,7 +765,7 @@ const DashboardHome = () => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
 
                   <input
-                    placeholder="Estado"
+                    placeholder="Estado *"
                     value={formClient.address.state}
                     onChange={(e) =>
                       setFormClient({
@@ -769,7 +780,7 @@ const DashboardHome = () => {
                   />
 
                   <input
-                    placeholder="Municipio"
+                    placeholder="Municipio *"
                     value={formClient.address.city}
                     onChange={(e) =>
                       setFormClient({
@@ -843,6 +854,10 @@ const DashboardHome = () => {
                     className="border px-4 py-3 rounded-lg"
                   />
                 </div>
+                <br />
+                <label className="text-sm font-semibold text-gray-700">
+                  (*) Los campos son obligatorios.
+                </label>
               </section>
 
             </div>
@@ -859,14 +874,15 @@ const DashboardHome = () => {
               <button
                 onClick={createClient}
                 disabled={!isFormUserValid}
-                className={`px-6 py-2 rounded-lg font-semibold transition
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
                   ${isFormUserValid
                     ? "bg-primary text-white hover:bg-primary/90"
                     : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }
                 `}
               >
-                Guardar cliente
+                Crear cliente
               </button>
             </div>
 
@@ -887,7 +903,7 @@ const DashboardHome = () => {
               {/* Título */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Título del evento
+                  Título del evento *
                 </label>
                 <input
                   value={formEvent.title}
@@ -901,7 +917,7 @@ const DashboardHome = () => {
               {/* Categoría */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Categoría
+                  Categoría *
                 </label>
                 <select
                   value={formEvent.category}
@@ -915,13 +931,14 @@ const DashboardHome = () => {
                   <option value="cita">Cita</option>
                   <option value="revision">Revisión</option>
                   <option value="vencimiento">Vencimiento</option>
+                  <option value="sincategoria">Sin categoría</option>
                 </select>
               </div>
 
               {/* Asunto */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Asuntos
+                  Asunto
                 </label>
                 <select
                   value={formEvent.caseId}
@@ -942,7 +959,7 @@ const DashboardHome = () => {
               {/* Fecha inicio */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Fecha y hora inicio
+                  Fecha y hora inicio *
                 </label>
                 <input
                   type="datetime-local"
@@ -957,7 +974,7 @@ const DashboardHome = () => {
               {/* Fecha fin */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Fecha y hora fin
+                  Fecha y hora fin *
                 </label>
                 <input
                   type="datetime-local"
@@ -984,6 +1001,10 @@ const DashboardHome = () => {
                   placeholder="Selecciona invitados"
                 />
               </div>
+
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
 
             </div>
 
@@ -1026,7 +1047,7 @@ const DashboardHome = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Folio
+                  Número de expediente *
                 </label>
                 <input
                   type="text"
@@ -1035,30 +1056,47 @@ const DashboardHome = () => {
                     setFormCase({ ...formCase, folio: e.target.value })
                   }
                   className="w-full border rounded-lg px-4 py-3"
-                  placeholder="Ej. LAB-2026-001"
+                  placeholder="Ej. 5622/2026"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Área legal
+                  Autoridad
+                </label>
+                <input
+                  type="text"
+                  value={formCase.authority}
+                  onChange={(e) =>
+                    setFormCase({ ...formCase, authority: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                  placeholder="Ej. Juzgado mayor de La Piedad"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
+                  Área legal *
                 </label>
                 <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
                   value={formCase.area}
                   onChange={(e) =>
                     setFormCase({ ...formCase, area: e.target.value })
                   }>
+                  <option value="">Selecciona un área</option>
                   <option value="Derecho Laboral">Derecho Laboral</option>
                   <option value="Derecho Civil">Derecho Civil</option>
                   <option value="Derecho Penal">Derecho Penal</option>
                   <option value="Derecho Mercantil">Derecho Mercantil</option>
                   <option value="Derecho Familiar">Derecho Familiar</option>
+                  <option value="Otras">Otras</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Título del asunto
+                  Título *
                 </label>
                 <input
                   type="text"
@@ -1067,13 +1105,13 @@ const DashboardHome = () => {
                     setFormCase({ ...formCase, title: e.target.value })
                   }
                   className="w-full border rounded-lg px-4 py-3"
-                  placeholder="Ej. Audiencia laboral"
+                  placeholder="Ej. Despido injustificado"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Descripcion del asunto
+                  Descripción
                 </label>
                 <textarea
                   value={formCase.description}
@@ -1087,7 +1125,7 @@ const DashboardHome = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Cliente
+                  Cliente *
                 </label>
                 <select
                   value={formCase.clientId}
@@ -1107,7 +1145,7 @@ const DashboardHome = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
-                  Abogado responsable
+                  Abogado responsable *
                 </label>
                 <select
                   value={formCase.lawyerId}
@@ -1124,6 +1162,10 @@ const DashboardHome = () => {
                   ))}
                 </select>
               </div>
+
+              <label className="text-sm font-semibold text-gray-700">
+                (*) Los campos son obligatorios.
+              </label>
             </div>
 
             <div className="flex justify-end gap-3 px-6 py-4 border-t">
