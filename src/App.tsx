@@ -26,6 +26,8 @@ import CaseFiles from "./dashboard/pages/CaseFiles.tsx";
 import PaymentInstallments from "./dashboard/pages/PaymentInstallments.tsx";
 import AllBlogs from "./components/sections/AllBlogs.tsx";
 import BlogDetail from "./components/sections/BlogDetail.tsx";
+import SuccessCases from "./dashboard/pages/successCases.tsx";
+import FAQ from "./dashboard/pages/FAQ.tsx";
 
 export default function App() {
   return (
@@ -55,6 +57,8 @@ export default function App() {
           <Route path="/dashboard/contactos" element={<Contacts />} />
           <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
             <Route path="/dashboard/abogados" element={<Lawyers />} />
+            <Route path="/dashboard/casos-exito" element={<SuccessCases />} />
+            <Route path="/dashboard/preguntas-respuestas" element={<FAQ />} />
           </Route>
         </Route>
       </Route>

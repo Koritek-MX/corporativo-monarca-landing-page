@@ -1,9 +1,11 @@
+import { useAuth } from "../../components/hooks/AuthContext";
 import { logoutService } from "../../services/auth.service";
 import logo from "../../assets/images/monarca-gold.webp";
+import { FaChildReaching } from "react-icons/fa6";
 import { useNavigate } from "react-router-dom";
+import { FaQuestion } from "react-icons/fa";
 import { NavLink } from "react-router-dom";
 import { VscLaw } from "react-icons/vsc";
-
 import Swal from "sweetalert2";
 import {
   HiOutlineHome,
@@ -17,7 +19,6 @@ import {
   HiOutlineNewspaper,
   HiOutlineClipboardList
 } from "react-icons/hi";
-import { useAuth } from "../../components/hooks/AuthContext";
 
 interface Props {
   open: boolean;
@@ -33,6 +34,18 @@ const links = [
     to: "/dashboard/abogados",
     label: "Abogados",
     icon: VscLaw,
+    roles: ["ADMIN"]
+  },
+  {
+    to: "/dashboard/casos-exito",
+    label: "Casos de éxito",
+    icon: FaChildReaching,
+    roles: ["ADMIN"]
+  },
+  {
+    to: "/dashboard/preguntas-respuestas",
+    label: "Preguntas/respuestas",
+    icon: FaQuestion,
     roles: ["ADMIN"]
   },
   { to: "/dashboard/cobros", label: "Cobros", icon: HiOutlineCash },
