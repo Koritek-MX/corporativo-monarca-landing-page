@@ -3,7 +3,7 @@ import { getAllBlogsService } from "../../services/blog.service";
 import { useNavigate } from "react-router-dom";
 
 const Blog = () => {
-  
+
   const [blogs, setBlogs] = useState<any[]>([]);
   const navigate = useNavigate();
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -32,11 +32,7 @@ const Blog = () => {
 
   const loadBlogs = async () => {
     try {
-      const [data] = await Promise.all([
-        getAllBlogsService(3),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
-
+      const data = await getAllBlogsService(3);
       const sorted = data.sort(
         (a: any, b: any) =>
           new Date(b.createdAt).getTime() -

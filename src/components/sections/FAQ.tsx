@@ -1,30 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { FaPlus, FaMinus } from "react-icons/fa";
-
-const faqs = [
-  {
-    question: "¿Qué tipo de servicios legales ofrecen?",
-    answer:
-      "Ofrecemos asesoría y representación legal en derecho corporativo, mercantil, laboral y civil, enfocados en empresas y profesionistas.",
-  },
-  {
-    question: "¿Cómo puedo agendar una consulta?",
-    answer:
-      "Puedes contactarnos a través del formulario, por WhatsApp o vía telefónica. Un asesor se pondrá en contacto contigo a la brevedad.",
-  },
-  {
-    question: "¿Las consultas tienen costo?",
-    answer:
-      "La primera consulta puede ser gratuita o con costo preferencial, dependiendo del tipo de asunto. Te lo indicamos antes de agendar.",
-  },
-  {
-    question: "¿En qué ciudades brindan atención?",
-    answer:
-      "Ofrecemos atención presencial en La Piedad de Cavadas, Michoacán, y también de manera remota, lo que nos permite trabajar con clientes en toda la República Mexicana.",
-  },
-];
+import { getFaqsPublicService } from "../../services/faq.service";
 
 const FAQ = () => {
+
+  const [faqs, setFaqs] = useState<any[]>([]);
   const [activeIndex, setActiveIndex] = useState<number | null>(null);
   const [visible, setVisible] = useState(false);
   const sectionRef = useRef<HTMLDivElement | null>(null);
@@ -32,6 +12,11 @@ const FAQ = () => {
   const toggle = (index: number) => {
     setActiveIndex(activeIndex === index ? null : index);
   };
+
+  useEffect(() => {
+    loadFaqs();
+  }, []);
+
 
   /* 👉 Animación scroll reveal */
   useEffect(() => {
@@ -49,6 +34,20 @@ const FAQ = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const loadFaqs = async () => {
+    try {
+
+      const data = await getFaqsPublicService()
+      const sorted = data.sort(
+        (a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)
+      );
+      setFaqs(sorted);
+
+    } catch {
+      console.log('Error al cargar las P&R');
+    }
+  };
 
   return (
     <section
@@ -118,10 +117,9 @@ const FAQ = () => {
               <div
                 className={`
                   px-6 transition-all duration-500 ease-in-out
-                  ${
-                    activeIndex === index
-                      ? "max-h-40 pb-6 opacity-100"
-                      : "max-h-0 opacity-0 overflow-hidden"
+                  ${activeIndex === index
+                    ? "max-h-40 pb-6 opacity-100"
+                    : "max-h-0 opacity-0 overflow-hidden"
                   }
                 `}
               >

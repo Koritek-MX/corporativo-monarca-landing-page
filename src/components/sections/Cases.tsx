@@ -1,35 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import Resolicion from "../../assets/images/resolucion-favorable.webp";
-import Sentencia from "../../assets/images/sentencia.webp";
-import CarteraVencida from "../../assets/images/cartera-vencida.webp";
-
-const cases = [
-  {
-    title: "Resolución favorable en conflicto familiar",
-    description:
-      "Resolución de pérdida de la patria potestad en favor de nuestra clienta y su hijo, después de haber sufrido violencia familiar.",
-    area: "Derecho Familiar",
-    image: Resolicion,
-  },
-  {
-    title: "Sentencia condenatoria de prisión",
-    description:
-      "En favor de nuestra clienta, víctima del delito de violación por parte de su padrastro.",
-    area: "Derecho Penal",
-    image: Sentencia,
-  },
-  {
-    title: "Recuperación de cartera vencida",
-    description:
-      "Liquidación de alimentos retroactivos en favor de nuestra clienta y sus hijos por más de $1,000,000 MXN.",
-    area: "Derecho Familiar",
-    image: CarteraVencida,
-  },
-];
+import { getSuccessCasesPublicService } from "../../services/successCase.service";
 
 const SuccessCases = () => {
+
+  const [cases, setCases] = useState<any[]>([]);
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    loadCases();
+  }, []);
 
   /* 👉 Detectar cuando entra al viewport */
   useEffect(() => {
@@ -47,6 +27,18 @@ const SuccessCases = () => {
 
     return () => observer.disconnect();
   }, []);
+
+  const loadCases = async () => {
+    try {
+      const data = await getSuccessCasesPublicService();
+      const sorted = data.sort(
+        (a: any, b: any) => (a.order ?? 0) - (b.order ?? 0)
+      );
+      setCases(sorted);
+    } catch {
+      console.log('Error al cargar los casos');
+    }
+  };
 
   return (
     <section
@@ -85,8 +77,8 @@ const SuccessCases = () => {
               className={`
                 group bg-white border border-gray-100 rounded-2xl overflow-hidden 
                 shadow-sm hover:shadow-xl transition-all duration-500 flex flex-col
-                ${visible 
-                  ? "fade-up opacity-100 translate-y-0" 
+                ${visible
+                  ? "fade-up opacity-100 translate-y-0"
                   : "opacity-0 translate-y-12"
                 }
               `}
@@ -97,7 +89,7 @@ const SuccessCases = () => {
               {/* IMAGE */}
               <div className="relative h-48 w-full overflow-hidden">
                 <img
-                  src={item.image}
+                  src={item.imageUrl}
                   alt={item.title}
                   className="
                     w-full h-full object-cover
