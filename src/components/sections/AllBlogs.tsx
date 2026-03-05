@@ -18,11 +18,7 @@ const AllBlogs = () => {
         allowOutsideClick: false,
         didOpen: () => Swal.showLoading(),
       });
-
-      const [data] = await Promise.all([
-        getAllBlogsService(), // 👉 sin límite
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getAllBlogsService();
 
       setBlogs(data);
     } catch (error) {

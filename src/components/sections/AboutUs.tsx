@@ -123,15 +123,11 @@ const AboutUs = () => {
                   style={{ transitionDelay: `${index * 150}ms` }}
                 >
                   {/* IMAGE */}
-                  <div className="h-64 w-full overflow-hidden">
+                  <div className="lawyer-image">
                     <img
                       src={lawyer.avatar}
                       alt={lawyer.name}
-                      className="
-                        w-full h-full object-cover
-                        transition-transform duration-700
-                        group-hover:scale-110
-                      "
+                      className="lawyer-img"
                     />
                   </div>
 

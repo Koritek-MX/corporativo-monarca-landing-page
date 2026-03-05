@@ -44,6 +44,27 @@
   border: none !important;
 }
 
+.lawyer-image {
+  position: relative;
+  width: 100%;
+  padding-top: 100%; /* 7 / 6 */
+  overflow: hidden;
+}
+
+.lawyer-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+  transition: transform 0.7s;
+}
+
+.lawyer-image:hover .lawyer-img {
+  transform: scale(1.1);
+}
+
 .tooltip {
   @apply
     absolute bottom-full left-1/2 -translate-x-1/2 mb-2
