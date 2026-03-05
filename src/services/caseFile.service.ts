@@ -1,8 +1,13 @@
 import api from "./api";
 
 /* 👉 Obtener archivos por caso */
-export const getFilesByCaseService = async (caseId: number) => {
-  const { data } = await api.get(`/case-files/case/${caseId}`);
+export const getCaseFilesService = async (
+  caseId: number,
+  page: number,
+  limit: number
+) => {
+
+  const { data } = await api.get(`/case-files/${caseId}/files?page=${page}&limit=${limit}`);
   return data;
 };
 

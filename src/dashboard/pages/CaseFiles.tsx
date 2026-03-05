@@ -5,10 +5,11 @@ import { useEffect, useState } from "react";
 import {
   createCaseFileService,
   deleteCaseFileService,
-  getFilesByCaseService
+  getCaseFilesService
 } from "../../services/caseFile.service";
 import Swal from "sweetalert2";
 import { useAuth } from "../../components/hooks/AuthContext";
+import Pagination from "../../components/common/Pagination";
 
 
 const CaseFiles = () => {
@@ -20,6 +21,8 @@ const CaseFiles = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [caseInfo, setCaseInfo] = useState<any>(null);
   const [loadingFiles, setLoadingFiles] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [form, setForm] = useState({
     name: "",
@@ -31,13 +34,17 @@ const CaseFiles = () => {
     if (!user?.id) return;
 
     loadFiles();
+  }, [caseId, user, page]);
+
+  useEffect(() => {
     loadCaseInfo();
-  }, [caseId, user]);
+  }, [caseId]);
 
   /* 👉 Cargar expedientes */
   const loadFiles = async () => {
     try {
       setLoadingFiles(true);
+
       Swal.fire({
         title: "Cargando expedientes...",
         allowOutsideClick: false,
@@ -45,17 +52,22 @@ const CaseFiles = () => {
       });
 
       const [data] = await Promise.all([
-        getFilesByCaseService(Number(caseId)),
-        new Promise((resolve) => setTimeout(resolve, 700)), // 👈 mínimo visible
+        getCaseFilesService(Number(caseId), page, 10),
+        new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      setFiles(data);
+      setFiles(data.data);
+      setTotalPages(data.totalPages);
 
     } catch (error) {
+
       Swal.fire("Error", "No se pudieron cargar los expedientes", "error");
+
     } finally {
+
       setLoadingFiles(false);
       Swal.close();
+
     }
   };
 
@@ -99,7 +111,8 @@ const CaseFiles = () => {
   };
 
   /* 👉 Eliminar expediente */
-  const deleteFile = (id: number) => {
+  const deleteFile = async (id: number) => {
+
     Swal.fire({
       title: "¿Eliminar expediente?",
       icon: "warning",
@@ -107,20 +120,32 @@ const CaseFiles = () => {
       confirmButtonText: "Eliminar",
       confirmButtonColor: "#dc2626",
     }).then(async (res) => {
+
       if (res.isConfirmed) {
+
         await deleteCaseFileService(id);
 
-        setFiles((prev) => prev.filter((f) => f.id !== id));
+        if (files.length === 1 && page > 1) {
+          setPage(page - 1);
+        } else {
+          loadFiles();
+        }
 
-        await Swal.fire({
+        Swal.fire({
           icon: "success",
           title: "Expediente eliminado",
           timer: 1200,
           showConfirmButton: false,
         });
+
       }
+
     });
   };
+
+  const isFormValid =
+    form.name.trim() &&
+    form.url.trim();
 
   return (
     <div className="flex flex-col gap-6">
@@ -178,64 +203,75 @@ const CaseFiles = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 text-left">Nombre</th>
-                <th className="px-6 py-4 text-left">Subido por</th>
-                <th className="px-6 py-4 text-left">Fecha</th>
-                <th className="px-6 py-4 text-center">Archivo</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs">
+                <tr>
+                  <th className="px-6 py-4 text-left">Nombre</th>
+                  <th className="px-6 py-4 text-left">Subido por</th>
+                  <th className="px-6 py-4 text-left">Fecha</th>
+                  <th className="px-6 py-4 text-center">Archivo</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {files.map((f, i) => (
-                <tr
-                  key={f.id}
-                  className={`
+              <tbody>
+                {files.map((f, i) => (
+                  <tr
+                    key={f.id}
+                    className={`
                   border-t transition
                   ${i % 2 === 0 ? "bg-white" : "bg-gray-200"}
                   hover:bg-primary/5
                 `}
-                >
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    {f.name}
-                  </td>
+                  >
+                    <td className="px-6 py-4 font-semibold text-primary">
+                      {f.name}
+                    </td>
 
-                  <td className="px-6 py-4 text-gray-600">
-                    {f.user?.name || "—"}
-                  </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {f.user?.name || "—"}
+                    </td>
 
-                  <td className="px-6 py-4 text-gray-600">
-                    {new Date(f.createdAt).toLocaleDateString("es-MX")}
-                  </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {new Date(f.createdAt).toLocaleDateString("es-MX")}
+                    </td>
 
-                  <td className="px-6 py-4 text-center">
-                    <a
-                      href={f.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-blue-500 hover:underline"
-                    >
-                      Ver archivo
-                    </a>
-                  </td>
+                    <td className="px-6 py-4 text-center">
+                      <a
+                        href={f.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-500 hover:underline"
+                      >
+                        Ver archivo
+                      </a>
+                    </td>
 
-                  <td className="px-6 py-4 text-right">
-                    <button
-                      onClick={() => deleteFile(f.id)}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      <HiOutlineTrash size={20} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    <td className="px-6 py-4 text-right">
+                      <button
+                        onClick={() => deleteFile(f.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <HiOutlineTrash size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+          </div>
+          {/* PAGINACIÓN */}
+          {totalPages > 1 && (
+            <Pagination
+              page={page}
+              totalPages={totalPages}
+              setPage={setPage}
+            />
+          )}
+        </>
       )}
 
       {/* MODAL CREAR */}
@@ -253,7 +289,7 @@ const CaseFiles = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  Nombre expediente
+                  Nombre archivo *
                 </label>
                 <input
                   value={form.name}
@@ -266,7 +302,7 @@ const CaseFiles = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  URL archivo
+                  Enlace del archivo (URL) *
                 </label>
                 <input
                   value={form.url}
@@ -276,6 +312,9 @@ const CaseFiles = () => {
                   className="w-full border rounded-lg px-4 py-3"
                 />
               </div>
+              <p className="text-sm font-semibold text-gray-700 mt-2">
+                (*) Los campos son obligatorios.
+              </p>
 
             </div>
 
@@ -288,8 +327,15 @@ const CaseFiles = () => {
               </button>
 
               <button
+                disabled={!isFormValid}
                 onClick={createFile}
-                className="px-6 py-2 rounded-lg font-semibold bg-primary text-white"
+                className={`
+                  px-6 py-2 rounded-lg font-semibold transition
+                  ${isFormValid
+                    ? "bg-primary text-white hover:bg-primary/90"
+                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }
+                `}
               >
                 Guardar expediente
               </button>
