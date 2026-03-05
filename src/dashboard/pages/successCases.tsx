@@ -193,6 +193,9 @@ const SuccessCases = () => {
                     <p className="text-gray-600">
                         Administración de casos de éxito del despacho
                     </p>
+                     <p className="text-gray-600">
+                        (*) Solo se recomiendan 3 caso como máximo.
+                    </p>
                 </div>
 
                 <button

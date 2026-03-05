@@ -17,10 +17,8 @@ const FAQ = () => {
 
     const [faqs, setFaqs] = useState<any[]>([]);
     const [loadingFaqs, setLoadingFaqs] = useState(false);
-
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingFaq, setEditingFaq] = useState<any>(null);
-
     const [form, setForm] = useState({
         question: "",
         answer: "",
@@ -171,6 +169,9 @@ const FAQ = () => {
                     </h1>
                     <p className="text-gray-600">
                         Administración de preguntas frecuentes del sitio
+                    </p>
+                    <p className="text-gray-600">
+                        (*) Solo se recomiendan 10 preguntas como máximo.
                     </p>
                 </div>
 
