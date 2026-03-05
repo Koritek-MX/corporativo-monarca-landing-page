@@ -88,7 +88,7 @@ const Cases = () => {
 
   useEffect(() => {
     loadCases();
-  }, [page]);
+  }, [page, showArchived]);
 
   useEffect(() => {
     loadClients();
@@ -104,7 +104,7 @@ const Cases = () => {
         didOpen: () => Swal.showLoading(),
       });
       const [data] = await Promise.all([
-        getCasesPaginationService(page, 10),
+        getCasesPaginationService(page, 10, showArchived),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
@@ -290,13 +290,6 @@ const Cases = () => {
     form.clientId &&
     form.lawyerId;
 
-  const filteredCases = cases.filter((c) => {
-    if (showArchived) {
-      return c.status === "ARCHIVADO";
-    }
-    return c.status !== "ARCHIVADO";
-  });
-
   return (
     <div className="flex flex-col gap-6">
 
@@ -350,7 +343,7 @@ const Cases = () => {
         <div className="py-10 text-center text-gray-500">
           Cargando asuntos...
         </div>
-      ) : filteredCases.length === 0 ? (
+      ) : cases.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <div className="text-5xl mb-3">💼</div>
           <p className="font-semibold text-lg">
@@ -379,7 +372,7 @@ const Cases = () => {
               </thead>
 
               <tbody>
-                {filteredCases.map((a, index) => (
+                {cases.map((a, index) => (
                   <tr
                     key={a.id}
                     className={`
