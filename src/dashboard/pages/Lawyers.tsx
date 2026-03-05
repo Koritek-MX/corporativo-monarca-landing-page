@@ -10,6 +10,7 @@ import {
   getUsersService,
   createUserService,
   updateUserService,
+  updatePasswordUserService,
 } from "../../services/user.services";
 import { formatPhone } from "../../components/common/formatPhone";
 import { useAuth } from "../../components/hooks/AuthContext";
@@ -37,6 +38,11 @@ const emptyForm = {
   confirmPassword: "",
 };
 
+const emptyPassForm = {
+  currentPassword: "",
+  newPassword: ""
+};
+
 const Lawyers = () => {
 
   const { user } = useAuth();
@@ -44,6 +50,7 @@ const Lawyers = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [form, setForm] = useState(emptyForm);
+  const [passForm, setPassForm] = useState(emptyPassForm);
   const [loadingUsers, setLoadingUsers] = useState(false);
 
 
@@ -136,9 +143,12 @@ const Lawyers = () => {
   /* 👉 Guardar */
   const saveLawyer = async () => {
     try {
+
       if (!form.name || !form.email) {
         return Swal.fire("Error", "Completa los campos", "warning");
       }
+
+      // 👉 Validación al crear
       if (!editingUser) {
         if (!form.password || !form.confirmPassword) {
           return Swal.fire(
@@ -157,14 +167,37 @@ const Lawyers = () => {
         }
       }
 
-      editingUser ? await updateLawyer() : await createLawyer();
+      // 👉 Crear o editar usuario
+      if (editingUser) {
+        await updateLawyer();
+      } else {
+        await createLawyer();
+      }
+
+      // 👉 Cambiar contraseña (solo en edición)
+      if (
+        editingUser &&
+        passForm.currentPassword &&
+        passForm.newPassword
+      ) {
+
+        await updatePasswordUserService(
+          editingUser.id,
+          passForm.currentPassword,
+          passForm.newPassword
+        );
+      }
 
       setForm(emptyForm);
+      setPassForm(emptyPassForm);
       setEditingUser(null);
       setIsModalOpen(false);
+
       loadUsers();
+
     } catch (error) {
       console.error(error);
+
       Swal.fire("Error", "No se pudo guardar", "error");
     }
   };
@@ -466,6 +499,44 @@ const Lawyers = () => {
                         setForm({ ...form, confirmPassword: e.target.value })
                       }
                       className="w-full border rounded-lg px-4 py-3"
+                    />
+                  </div>
+                </>
+              )}
+
+              {editingUser && user?.role === "ADMIN" && (
+                <>
+                  <div>
+                    <label className="block text-red-700 text-sm mb-5 font-medium">
+                      <strong>Actualizar contraseña</strong>
+                    </label>
+
+                    <label className="block text-sm mb-1 font-medium">
+                      Actual contraseña *
+                    </label>
+
+                    <input
+                      type="password"
+                      placeholder="Ingresa tu actual contraseña"
+                      className="w-full border rounded-lg px-4 py-3"
+                      onChange={(e) =>
+                        setPassForm({ ...passForm, currentPassword: e.target.value })
+                      }
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm mb-1 font-medium">
+                      Nueva contraseña *
+                    </label>
+
+                    <input
+                      type="password"
+                      placeholder="Ingresa tu nueva contraseña"
+                      className="w-full border rounded-lg px-4 py-3"
+                      onChange={(e) =>
+                        setPassForm({ ...passForm, newPassword: e.target.value })
+                      }
                     />
                   </div>
                 </>

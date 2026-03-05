@@ -30,9 +30,10 @@ export const deleteUserService = async (id: number) => {
   return data;
 };
 
-export const updatePasswordUserService = async (id: number, password: string) => {
+export const updatePasswordUserService = async (id: number, currentPassword: string, newPassword: string) => {
   const { data } = await api.patch(`/users/${id}/password`, {
-    "password": password
+    "currentPassword": currentPassword,
+    "password": newPassword
   });
   return data;
 };
