@@ -3,12 +3,13 @@ import { formatPhone } from "../../components/common/formatPhone";
 import type { Client, ClientType } from "../../types/client.type";
 import { useState, useEffect } from "react";
 import {
-  getClientsService,
   createClientService,
   updateClientService,
-  deleteClientService
+  deleteClientService,
+  getClientsPaginationService
 } from "../../services/client.service";
 import Swal from "sweetalert2";
+import Pagination from "../../components/common/Pagination";
 
 const emptyClient: Client = {
   type: "",
@@ -67,7 +68,7 @@ const Clients = () => {
       });
 
       const [data] = await Promise.all([
-        getClientsService(page, 10),
+        getClientsPaginationService(page, 10),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
@@ -307,29 +308,11 @@ const Clients = () => {
           </div>
         </div>
         {/* PAGINACIÓN */}
-        <div className="flex justify-center items-center gap-4 mt-6">
-
-          <button
-            disabled={page === 1}
-            onClick={() => setPage(page - 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-40"
-          >
-            Anterior
-          </button>
-
-          <span className="text-sm font-medium">
-            Página {page} de {totalPages}
-          </span>
-
-          <button
-            disabled={page === totalPages}
-            onClick={() => setPage(page + 1)}
-            className="px-4 py-2 border rounded-lg disabled:opacity-40"
-          >
-            Siguiente
-          </button>
-
-        </div>
+        <Pagination
+          page={page}
+          totalPages={totalPages}
+          setPage={setPage}
+        />
       </>)}
 
 

@@ -1,6 +1,11 @@
 import api from "./api";
 
-export const getClientsService = async (page = 1, limit = 10) => {
+export const getClientsService = async () => {
+  const { data } = await api.get("/clients/all");
+  return data;
+};
+
+export const getClientsPaginationService = async (page = 1, limit = 10) => {
   const { data } = await api.get(`/clients?page=${page}&limit=${limit}`);
   return data;
 };

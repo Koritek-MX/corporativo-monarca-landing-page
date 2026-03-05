@@ -10,10 +10,11 @@ import { LuFileDown } from "react-icons/lu";
 import {
   createCaseService,
   deleteCaseService,
-  getCaseService,
+  getCasesPaginationService,
   updateCaseService
 } from "../../services/case.services";
 import Swal from "sweetalert2";
+import Pagination from "../../components/common/Pagination";
 
 const STATUS_STYLES: Record<
   string,
@@ -82,9 +83,14 @@ const Cases = () => {
   const [loadingCases, setLoadingCases] = useState(false);
   const [showArchived, setShowArchived] = useState(false);
   const [form, setForm] = useState(emptyForm);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     loadCases();
+  }, [page]);
+
+  useEffect(() => {
     loadClients();
     loadUsers();
   }, []);
@@ -98,10 +104,12 @@ const Cases = () => {
         didOpen: () => Swal.showLoading(),
       });
       const [data] = await Promise.all([
-        getCaseService(),
+        getCasesPaginationService(page, 10),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      setCases(data);
+
+      setCases(data.data);
+      setTotalPages(data.totalPages);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los asuntos", "error");
     } finally {
@@ -221,28 +229,27 @@ const Cases = () => {
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#dc2626",
     }).then(async (result) => {
+
       if (result.isConfirmed) {
-        try {
-          await deleteCaseService(id);
-          // Actualizar lista local
-          setCases((prev) => prev.filter((c) => c.id !== id));
 
-          Swal.fire({
-            icon: "success",
-            title: "Asunto eliminado",
-            showConfirmButton: false,
-            timer: 1500,
-          });
-        } catch (error) {
-          console.error(error);
+        await deleteCaseService(id);
 
-          Swal.fire({
-            icon: "error",
-            title: "Error al eliminar",
-            text: "No se pudo eliminar el asunto",
-          });
+        // si era el último registro de la página
+        if (cases.length === 1 && page > 1) {
+          setPage(page - 1);
+        } else {
+          loadCases();
         }
+
+        Swal.fire({
+          icon: "success",
+          title: "Asunto eliminado",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
       }
+
     });
   };
 
@@ -295,33 +302,47 @@ const Cases = () => {
 
       {/* Header */}
       <div className="flex items-start justify-between">
+
+        {/* IZQUIERDA */}
         <div>
           <h1 className="text-2xl font-bold text-primary">Asuntos</h1>
           <p className="text-gray-600">
             Gestión de expedientes y casos legales
           </p>
+        </div>
+
+        {/* DERECHA (BOTONES) */}
+        <div className="flex items-center gap-3">
+
           <button
-            onClick={() => setShowArchived(!showArchived)}
+            onClick={() => {
+              setShowArchived(!showArchived);
+              setPage(1);
+            }}
             className={`
-              mt-3 px-4 py-2 rounded-lg text-sm font-semibold transition
-              flex items-center gap-2
+              flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition
               ${showArchived
                 ? "bg-gray-200 text-gray-700"
                 : "bg-primary/10 text-primary"
               }
             `}
           >
-            {showArchived ? <VscFolderActive size={18} /> : <LuFileDown size={18} />}
-            {showArchived ? ("Ver activos") : "Ver archivados"}
+            {showArchived
+              ? <VscFolderActive size={18} />
+              : <LuFileDown size={18} />}
+            {showArchived ? "Ver activos" : "Ver archivados"}
           </button>
+
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
+          >
+            <HiOutlinePlus />
+            Nuevo asunto
+          </button>
+
         </div>
-        <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
-        >
-          <HiOutlinePlus />
-          Nuevo asunto
-        </button>
+
       </div>
 
       {/* Tabla */}
@@ -340,103 +361,111 @@ const Cases = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-              <tr>
-                <th className="px-6 py-4 text-left">No. expediente</th>
-                <th className="px-6 py-4 text-left">Autoridad</th>
-                <th className="px-6 py-4 text-left">Asunto</th>
-                <th className="px-6 py-4 text-left">Cliente</th>
-                <th className="px-6 py-4 text-left">Area</th>
-                <th className="px-6 py-4 text-left">Abogado</th>
-                <th className="px-6 py-4 text-left">Estado</th>
-                <th className="px-6 py-4 text-center">Expedientes</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="px-6 py-4 text-left">No. expediente</th>
+                  <th className="px-6 py-4 text-left">Autoridad</th>
+                  <th className="px-6 py-4 text-left">Asunto</th>
+                  <th className="px-6 py-4 text-left">Cliente</th>
+                  <th className="px-6 py-4 text-left">Area</th>
+                  <th className="px-6 py-4 text-left">Abogado</th>
+                  <th className="px-6 py-4 text-left">Estado</th>
+                  <th className="px-6 py-4 text-center">Expedientes</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {filteredCases.map((a, index) => (
-                <tr
-                  key={a.id}
-                  className={`
-                border-t transition
-                ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
-                hover:bg-primary/5
-              `}
-                >
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    {a.folio}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-700">
-                    {a.authority}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-700">
-                    {a.title}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {a.client.name + " " + a.client.lastName}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {a.area}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {a.lawyer.name}
-                  </td>
-
-                  <td
-                    className="px-6 py-4"
+              <tbody>
+                {filteredCases.map((a, index) => (
+                  <tr
+                    key={a.id}
+                    className={`
+                      border-t transition
+                      ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
+                      hover:bg-primary/5
+                    `}
                   >
-                    <span
-                      onClick={() => openStatusModal(a)}
-                      className={`
+                    <td className="px-6 py-4 font-semibold text-primary">
+                      {a.folio}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-700">
+                      {a.authority}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-700">
+                      {a.title}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {a.client.name + " " + a.client.lastName}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {a.area}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {a.lawyer.name}
+                    </td>
+
+                    <td
+                      className="px-6 py-4"
+                    >
+                      <span
+                        onClick={() => openStatusModal(a)}
+                        className={`
                     inline-flex items-center
                     px-3 py-1 rounded-full
                     text-xs font-semibold capitalize uppercase
                     ${STATUS_STYLES[a.status]?.bg}
                     ${STATUS_STYLES[a.status]?.text}
                   `}
-                    >
-                      {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
-                    </span>
-                  </td>
-
-                  <td className="text-gray-600 text-center" >
-                    <button
-                      className="text-blue-500 hover:text-blue-600"
-                      onClick={() => navigate(`/dashboard/asuntos/${a.id}/expedientes`)}
-                    >
-                      <FaRegFileAlt size={20} />
-                    </button>
-                  </td>
-
-                  <td className="px-6 py-4 text-right">
-                    <div className="inline-flex gap-2">
-                      <button
-                        className="text-primary hover:text-secondary"
-                        onClick={() => openEditCase(a)}
                       >
-                        <HiOutlinePencil size={22} />
-                      </button>
+                        {formatStatus(a.status)} <MdKeyboardArrowDown size={25} />
+                      </span>
+                    </td>
+
+                    <td className="text-gray-600 text-center" >
                       <button
-                        className="text-red-500 hover:text-red-600"
-                        onClick={() => deleteCase(a.id)}
+                        className="text-blue-500 hover:text-blue-600"
+                        onClick={() => navigate(`/dashboard/asuntos/${a.id}/expedientes`)}
                       >
-                        <HiOutlineTrash size={22} />
+                        <FaRegFileAlt size={20} />
                       </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <div className="inline-flex gap-2">
+                        <button
+                          className="text-primary hover:text-secondary"
+                          onClick={() => openEditCase(a)}
+                        >
+                          <HiOutlinePencil size={22} />
+                        </button>
+                        <button
+                          className="text-red-500 hover:text-red-600"
+                          onClick={() => deleteCase(a.id)}
+                        >
+                          <HiOutlineTrash size={22} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          {/* PAGINACIÓN */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>
       )}
 
       {/* MODAL – Crear / Editar Asunto */}
@@ -620,12 +649,12 @@ const Cases = () => {
                   key={status}
                   onClick={() => changeCaseStatus(selectedCase, status)}
                   className={`
-              w-full px-4 py-3 rounded-lg text-sm font-semibold
-              border transition uppercase
-              ${STATUS_STYLES[status].bg}
-              ${STATUS_STYLES[status].text}
-              hover:scale-[1.02]
-            `}
+                    w-full px-4 py-3 rounded-lg text-sm font-semibold
+                    border transition uppercase
+                    ${STATUS_STYLES[status].bg}
+                    ${STATUS_STYLES[status].text}
+                    hover:scale-[1.02]
+                  `}
                 >
                   {formatStatus(status)}
                 </button>

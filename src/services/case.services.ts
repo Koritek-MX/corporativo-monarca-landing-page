@@ -1,7 +1,12 @@
 import api from "./api";
 
-export const getCaseService = async () => {
-  const { data } = await api.get("/cases");
+export const getCasesPaginationService = async (page = 1, limit = 10) => {
+  const { data } = await api.get(`/cases?page=${page}&limit=${limit}`);
+  return data;
+};
+
+export const getCasesService = async () => {
+  const { data } = await api.get("/cases/all");
   return data;
 };
 
