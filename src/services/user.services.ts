@@ -5,6 +5,14 @@ export const getUsersService = async () => {
   return data;
 };
 
+export const getUsersPaginationService = async (
+  page: number,
+  limit: number
+) => {
+  const { data } = await api.get(`/users/pagination?page=${page}&limit=${limit}`);
+  return data;
+};
+
 export const getUsersPublicService = async () => {
   const { data } = await api.get("/users/public");
   return data;

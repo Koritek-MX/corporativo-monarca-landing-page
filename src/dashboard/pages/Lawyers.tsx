@@ -7,13 +7,14 @@ import {
 import Swal from "sweetalert2";
 import {
   deleteUserService,
-  getUsersService,
   createUserService,
   updateUserService,
   updatePasswordUserService,
+  getUsersPaginationService,
 } from "../../services/user.services";
 import { formatPhone } from "../../components/common/formatPhone";
 import { useAuth } from "../../components/hooks/AuthContext";
+import Pagination from "../../components/common/Pagination";
 
 const ROLE_STYLES: Record<string, { bg: string; text: string }> = {
   ADMIN: {
@@ -52,13 +53,14 @@ const Lawyers = () => {
   const [form, setForm] = useState(emptyForm);
   const [passForm, setPassForm] = useState(emptyPassForm);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
 
   useEffect(() => {
     loadUsers();
-  }, []);
+  }, [page]);
 
-  // const filteredUsers = users.filter(u => u.id !== user?.id);
 
   /* 👉 Cargar abogados */
   const loadUsers = async () => {
@@ -71,11 +73,12 @@ const Lawyers = () => {
       });
 
       const [data] = await Promise.all([
-        getUsersService(),
+        getUsersPaginationService(page, 10),
         new Promise((resolve) => setTimeout(resolve, 600)),
       ]);
 
-      setUsers(data);
+      setUsers(data.data);
+      setTotalPages(data.totalPages);
     } catch {
       Swal.fire("Error", "No se pudieron cargar", "error");
     } finally {
@@ -299,75 +302,82 @@ const Lawyers = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 text-left">Nombre</th>
-                <th className="px-6 py-4 text-left">Correo electrónico</th>
-                <th className="px-6 py-4 text-left">Teléfono</th>
-                <th className="px-6 py-4 text-left">Especialidad</th>
-                <th className="px-6 py-4 text-left">Rol</th>
-                <th className="px-6 py-4 text-left">Visible</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs">
+                <tr>
+                  <th className="px-6 py-4 text-left">Nombre</th>
+                  <th className="px-6 py-4 text-left">Correo electrónico</th>
+                  <th className="px-6 py-4 text-left">Teléfono</th>
+                  <th className="px-6 py-4 text-left">Especialidad</th>
+                  <th className="px-6 py-4 text-left">Rol</th>
+                  <th className="px-6 py-4 text-left">Visible</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {users.map((l, index) => (
-                <tr
-                  key={l.id}
-                  className={`${index % 2 ? "bg-gray-200" : ""}`}
-                >
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    <div className="flex items-center gap-3">
+              <tbody>
+                {users.map((l, index) => (
+                  <tr
+                    key={l.id}
+                    className={`${index % 2 ? "bg-gray-200" : ""}`}
+                  >
+                    <td className="px-6 py-4 font-semibold text-primary">
+                      <div className="flex items-center gap-3">
 
-                      <img
-                        src={l.avatar || "/avatar-default.png"}
-                        alt={l.name}
-                        className="w-9 h-9 rounded-full object-cover border"
-                      />
+                        <img
+                          src={l.avatar || "/avatar-default.png"}
+                          alt={l.name}
+                          className="w-9 h-9 rounded-full object-cover border"
+                        />
 
-                      <span>{l.name} {l.id == user.id ? "(Tú)" : ""}</span>
+                        <span>{l.name} {l.id == user.id ? "(Tú)" : ""}</span>
 
-                    </div>
-                  </td>
-                  <td className="px-6 py-4">{l.email}</td>
-                  <td className="px-6 py-4">{formatPhone(l.phone)}</td>
-                  <td className="px-6 py-4">{l.specialty}</td>
-                  <td className="px-6 py-4">
-                    <span
-                      className={`
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">{l.email}</td>
+                    <td className="px-6 py-4">{formatPhone(l.phone)}</td>
+                    <td className="px-6 py-4">{l.specialty}</td>
+                    <td className="px-6 py-4">
+                      <span
+                        className={`
                       inline-flex items-center px-3 py-1 rounded-full
                       text-xs font-semibold uppercase
                       ${ROLE_STYLES[l.role]?.bg || "bg-gray-100"}
                       ${ROLE_STYLES[l.role]?.text || "text-gray-700"}
                     `}
-                    >
-                      {l.role}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{l.isVisible ? "SI" : "NO"}</td>
-                  <td className="px-6 py-4 text-right flex justify-end gap-3">
-                    <button
-                      onClick={() => openEditUser(l)}
-                      className="text-primary"
-                    >
-                      <HiOutlinePencil size={22} />
-                    </button>
+                      >
+                        {l.role}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4">{l.isVisible ? "SI" : "NO"}</td>
+                    <td className="px-6 py-4 text-right flex justify-end gap-3">
+                      <button
+                        onClick={() => openEditUser(l)}
+                        className="text-primary"
+                      >
+                        <HiOutlinePencil size={22} />
+                      </button>
 
-                    <button
-                      onClick={() => deleteUser(l.id)}
-                      className="text-red-500"
-                    >
-                      <HiOutlineTrash size={22} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <button
+                        onClick={() => deleteUser(l.id)}
+                        className="text-red-500"
+                      >
+                        <HiOutlineTrash size={22} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>
       )}
 
       {/* MODAL */}
