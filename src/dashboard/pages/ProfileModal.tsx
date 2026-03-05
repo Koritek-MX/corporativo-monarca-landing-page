@@ -27,7 +27,6 @@ const ProfileModal = ({ open, onClose, user }: Props) => {
   const [userId, setUserId] = useState(1);
 
   useEffect(() => {
-    console.log("USUARIO", user);
     if (user) {
       setForm({
         name: user.name || "",

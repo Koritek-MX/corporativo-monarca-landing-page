@@ -247,10 +247,10 @@ const Clients = () => {
                   <tr
                     key={c.id}
                     className={`
-                border-t transition
-                ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
-                hover:bg-primary/5
-              `}
+                      border-t transition
+                      ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
+                      hover:bg-primary/5
+                    `}
                   >
                     <td className="px-6 py-4 font-medium">
                       {c.name} {c.lastName}
@@ -259,12 +259,12 @@ const Clients = () => {
                     <td className="px-6 py-4">
                       <span
                         className={`
-                    inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
-                    ${c.type === "FISICA"
+                          inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
+                          ${c.type === "FISICA"
                             ? "bg-secondary/20 text-secondary"
                             : "bg-primary/20 text-primary"
                           }
-                  `}
+                        `}
                       >
                         {c.type === "FISICA" ? "Física" : "Moral"}
                       </span>
@@ -489,8 +489,6 @@ const Clients = () => {
         </div>
       )}
     </div>
-
-
   );
 };
 

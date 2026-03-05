@@ -40,9 +40,6 @@ const Register = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) return;
-
-    console.log("Register form submitted", form);
-    // aquí va la lógica real de registro
   };
 
   const handleGoogleRegister = () => {

@@ -171,8 +171,6 @@ const Calendar = () => {
   const openEditFromDetail = async () => {
     const currentUserInfo = await loadInfoUser(selectedEvent.id);
 
-    console.log("USER INFO", currentUserInfo);
-
     if (!currentUserInfo) return;
 
     const formatForInput = (date: string) => {

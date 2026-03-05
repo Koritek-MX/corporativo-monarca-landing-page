@@ -61,7 +61,6 @@ const SuccessCases = () => {
                 getAllSuccessCasesService(),
                 new Promise((resolve) => setTimeout(resolve, 700)),
             ]);
-            console.log(data);
             setCases(data);
 
         } catch {

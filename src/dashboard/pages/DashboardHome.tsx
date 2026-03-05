@@ -145,7 +145,6 @@ const DashboardHome = () => {
   const loadTodayEvents = async (userId: number) => {
     try {
       const data = await getTodayEventsService(userId);
-      console.log("EVENTOS DE HOY", data);
       setEvents(data);
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los eventos", "error");
@@ -457,7 +456,6 @@ const DashboardHome = () => {
   };
 
   const openDetailEvent = (event: any) => {
-    console.log(event)
     setSelectedEvent(event);
     setDetailOpen(true);
   }
