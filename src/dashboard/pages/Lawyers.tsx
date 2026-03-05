@@ -32,6 +32,7 @@ const emptyForm = {
   specialty: "",
   avatar: "",
   role: "",
+  isVisible: true,
   password: "",
   confirmPassword: "",
 };
@@ -88,6 +89,7 @@ const Lawyers = () => {
       phone: form.phone,
       specialty: form.specialty,
       avatar: form.avatar,
+      isVisible: form.isVisible,
       password: form.password,
       role: form.role
     });
@@ -110,6 +112,7 @@ const Lawyers = () => {
       phone: form.phone,
       specialty: form.specialty,
       avatar: form.avatar,
+      isVisible: form.isVisible,
       role: form.role
     };
 
@@ -176,6 +179,7 @@ const Lawyers = () => {
       specialty: user.specialty || "",
       avatar: user.avatar || "",
       role: user.role || "",
+      isVisible: user.isVisible || null,
       password: "",
       confirmPassword: "",
     });
@@ -271,6 +275,7 @@ const Lawyers = () => {
                 <th className="px-6 py-4 text-left">Teléfono</th>
                 <th className="px-6 py-4 text-left">Especialidad</th>
                 <th className="px-6 py-4 text-left">Rol</th>
+                <th className="px-6 py-4 text-left">Visible</th>
                 <th className="px-6 py-4 text-right">Acciones</th>
               </tr>
             </thead>
@@ -309,6 +314,7 @@ const Lawyers = () => {
                       {l.role}
                     </span>
                   </td>
+                  <td className="px-6 py-4">{l.isVisible ? "SI" : "NO"}</td>
                   <td className="px-6 py-4 text-right flex justify-end gap-3">
                     <button
                       onClick={() => openEditUser(l)}
@@ -333,14 +339,18 @@ const Lawyers = () => {
 
       {/* MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
 
+          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl flex flex-col max-h-[90vh]">
+
+            {/* HEADER */}
             <div className="px-6 py-4 border-b font-bold text-primary">
               {editingUser ? "Editar abogado" : "Registrar abogado"}
             </div>
 
-            <div className="px-6 py-6 space-y-4">
+            {/* BODY SCROLL */}
+            <div className="px-6 py-6 space-y-4 overflow-y-auto">
+
               <div>
                 <label className="block text-sm mb-1 font-medium">
                   Nombre completo *
@@ -416,16 +426,18 @@ const Lawyers = () => {
                 <label className="block text-sm font-medium mb-1">
                   Rol *
                 </label>
-                <select className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
+
+                <select
+                  className="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-secondary"
                   value={form.role}
                   onChange={(e) =>
                     setForm({ ...form, role: e.target.value })
-                  }>
+                  }
+                >
                   <option value="ABOGADO">Abogado</option>
                   <option value="ADMIN">Admin</option>
                 </select>
               </div>
-
 
               {!editingUser && (
                 <>
@@ -458,6 +470,34 @@ const Lawyers = () => {
                   </div>
                 </>
               )}
+
+              {/* TOGGLE VISIBILIDAD */}
+
+              <div className="flex items-center justify-between mt-3 mb-3">
+                <label className="text-sm font-medium">
+                  Visible en landing page *
+                </label>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setForm({ ...form, isVisible: !form.isVisible })
+                  }
+                  className={`
+                    relative inline-flex h-6 w-11 items-center rounded-full
+                    transition-colors
+                    ${form.isVisible ? "bg-green-500" : "bg-gray-300"}
+                  `}
+                >
+                  <span
+                    className={`
+                      inline-block h-4 w-4 transform rounded-full bg-white transition
+                      ${form.isVisible ? "translate-x-6" : "translate-x-1"}
+                    `}
+                  />
+                </button>
+              </div>
+
               {isCreating && form.confirmPassword && !passwordsMatch && (
                 <p className="text-red-500 text-sm">
                   Las contraseñas no coinciden
@@ -470,7 +510,9 @@ const Lawyers = () => {
 
             </div>
 
+            {/* FOOTER */}
             <div className="flex justify-end gap-3 px-6 py-4 border-t">
+
               <button onClick={() => setIsModalOpen(false)}>
                 Cancelar
               </button>
@@ -488,9 +530,11 @@ const Lawyers = () => {
               >
                 {editingUser ? "Editar abogado" : "Crear abogado"}
               </button>
+
             </div>
 
           </div>
+
         </div>
       )}
     </div>
