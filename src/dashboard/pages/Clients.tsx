@@ -11,7 +11,7 @@ import {
 import Swal from "sweetalert2";
 
 const emptyClient: Client = {
-  type: "FISICA",
+  type: "",
   name: "",
   lastName: "",
   phone: "",
@@ -43,13 +43,16 @@ const Clients = () => {
   const [editing, setEditing] = useState<Client | null>(null);
   const [form, setForm] = useState<Client>(emptyClient);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   useEffect(() => {
     loadClients();
-  }, []);
+  }, [page]);
 
   const isFormValid =
     form.name.trim() &&
+    form.type &&
     phoneRegex.test(form.phone.replace(/\D/g, "")) &&
     form.address.state.trim() &&
     form.address.city.trim();
@@ -64,11 +67,12 @@ const Clients = () => {
       });
 
       const [data] = await Promise.all([
-        getClientsService(),
+        getClientsService(page, 10),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      setClients(data);
+      setClients(data.data);
+      setTotalPages(data.totalPages);
 
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los clientes", "error");
@@ -165,27 +169,35 @@ const Clients = () => {
       cancelButtonText: "Cancelar",
       confirmButtonColor: "#dc2626",
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await deleteClientService(id);
-          // Actualizar lista local
-          setClients((prev) => prev.filter((c) => c.id !== id));
 
-          Swal.fire({
-            icon: "success",
-            title: "Cliente eliminado",
-            showConfirmButton: false,
-            timer: 1500,
-          });
-        } catch (error) {
-          console.error(error);
+      if (!result.isConfirmed) return;
 
-          Swal.fire({
-            icon: "error",
-            title: "Error al eliminar",
-            text: "No se pudo eliminar el cliente",
-          });
+      try {
+        await deleteClientService(id);
+        setClients((prev) => prev.filter((c) => c.id !== id));
+
+        if (clients.length === 1 && page > 1) {
+          setPage(page - 1);
         }
+
+        Swal.fire({
+          icon: "success",
+          title: "Cliente eliminado",
+          timer: 1500,
+          showConfirmButton: false,
+        });
+
+      } catch (error: any) {
+        console.error(error);
+        const message =
+          error?.response?.data?.message ||
+          "No se pudo eliminar el cliente";
+
+        Swal.fire({
+          icon: "warning",
+          title: "No se puede eliminar",
+          text: message,
+        });
       }
     });
   };
@@ -294,6 +306,30 @@ const Clients = () => {
             </table>
           </div>
         </div>
+        {/* PAGINACIÓN */}
+        <div className="flex justify-center items-center gap-4 mt-6">
+
+          <button
+            disabled={page === 1}
+            onClick={() => setPage(page - 1)}
+            className="px-4 py-2 border rounded-lg disabled:opacity-40"
+          >
+            Anterior
+          </button>
+
+          <span className="text-sm font-medium">
+            Página {page} de {totalPages}
+          </span>
+
+          <button
+            disabled={page === totalPages}
+            onClick={() => setPage(page + 1)}
+            className="px-4 py-2 border rounded-lg disabled:opacity-40"
+          >
+            Siguiente
+          </button>
+
+        </div>
       </>)}
 
 
@@ -324,8 +360,9 @@ const Clients = () => {
                     }
                     className="border rounded-lg px-4 py-3"
                   >
-                    <option value="FISICA">Persona Física *</option>
-                    <option value="MORAL">Persona Moral *</option>
+                    <option value="">Selecciona un régimen fiscal *</option>
+                    <option value="FISICA">Persona Física</option>
+                    <option value="MORAL">Persona Moral</option>
                   </select>
 
                   <input
