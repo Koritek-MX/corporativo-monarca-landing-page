@@ -32,9 +32,13 @@ const AboutUs = () => {
   const loadLawyers = async () => {
     try {
       const data = await getUsersPublicService();
-      setLawyers(data);
+
+      setLawyers(
+        data.filter((u: any) => u.isVisible)
+      );
+
     } catch {
-      console.error('Ocurrio un error al obtener los abogados');
+      console.error("Error al obtener los abogados");
     }
   };
 

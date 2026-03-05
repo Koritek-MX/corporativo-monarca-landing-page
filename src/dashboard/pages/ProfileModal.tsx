@@ -36,7 +36,7 @@ const ProfileModal = ({ open, onClose, user }: Props) => {
         specialty: user.specialty || "",
         avatar: user.avatar || "",
         role: user.role || "",
-        isVisible: user.isVisible || true,
+        isVisible: user.isVisible ?? true,
         password: "",
         confirmPassword: "",
       });
@@ -362,16 +362,16 @@ const ProfileModal = ({ open, onClose, user }: Props) => {
                 setForm({ ...form, isVisible: !form.isVisible })
               }
               className={`
-            relative inline-flex h-6 w-11 items-center rounded-full
-            transition-colors
-            ${form.isVisible ? "bg-green-500" : "bg-gray-300"}
-          `}
+                relative inline-flex h-6 w-11 items-center rounded-full
+                transition-colors
+                ${form.isVisible ? "bg-green-500" : "bg-gray-300"}
+              `}
             >
               <span
                 className={`
-              inline-block h-4 w-4 transform rounded-full bg-white transition
-              ${form.isVisible ? "translate-x-6" : "translate-x-1"}
-            `}
+                  inline-block h-4 w-4 transform rounded-full bg-white transition
+                  ${form.isVisible ? "translate-x-6" : "translate-x-1"}
+                `}
               />
             </button>
           </div>

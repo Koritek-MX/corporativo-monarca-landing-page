@@ -51,7 +51,7 @@ const Lawyers = () => {
     loadUsers();
   }, []);
 
-  const filteredUsers = users.filter(u => u.id !== user?.id);
+  // const filteredUsers = users.filter(u => u.id !== user?.id);
 
   /* 👉 Cargar abogados */
   const loadUsers = async () => {
@@ -281,7 +281,7 @@ const Lawyers = () => {
             </thead>
 
             <tbody>
-              {filteredUsers.map((l, index) => (
+              {users.map((l, index) => (
                 <tr
                   key={l.id}
                   className={`${index % 2 ? "bg-gray-200" : ""}`}
@@ -295,7 +295,7 @@ const Lawyers = () => {
                         className="w-9 h-9 rounded-full object-cover border"
                       />
 
-                      <span>{l.name}</span>
+                      <span>{l.name} {l.id == user.id ? "(Tú)" : ""}</span>
 
                     </div>
                   </td>
