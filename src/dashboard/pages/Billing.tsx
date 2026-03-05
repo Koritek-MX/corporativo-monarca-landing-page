@@ -9,9 +9,9 @@ import { useEffect, useState } from "react";
 import html2canvas from "html2canvas";
 import {
   deletePaymentsService,
-  getPaymentsService,
   createPaymentsService,
-  updatePaymentsService
+  updatePaymentsService,
+  getPaymentsPaginationService
 } from "../../services/payment.service";
 import Swal from "sweetalert2";
 import {
@@ -20,6 +20,7 @@ import {
   HiOutlineTrash,
 } from "react-icons/hi";
 import jsPDF from "jspdf";
+import Pagination from "../../components/common/Pagination";
 
 /* 🎨 Estilos por estatus */
 const PAYMENT_STATUS: Record<string, { bg: string; text: string }> = {
@@ -43,6 +44,8 @@ const Billing = () => {
   const [cases, setCases] = useState<any[]>([]);
   const [editingPayment, setEditingPayment] = useState<any>(null);
   const [loadingPayments, setLoadingPayments] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [form, setForm] = useState({
     currency: "MXN",
     totalAmount: "",
@@ -58,6 +61,9 @@ const Billing = () => {
 
   useEffect(() => {
     loadPayments();
+  }, [page]);
+
+  useEffect(() => {
     loadClients();
   }, []);
 
@@ -70,10 +76,12 @@ const Billing = () => {
         didOpen: () => Swal.showLoading(),
       });
       const [data] = await Promise.all([
-        getPaymentsService(),
+        getPaymentsPaginationService(page, 10),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      setPayments(data);
+
+      setPayments(data.data);
+      setTotalPages(data.totalPages);
 
     } catch (error) {
       await Swal.fire("Error", "No se pudieron cargar los cobros", "error");
@@ -365,133 +373,140 @@ const Billing = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-              <tr>
-                <th className="px-6 py-4 text-left">Folio</th>
-                <th className="px-6 py-4 text-left">Cliente</th>
-                <th className="px-6 py-4 text-left">Asunto</th>
-                <th className="px-6 py-4 text-right">Total</th>
-                <th className="px-6 py-4 text-right">Pagado</th>
-                <th className="px-6 py-4 text-right">Saldo</th>
-                <th className="px-6 py-4 text-right">Fecha</th>
-                <th className="px-6 py-4 text-left">Estado</th>
-                <th className="px-6 py-4 text-center">Abonos</th>
-                <th className="px-6 py-4 text-center">Comprobante</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
-            <tbody>
-              {payments.map((c: any, index: number) => {
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+                <tr>
+                  <th className="px-6 py-4 text-left">Folio</th>
+                  <th className="px-6 py-4 text-left">Cliente</th>
+                  <th className="px-6 py-4 text-left">Asunto</th>
+                  <th className="px-6 py-4 text-right">Total</th>
+                  <th className="px-6 py-4 text-right">Pagado</th>
+                  <th className="px-6 py-4 text-right">Saldo</th>
+                  <th className="px-6 py-4 text-right">Fecha</th>
+                  <th className="px-6 py-4 text-left">Estado</th>
+                  <th className="px-6 py-4 text-center">Abonos</th>
+                  <th className="px-6 py-4 text-center">Comprobante</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                {payments.map((c: any, index: number) => {
 
-                // 👉 Sumar todos los abonos del cobro
-                const paid = (c.installments || []).reduce(
-                  (acc: number, i: any) => acc + Number(i.amount || 0),
-                  0
-                );
+                  // 👉 Sumar todos los abonos del cobro
+                  const paid = (c.installments || []).reduce(
+                    (acc: number, i: any) => acc + Number(i.amount || 0),
+                    0
+                  );
 
-                // 👉 Total del cobro (incluye IVA)
-                const total = Number(c.finalAmount || 0);
+                  // 👉 Total del cobro (incluye IVA)
+                  const total = Number(c.finalAmount || 0);
 
-                // 👉 Saldo pendiente
-                const balance = total - paid;
+                  // 👉 Saldo pendiente
+                  const balance = total - paid;
 
-                return (
-                  <tr
-                    key={c.id}
-                    className={`
+                  return (
+                    <tr
+                      key={c.id}
+                      className={`
                     border-t transition
                     ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                     hover:bg-primary/5
                   `}
-                  >
-                    {/* Folio */}
-                    <td className="px-6 py-4 font-semibold text-primary">
-                      #{c.id}
-                    </td>
+                    >
+                      {/* Folio */}
+                      <td className="px-6 py-4 font-semibold text-primary">
+                        #{c.id}
+                      </td>
 
-                    {/* Cliente */}
-                    <td className="px-6 py-4">
-                      {c.client?.name + " " + c.client?.lastName || "-"}
-                    </td>
+                      {/* Cliente */}
+                      <td className="px-6 py-4">
+                        {c.client?.name + " " + c.client?.lastName || "-"}
+                      </td>
 
-                    {/* Caso */}
-                    <td className="px-6 py-4">
-                      {c.case?.folio + " - " + c.case?.title || "-"}
-                    </td>
+                      {/* Caso */}
+                      <td className="px-6 py-4">
+                        {c.case?.folio + " - " + c.case?.title || "-"}
+                      </td>
 
-                    {/* Total */}
-                    <td className="px-6 py-4 text-right">
-                      <strong> ${total.toLocaleString()} </strong>
-                    </td>
+                      {/* Total */}
+                      <td className="px-6 py-4 text-right">
+                        <strong> ${total.toLocaleString()} </strong>
+                      </td>
 
-                    {/* Pagado */}
-                    <td className="px-6 py-4 text-right text-green-700">
-                      ${paid.toLocaleString()}
-                    </td>
+                      {/* Pagado */}
+                      <td className="px-6 py-4 text-right text-green-700">
+                        ${paid.toLocaleString()}
+                      </td>
 
-                    {/* Saldo */}
-                    <td className="px-6 py-4 text-right font-semibold text-red-600">
-                      ${balance.toLocaleString()}
-                    </td>
+                      {/* Saldo */}
+                      <td className="px-6 py-4 text-right font-semibold text-red-600">
+                        ${balance.toLocaleString()}
+                      </td>
 
-                    {/* Fecha */}
-                    <td className="px-6 py-4 text-right">
-                      {new Date(c.createdAt).toLocaleDateString("es-MX")}
-                    </td>
+                      {/* Fecha */}
+                      <td className="px-6 py-4 text-right">
+                        {new Date(c.createdAt).toLocaleDateString("es-MX")}
+                      </td>
 
-                    {/* Estado */}
-                    <td className="px-6 py-4">
-                      <span
-                        className={`inline-flex uppercase px-3 py-1 rounded-full text-xs font-semibold
+                      {/* Estado */}
+                      <td className="px-6 py-4">
+                        <span
+                          className={`inline-flex uppercase px-3 py-1 rounded-full text-xs font-semibold
                         ${PAYMENT_STATUS[c.status.toLowerCase()]?.bg}
                         ${PAYMENT_STATUS[c.status.toLowerCase()]?.text}`}
-                      >
-                        {c.status}
-                      </span>
-                    </td>
-
-                    {/* Botón abono */}
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        className="text-green-600 hover:text-green-700"
-                        onClick={() => navigate(`/dashboard/cobros/${c.id}/abonos`)}
-                      >
-                        <MdAttachMoney size={25} />
-                      </button>
-                    </td>
-
-                    {/* Botón comprobante */}
-                    <td className="px-6 py-4 text-center">
-                      <button
-                        onClick={() => openReceipt(c)}
-                        className="text-primary hover:text-secondary transition"
-                      >
-                        <LiaFileInvoiceDollarSolid size={25} />
-                      </button>
-                    </td>
-
-                    {/* Acciones */}
-                    <td className="px-6 py-4 text-right">
-                      <div className="inline-flex gap-2">
-                        <button className="text-primary hover:text-secondary"
-                          onClick={() => openEditPayment(c)}>
-                          <HiOutlinePencil size={22} />
-                        </button>
-                        <button className="text-red-500 hover:text-red-600"
-                          onClick={() => deletePayment(c.id)}
                         >
-                          <HiOutlineTrash size={22} />
+                          {c.status}
+                        </span>
+                      </td>
+
+                      {/* Botón abono */}
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          className="text-green-600 hover:text-green-700"
+                          onClick={() => navigate(`/dashboard/cobros/${c.id}/abonos`)}
+                        >
+                          <MdAttachMoney size={25} />
                         </button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                      </td>
+
+                      {/* Botón comprobante */}
+                      <td className="px-6 py-4 text-center">
+                        <button
+                          onClick={() => openReceipt(c)}
+                          className="text-primary hover:text-secondary transition"
+                        >
+                          <LiaFileInvoiceDollarSolid size={25} />
+                        </button>
+                      </td>
+
+                      {/* Acciones */}
+                      <td className="px-6 py-4 text-right">
+                        <div className="inline-flex gap-2">
+                          <button className="text-primary hover:text-secondary"
+                            onClick={() => openEditPayment(c)}>
+                            <HiOutlinePencil size={22} />
+                          </button>
+                          <button className="text-red-500 hover:text-red-600"
+                            onClick={() => deletePayment(c.id)}
+                          >
+                            <HiOutlineTrash size={22} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>
       )}
 
       {/* MODAL – Nuevo Cobro */}

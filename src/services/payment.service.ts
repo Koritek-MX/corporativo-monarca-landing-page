@@ -5,6 +5,14 @@ export const getPaymentsService = async () => {
   return data;
 };
 
+export const getPaymentsPaginationService = async (
+  page: number,
+  limit: number
+) => {
+  const { data } = await api.get(`/payments/pagination?page=${page}&limit=${limit}`);
+  return data;
+};
+
 export const getPaymentById = async (id: number) => {
   const { data } = await api.get(`/payments/${id}`);
   return data;
