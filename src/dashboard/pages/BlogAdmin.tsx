@@ -11,6 +11,7 @@ import {
   createBlogService,
   updateBlogService,
   deleteBlogService,
+  getAllBlogsService,
 } from "../../services/blog.service";
 import { useAuth } from "../../components/hooks/AuthContext";
 
@@ -59,11 +60,14 @@ const BlogAdmin = () => {
       });
 
       const [data] = await Promise.all([
-        getAllBlogsByUserIdService(user.id),
+        user.role === "ADMIN"
+          ? getAllBlogsService()
+          : getAllBlogsByUserIdService(user.id),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
       setPosts(data);
+
 
     } catch {
       Swal.fire("Error", "No se pudieron cargar los blogs", "error");

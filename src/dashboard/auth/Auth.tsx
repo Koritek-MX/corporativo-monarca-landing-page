@@ -197,14 +197,14 @@ const Login = () => {
 
 
           {/* Forgot password */}
-          <p className="text-sm text-gray-600 text-center mt-6">
+          {/* <p className="text-sm text-gray-600 text-center mt-6">
             ¿Olvidaste tu contraseña?{" "}
             <a
               className="text-secondary font-semibold hover:underline"
             >
               Recuperala aqui
             </a>
-          </p>
+          </p> */}
 
           {/* Footer */}
           <p className="text-xs text-gray-400 text-center mt-8">
