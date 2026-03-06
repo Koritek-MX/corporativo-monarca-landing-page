@@ -1,4 +1,4 @@
-import { deleteContactService, getAllContactsService } from "../../services/contact.service";
+import { deleteContactService, getAllContactsService, getContactsPaginationService } from "../../services/contact.service";
 import { formatPhone } from "../../components/common/formatPhone";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";
@@ -6,16 +6,19 @@ import {
     HiOutlineTrash,
     HiOutlineEye,
 } from "react-icons/hi";
+import Pagination from "../../components/common/Pagination";
 
 
 const Contacts = () => {
     const [contacts, setContacts] = useState<any[]>([]);
     const [selected, setSelected] = useState<any>(null);
     const [loadingContacts, setLoadingContacts] = useState(false);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
 
     useEffect(() => {
         loadContacts();
-    }, []);
+    }, [page]);
 
     const loadContacts = async () => {
         try {
@@ -26,10 +29,11 @@ const Contacts = () => {
                 didOpen: () => Swal.showLoading(),
             });
             const [data] = await Promise.all([
-                getAllContactsService(),
+                getContactsPaginationService(page, 10),
                 new Promise((resolve) => setTimeout(resolve, 700)),
             ]);
-            setContacts(data);
+            setContacts(data.data);
+            setTotalPages(data.totalPages);
         } catch (error) {
             Swal.fire("Error", "No se pudieron cargar los contactos", "error");
         } finally {
@@ -100,66 +104,73 @@ const Contacts = () => {
                     </p>
                 </div>
             ) : (
-                <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-                    <table className="w-full text-sm">
-                        <thead className="bg-primary text-white uppercase text-xs">
-                            <tr>
-                                <th className="px-6 py-4 text-left">Nombre</th>
-                                <th className="px-6 py-4 text-left">Correo</th>
-                                <th className="px-6 py-4 text-left">Teléfono</th>
-                                <th className="px-6 py-4 text-left">Fecha</th>
-                                <th className="px-6 py-4 text-left">Ciudad / Pueblo</th>
-                                <th className="px-6 py-4 text-left">Mensaje</th>
-                                <th className="px-6 py-4 text-right">Acciones</th>
-                            </tr>
-                        </thead>
+                <>
+                    <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+                        <table className="w-full text-sm">
+                            <thead className="bg-primary text-white uppercase text-xs">
+                                <tr>
+                                    <th className="px-6 py-4 text-left">Nombre</th>
+                                    <th className="px-6 py-4 text-left">Correo</th>
+                                    <th className="px-6 py-4 text-left">Teléfono</th>
+                                    <th className="px-6 py-4 text-left">Fecha</th>
+                                    <th className="px-6 py-4 text-left">Ciudad / Pueblo</th>
+                                    <th className="px-6 py-4 text-left">Mensaje</th>
+                                    <th className="px-6 py-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
 
-                        <tbody>
-                            {contacts.map((c, index) => (
-                                <tr
-                                    key={c.id}
-                                    className={`
+                            <tbody>
+                                {contacts.map((c, index) => (
+                                    <tr
+                                        key={c.id}
+                                        className={`
                                     border-t transition
                                     ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                                     hover:bg-primary/5
                                 `}
-                                >
-                                    <td className="px-6 py-4 font-semibold text-primary">
-                                        {c.name}
-                                    </td>
-                                    <td className="px-6 py-4">{c.email}</td>
-                                    <td className="px-6 py-4">{formatPhone(c.phone)}</td>
-                                    <td className="px-6 py-4">
-                                        {new Date(c.createdAt).toLocaleDateString("es-MX")}
-                                    </td>
-                                    <td className="px-6 py-4">{c.city}</td>
-                                    <td className="px-6 py-4 max-w-xs truncate">
-                                        {c.message}
-                                    </td>
-                                    <td className="px-6 py-4 text-right">
-                                        <div className="flex justify-end gap-3">
+                                    >
+                                        <td className="px-6 py-4 font-semibold text-primary">
+                                            {c.name}
+                                        </td>
+                                        <td className="px-6 py-4">{c.email}</td>
+                                        <td className="px-6 py-4">{formatPhone(c.phone)}</td>
+                                        <td className="px-6 py-4">
+                                            {new Date(c.createdAt).toLocaleDateString("es-MX")}
+                                        </td>
+                                        <td className="px-6 py-4">{c.city}</td>
+                                        <td className="px-6 py-4 max-w-xs truncate">
+                                            {c.message}
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-3">
 
-                                            <button
-                                                onClick={() => setSelected(c)}
-                                                className="text-primary hover:text-secondary"
-                                            >
-                                                <HiOutlineEye size={22} />
-                                            </button>
+                                                <button
+                                                    onClick={() => setSelected(c)}
+                                                    className="text-primary hover:text-secondary"
+                                                >
+                                                    <HiOutlineEye size={22} />
+                                                </button>
 
-                                            <button
-                                                onClick={() => deleteContact(c.id)}
-                                                className="text-red-500 hover:text-red-600"
-                                            >
-                                                <HiOutlineTrash size={22} />
-                                            </button>
+                                                <button
+                                                    onClick={() => deleteContact(c.id)}
+                                                    className="text-red-500 hover:text-red-600"
+                                                >
+                                                    <HiOutlineTrash size={22} />
+                                                </button>
 
-                                        </div>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <Pagination
+                        page={page}
+                        totalPages={totalPages}
+                        setPage={setPage}
+                    />
+                </>
             )}
 
             {/* Modal detalle */}

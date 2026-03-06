@@ -11,9 +11,10 @@ import {
   createBlogService,
   updateBlogService,
   deleteBlogService,
-  getAllBlogsService,
+  getBlogsPaginationService,
 } from "../../services/blog.service";
 import { useAuth } from "../../components/hooks/AuthContext";
+import Pagination from "../../components/common/Pagination";
 
 const LEGAL_AREAS = [
   "Derecho Penal",
@@ -35,6 +36,8 @@ const BlogAdmin = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPost, setEditingPost] = useState<any>(null);
   const [loadingBlogs, setLoadingBlogs] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [form, setForm] = useState({
     title: "",
@@ -48,11 +51,14 @@ const BlogAdmin = () => {
   useEffect(() => {
     if (!user?.id) return;
     loadBlogs();
-  }, [user]);
+  }, [user, page]);
 
   const loadBlogs = async () => {
+
     try {
+
       setLoadingBlogs(true);
+
       Swal.fire({
         title: "Cargando blogs...",
         allowOutsideClick: false,
@@ -60,21 +66,28 @@ const BlogAdmin = () => {
       });
 
       const [data] = await Promise.all([
-        user.role === "ADMIN"
-          ? getAllBlogsService()
-          : getAllBlogsByUserIdService(user.id),
+        getBlogsPaginationService(
+          page,
+          10,
+          user.role === "ADMIN" ? undefined : user.id
+        ),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      setPosts(data);
-
+      setPosts(data.data);
+      setTotalPages(data.totalPages);
 
     } catch {
+
       Swal.fire("Error", "No se pudieron cargar los blogs", "error");
+
     } finally {
+
       setLoadingBlogs(false);
       Swal.close();
+
     }
+
   };
 
   /* 👉 Crear / Editar */
@@ -227,76 +240,88 @@ const BlogAdmin = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs">
-              <tr>
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs">
+                <tr>
 
-                <th className="px-6 py-4 text-left">Imagen</th>
-                <th className="px-6 py-4 text-left">Título</th>
-                <th className="px-6 py-4 text-left">Área</th>
-                <th className="px-6 py-4 text-left">Fecha</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+                  <th className="px-6 py-4 text-left">Imagen</th>
+                  <th className="px-6 py-4 text-left">Título</th>
+                  <th className="px-6 py-4 text-left">Área</th>
+                  <th className="px-6 py-4 text-left">Creado por</th>
+                  <th className="px-6 py-4 text-left">Fecha</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {posts.map((post, index) => (
-                <tr
-                  key={post.id}
-                  className={`
+              <tbody>
+                {posts.map((post, index) => (
+                  <tr
+                    key={post.id}
+                    className={`
                   border-t transition
                   ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                   hover:bg-primary/5
                 `}
-                >
-                  <td className="px-6 py-4">
-                    {post.imageUrl ? (
-                      <img
-                        src={post.imageUrl}
-                        alt={post.title}
-                        className="w-14 h-14 object-cover rounded-lg border"
-                      />
-                    ) : (
-                      <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-500">
-                        Sin imagen
+                  >
+                    <td className="px-6 py-4">
+                      {post.imageUrl ? (
+                        <img
+                          src={post.imageUrl}
+                          alt={post.title}
+                          className="w-14 h-14 object-cover rounded-lg border"
+                        />
+                      ) : (
+                        <div className="w-14 h-14 bg-gray-200 rounded-lg flex items-center justify-center text-xs text-gray-500">
+                          Sin imagen
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-6 py-4 font-semibold text-primary">
+                      {post.title}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {post.area}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {post.user.name}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      {new Date(post.createdAt).toLocaleDateString("es-MX")}
+                    </td>
+
+                    <td className="px-6 py-4 text-right">
+                      <div className="flex justify-end gap-3">
+                        <button
+                          className="text-primary hover:text-secondary"
+                          onClick={() => openEditPost(post)}
+                        >
+                          <HiOutlinePencil size={22} />
+                        </button>
+
+                        <button
+                          className="text-red-500 hover:text-red-600"
+                          onClick={() => handleDelete(post.id)}
+                        >
+                          <HiOutlineTrash size={22} />
+                        </button>
                       </div>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 font-semibold text-primary">
-                    {post.title}
-                  </td>
-
-                  <td className="px-6 py-4 text-gray-600">
-                    {post.area}
-                  </td>
-
-                  <td className="px-6 py-4">
-                    {new Date(post.createdAt).toLocaleDateString("es-MX")}
-                  </td>
-
-                  <td className="px-6 py-4 text-right">
-                    <div className="flex justify-end gap-3">
-                      <button
-                        className="text-primary hover:text-secondary"
-                        onClick={() => openEditPost(post)}
-                      >
-                        <HiOutlinePencil size={22} />
-                      </button>
-
-                      <button
-                        className="text-red-500 hover:text-red-600"
-                        onClick={() => handleDelete(post.id)}
-                      >
-                        <HiOutlineTrash size={22} />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>
       )}
 
       {/* MODAL */}
