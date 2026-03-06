@@ -1,7 +1,16 @@
 import api from "./api";
 
-export const getInstallmentsByPaymentService = async (paymentId: number) => {
-  const { data } = await api.get(`/payment-installments/payment/${paymentId}`);
+// export const getInstallmentsByPaymentService = async (paymentId: number) => {
+//   const { data } = await api.get(`/payment-installments/payment/${paymentId}`);
+//   return data;
+// };
+
+export const getInstallmentsByPaymentService = async (
+  paymentId: number,
+  page: number,
+  limit: number
+) => {
+  const { data } = await api.get(`/payment-installments/payment/${paymentId}/pagination?page=${page}&limit=${limit}`);
   return data;
 };
 

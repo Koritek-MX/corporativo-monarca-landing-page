@@ -9,6 +9,7 @@ import {
   getInstallmentsByPaymentService,
   updateInstallmentService
 } from "../../services/paymentInstallments.service";
+import Pagination from "../../components/common/Pagination";
 
 const PAYMENT_METHOD_BADGE: Record<string, string> = {
   EFECTIVO: "bg-green-100 text-green-700",
@@ -25,6 +26,8 @@ const PaymentInstallments = () => {
   const [paymentInfo, setPaymentInfo] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [form, setForm] = useState({
     amount: "",
@@ -36,7 +39,7 @@ const PaymentInstallments = () => {
     if (!paymentId) return;
     loadInstallments();
     loadPaymentInfo();
-  }, [paymentId]);
+  }, [page, paymentId]);
 
   /* 👉 Cargar abonos */
   const loadInstallments = async () => {
@@ -50,11 +53,12 @@ const PaymentInstallments = () => {
       });
 
       const [data] = await Promise.all([
-        getInstallmentsByPaymentService(Number(paymentId)),
+        getInstallmentsByPaymentService(Number(paymentId), page, 10),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
 
-      setInstallments(data);
+      setInstallments(data.data);
+      setTotalPages(data.totalPages);
 
     } catch {
       Swal.fire("Error", "No se pudieron cargar los abonos", "error");
@@ -247,73 +251,80 @@ const PaymentInstallments = () => {
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-primary text-white uppercase text-xs">
-              <tr>
-                <th className="px-6 py-4 text-left">Monto</th>
-                <th className="px-6 py-4 text-left">Fecha</th>
-                <th className="px-6 py-4 text-left">Método</th>
-                <th className="px-6 py-4 text-left">Notas</th>
-                <th className="px-6 py-4 text-right">Acciones</th>
-              </tr>
-            </thead>
+        <>
+          <div className="bg-white rounded-2xl shadow-sm border overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-primary text-white uppercase text-xs">
+                <tr>
+                  <th className="px-6 py-4 text-left">Monto</th>
+                  <th className="px-6 py-4 text-left">Fecha</th>
+                  <th className="px-6 py-4 text-left">Método</th>
+                  <th className="px-6 py-4 text-left">Notas</th>
+                  <th className="px-6 py-4 text-right">Acciones</th>
+                </tr>
+              </thead>
 
-            <tbody>
-              {installments.map((i, index) => (
-                <tr
-                  key={i.id}
-                  className={`
+              <tbody>
+                {installments.map((i, index) => (
+                  <tr
+                    key={i.id}
+                    className={`
                     border-t transition
                     ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                     hover:bg-primary/5
                   `}
-                >
-                  <td className="px-6 py-4 font-semibold text-green-700">
-                    ${Number(i.amount).toLocaleString()}
-                  </td>
+                  >
+                    <td className="px-6 py-4 font-semibold text-green-700">
+                      ${Number(i.amount).toLocaleString()}
+                    </td>
 
-                  <td className="px-6 py-4 text-gray-600">
-                    {new Date(i.createdAt).toLocaleDateString("es-MX")}
-                  </td>
+                    <td className="px-6 py-4 text-gray-600">
+                      {new Date(i.createdAt).toLocaleDateString("es-MX")}
+                    </td>
 
-                  <td className="px-6 py-4">
-                    {i.method ? (
-                      <span
-                        className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold uppercase
+                    <td className="px-6 py-4">
+                      {i.method ? (
+                        <span
+                          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold uppercase
                         ${PAYMENT_METHOD_BADGE[i.method] || "bg-gray-100 text-gray-600"}`}
+                        >
+                          {i.method}
+                        </span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-600">
+                      {i.notes || "—"}
+                    </td>
+
+                    <td className="px-6 py-4 text-right flex gap-2 justify-end">
+                      <button
+                        onClick={() => openEditInstallment(i)}
+                        className="text-primary hover:text-secondary"
                       >
-                        {i.method}
-                      </span>
-                    ) : (
-                      "—"
-                    )}
-                  </td>
+                        <HiOutlinePencil size={20} />
+                      </button>
 
-                  <td className="px-6 py-4 text-gray-600">
-                    {i.notes || "—"}
-                  </td>
-
-                  <td className="px-6 py-4 text-right flex gap-2 justify-end">
-                    <button
-                      onClick={() => openEditInstallment(i)}
-                      className="text-primary hover:text-secondary"
-                    >
-                      <HiOutlinePencil size={20} />
-                    </button>
-
-                    <button
-                      onClick={() => deleteInstallment(i.id)}
-                      className="text-red-500 hover:text-red-600"
-                    >
-                      <HiOutlineTrash size={20} />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                      <button
+                        onClick={() => deleteInstallment(i.id)}
+                        className="text-red-500 hover:text-red-600"
+                      >
+                        <HiOutlineTrash size={20} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>
       )}
 
       {/* MODAL CREAR ABONO */}
