@@ -193,12 +193,13 @@ const SuccessCases = () => {
                     <p className="text-gray-600">
                         Administración de casos de éxito del despacho
                     </p>
-                     <p className="text-gray-600">
+                    <p className="text-gray-600">
                         (*) Solo se recomiendan 3 caso como máximo.
                     </p>
                 </div>
 
                 <button
+                    disabled={cases.length >= 3}
                     onClick={() => {
                         setEditingCase(null);
                         setForm({
@@ -210,7 +211,12 @@ const SuccessCases = () => {
                         });
                         setIsModalOpen(true);
                     }}
-                    className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
+                    className={`
+                        flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition
+                        ${cases.length >= 3
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-primary text-white hover:bg-primary/90"}
+                    `}
                 >
                     <HiOutlinePlus />
                     Nuevo caso

@@ -176,6 +176,8 @@ const FAQ = () => {
                 </div>
 
                 <button
+                    disabled={faqs.length >= 10}
+                    title={faqs.length >= 6 ? "Solo se permiten 6 preguntas frecuentes" : ""}
                     onClick={() => {
                         setEditingFaq(null);
                         setForm({
@@ -185,7 +187,12 @@ const FAQ = () => {
                         });
                         setIsModalOpen(true);
                     }}
-                    className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
+                    className={`
+                        flex items-center gap-2 px-5 py-3 rounded-xl font-semibold transition
+                        ${faqs.length >= 10
+                            ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                            : "bg-primary text-white hover:bg-primary/90"}
+                    `}
                 >
                     <HiOutlinePlus />
                     Nueva pregunta
