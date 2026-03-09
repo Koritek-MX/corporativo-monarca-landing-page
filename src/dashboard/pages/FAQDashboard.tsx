@@ -13,7 +13,7 @@ import {
     deleteFaqService,
 } from "../../services/faq.service";
 
-const FAQ = () => {
+const FAQDashboard = () => {
 
     const [faqs, setFaqs] = useState<any[]>([]);
     const [loadingFaqs, setLoadingFaqs] = useState(false);
@@ -384,4 +384,4 @@ const FAQ = () => {
     );
 };
 
-export default FAQ;
+export default FAQDashboard;

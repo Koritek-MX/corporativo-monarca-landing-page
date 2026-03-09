@@ -501,20 +501,36 @@ const Calendar = () => {
                 <label className="text-sm font-semibold text-gray-700">
                   Asunto
                 </label>
+
                 <select
-                  value={form.caseId}
+                  value={form.caseId || ""}
+                  disabled={cases.length === 0}
                   onChange={(e) =>
                     setForm({ ...form, caseId: e.target.value })
                   }
-                  className="w-full border rounded-lg px-4 py-3 mt-1"
+                  className={`
+                    w-full border rounded-lg px-4 py-3 mt-1
+                    ${cases.length === 0
+                      ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                      : ""}
+                  `}
                 >
-                  <option value="">Selecciona un asunto</option>
-                  {cases.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.title}
+                  {cases.length === 0 ? (
+                    <option value="">
+                      No hay asuntos asignados a este usuario
                     </option>
-                  ))}
+                  ) : (
+                    <>
+                      <option value="">Selecciona un asunto</option>
+                      {cases.map((c) => (
+                        <option key={c.id} value={c.id}>
+                          {c.title} - {c.client.name} {c.client.lastName}
+                        </option>
+                      ))}
+                    </>
+                  )}
                 </select>
+
               </div>
 
               {/* Fecha inicio */}

@@ -134,10 +134,10 @@ const Contact = () => {
                 <div>
                   <p className="font-semibold text-primary">Teléfono</p>
                   <a
-                    href="tel:+523525015754"
+                    href="tel:+523523200006"
                     className="text-gray-600 hover:text-secondary transition"
                   >
-                    352 501 5754
+                    352 230 0006
                   </a>
                 </div>
               </div>

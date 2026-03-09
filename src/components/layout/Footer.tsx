@@ -72,10 +72,10 @@ const Footer = () => {
                 <li className="flex items-start gap-2">
                   <FaPhoneAlt className="mt-1 text-secondary" />
                   <a
-                    href="tel:+523525015754"
+                    href="tel:+523522300006"
                     className="text-white hover:text-secondary transition"
                   >
-                    352 501 5754
+                    352 230 0006
                   </a>
                 </li>
 

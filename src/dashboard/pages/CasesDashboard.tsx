@@ -70,7 +70,7 @@ const emptyForm = {
 }
 
 
-const Cases = () => {
+const CasesDashboard = () => {
 
   const navigate = useNavigate();
   const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -671,4 +671,4 @@ const Cases = () => {
   );
 };
 
-export default Cases;
+export default CasesDashboard;

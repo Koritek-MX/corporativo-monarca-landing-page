@@ -42,7 +42,7 @@ const WhatsAppButton = ({ hidden }: Props) => {
 
       {/* Botón WhatsApp */}
       <a
-        href="https://wa.me/523525015754"
+        href="https://wa.me/523522300006"
         target="_blank"
         rel="noopener noreferrer"
         aria-label="Enviar WhatsApp"

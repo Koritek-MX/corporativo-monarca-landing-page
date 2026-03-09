@@ -17,7 +17,7 @@ import PublicRoute from "./guards/PublicRoute.tsx";
 import NotFound from "./dashboard/pages/NotFound.tsx";
 import Clients from "./dashboard/pages/Clients.tsx";
 import Calendar from "./dashboard/pages/Calendar.tsx";
-import Cases from "./dashboard/pages/Cases.tsx";
+import CasesDashboard from "./dashboard/pages/CasesDashboard.tsx";
 import Billing from "./dashboard/pages/Billing.tsx";
 import Stats from "./dashboard/pages/Stats.tsx";
 import Contacts from "./dashboard/pages/Contacts.tsx";
@@ -27,7 +27,7 @@ import PaymentInstallments from "./dashboard/pages/PaymentInstallments.tsx";
 import AllBlogs from "./components/sections/AllBlogs.tsx";
 import BlogDetail from "./components/sections/BlogDetail.tsx";
 import SuccessCases from "./dashboard/pages/successCases.tsx";
-import FAQ from "./dashboard/pages/FAQ.tsx";
+import FAQDashboard from "./dashboard/pages/FAQDashboard.tsx";
 
 export default function App() {
   return (
@@ -48,7 +48,7 @@ export default function App() {
           <Route path="/dashboard" element={<DashboardHome />} />
           <Route path="/dashboard/clientes" element={<Clients />} />
           <Route path="/dashboard/calendario" element={<Calendar />} />
-          <Route path="/dashboard/asuntos" element={<Cases />} />
+          <Route path="/dashboard/asuntos" element={<CasesDashboard />} />
           <Route path="/dashboard/asuntos/:caseId/expedientes" element={<CaseFiles />} />
           <Route path="/dashboard/cobros" element={<Billing />} />
           <Route path="/dashboard/cobros/:paymentId/abonos" element={<PaymentInstallments />} />
@@ -58,7 +58,7 @@ export default function App() {
           <Route element={<ProtectedRoute allowedRoles={["ADMIN"]} />}>
             <Route path="/dashboard/abogados" element={<Lawyers />} />
             <Route path="/dashboard/casos-exito" element={<SuccessCases />} />
-            <Route path="/dashboard/preguntas-respuestas" element={<FAQ />} />
+            <Route path="/dashboard/preguntas-respuestas" element={<FAQDashboard />} />
           </Route>
         </Route>
       </Route>

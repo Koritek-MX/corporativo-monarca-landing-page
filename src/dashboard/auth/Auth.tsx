@@ -55,6 +55,11 @@ const Login = () => {
     } catch (error: any) {
       Swal.close();
 
+      setForm({
+        email: "",
+        password: "",
+      });
+
       await Swal.fire({
         icon: "error",
         title: "Error",

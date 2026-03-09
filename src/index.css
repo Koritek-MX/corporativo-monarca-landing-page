@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Jost";
+  src: url("/fonts/Jost-VariableFont_wght.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+
 @theme {
   --font-sans: "Jost", sans-serif;
   --color-primary: #1A3263;

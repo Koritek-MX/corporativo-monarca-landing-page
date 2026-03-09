@@ -172,11 +172,11 @@ const Navbar = ({ open, setOpen }: Props) => {
                     ¿Necesitas ayuda?
                   </span>
                   <a
-                    href="tel:+523525015754"
+                    href="tel:+523522300006"
                     className="flex items-center gap-2 font-bold hover:text-secondary transition"
                   >
                     <HiOutlinePhone size={16} />
-                    352 501 5754
+                    352 230 0006
                   </a>
                 </div>
               </div>
