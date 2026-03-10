@@ -46,7 +46,7 @@ const Hero = () => {
             <a
               href="#contacto"
               onClick={handleScrollToContact}
-              className="inline-flex items-center justify-center bg-secondary text-gray-900 font-semibold px-10 py-4 rounded-xl text-sm md:text-base hover:bg-secondary/90 transition opacity-0 animate-fadeUp animate-delay-3"
+              className="inline-flex items-center justify-center bg-secondary text-primary font-semibold px-10 py-4 rounded-xl text-sm md:text-base hover:bg-secondary/90 transition opacity-0 animate-fadeUp animate-delay-3"
             >
               CONTÁCTANOS
             </a>
