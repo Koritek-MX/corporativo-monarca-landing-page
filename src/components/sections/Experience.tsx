@@ -70,10 +70,9 @@ const Experience = () => {
                 key={index}
                 className={`
                   transition-all duration-700
-                  ${
-                    visible
-                      ? `fade-up opacity-100 delay-${index * 100}`
-                      : "opacity-0 translate-y-6"
+                  ${visible
+                    ? `fade-up opacity-100 delay-${index * 100}`
+                    : "opacity-0 translate-y-6"
                   }
                 `}
               >
@@ -98,16 +97,18 @@ const Experience = () => {
         <div
           className={`
             relative transition-all duration-700
-            ${
-              visible
-                ? "fade-right opacity-100 scale-100"
-                : "opacity-0 translate-x-10 scale-95"
+            ${visible
+              ? "fade-right opacity-100 scale-100"
+              : "opacity-0 translate-x-10 scale-95"
             }
           `}
         >
           <img
             src={experienceImage}
             alt="Experiencia Corporativo Monarca"
+            loading="lazy"
+            decoding="async"
+            sizes="(max-width:768px) 100vw, 50vw"
             className="
               w-full h-[420px] object-cover rounded-2xl shadow-lg
               transition-transform duration-500

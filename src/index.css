@@ -6,13 +6,20 @@
   font-weight: 300 700;
   font-style: normal;
   font-display: swap;
-}
 
+  ascent-override: 90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+}
 
 @theme {
   --font-sans: "Jost", sans-serif;
   --color-primary: #1A3263;
   --color-secondary: #CB942F;
+}
+
+body {
+  font-family: "Jost", sans-serif;
 }
 
 /* FullCalendar: permitir salto solo en el título */
@@ -56,7 +63,8 @@
 .lawyer-image {
   position: relative;
   width: 100%;
-  padding-top: 90%; /* 7 / 6 */
+  padding-top: 90%;
+  /* 7 / 6 */
   overflow: hidden;
 }
 
@@ -75,15 +83,7 @@
 }
 
 .tooltip {
-  @apply
-    absolute bottom-full left-1/2 -translate-x-1/2 mb-2
-    bg-gray-900 text-white text-xs
-    px-2 py-1 rounded
-    whitespace-nowrap
-    opacity-0 group-hover:opacity-100
-    transition
-    pointer-events-none
-    z-50;
+  @apply absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-gray-900 text-white text-xs px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition pointer-events-none z-50;
 }
 
 @keyframes fade-in {
@@ -91,6 +91,7 @@
     opacity: 0;
     transform: translateY(-6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -106,10 +107,12 @@
     opacity: 0;
     transform: scale(0.9);
   }
+
   50% {
     opacity: 1;
     transform: scale(1.02);
   }
+
   100% {
     opacity: 1;
     transform: scale(1);
@@ -125,6 +128,7 @@
     opacity: 0;
     transform: translateY(30px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -153,6 +157,7 @@
     opacity: 0;
     transform: translateY(40px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -165,9 +170,26 @@
 }
 
 /* delays escalonados */
-.delay-1 { animation-delay: .1s; }
-.delay-2 { animation-delay: .2s; }
-.delay-3 { animation-delay: .3s; }
-.delay-4 { animation-delay: .4s; }
-.delay-5 { animation-delay: .5s; }
-.delay-6 { animation-delay: .6s; }
+.delay-1 {
+  animation-delay: .1s;
+}
+
+.delay-2 {
+  animation-delay: .2s;
+}
+
+.delay-3 {
+  animation-delay: .3s;
+}
+
+.delay-4 {
+  animation-delay: .4s;
+}
+
+.delay-5 {
+  animation-delay: .5s;
+}
+
+.delay-6 {
+  animation-delay: .6s;
+}

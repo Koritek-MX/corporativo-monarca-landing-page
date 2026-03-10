@@ -1,4 +1,4 @@
-import { deleteContactService, getAllContactsService, getContactsPaginationService } from "../../services/contact.service";
+import { deleteContactService, getContactsPaginationService } from "../../services/contact.service";
 import { formatPhone } from "../../components/common/formatPhone";
 import { useEffect, useState } from "react";
 import Swal from "sweetalert2";

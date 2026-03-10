@@ -7,22 +7,21 @@ import {
   FaMapMarkerAlt,
 } from "react-icons/fa";
 
-import logo from "../../assets/images/monarca-gold.webp";
-
 const Footer = () => {
   const [modal, setModal] = useState<"privacy" | "terms" | null>(null);
 
   return (
     <>
       <footer className="bg-primary text-white">
-        <div className="max-w-7xl mx-auto px-6 py-20">
+        <div className="max-w-7xl mx-auto px-6 py-10">
 
           {/* Top */}
           <div className="grid grid-cols-1 md:grid-cols-4 gap-12 items-start">
 
             {/* Brand */}
             <div className="md:col-span-2">
-              <img src={logo} alt="Corporativo Monarca" className="h-30 w-auto" />
+              <img src="/monarca-gold.webp" width="240"
+                height="240" alt="Corporativo Monarca" className="h-40 w-auto" />
 
               <h3 className="text-2xl font-bold mb-4">
                 Corporativo Monarca
@@ -37,7 +36,7 @@ const Footer = () => {
 
             {/* Legal */}
             <div>
-              <h4 className="text-sm font-semibold uppercase tracking-wider mb-4 text-secondary">
+              <h4 className="text-sm font-semibold uppercase tracking-wider mb-4 mt-7 text-secondary">
                 Legal
               </h4>
 
@@ -64,7 +63,7 @@ const Footer = () => {
 
             {/* Contact */}
             <div>
-              <h4 className="text-sm font-semibold uppercase tracking-wider mb-4 text-secondary">
+              <h4 className="text-sm font-semibold uppercase tracking-wider mb-4 mt-7 text-secondary">
                 Contacto
               </h4>
 
@@ -73,6 +72,7 @@ const Footer = () => {
                   <FaPhoneAlt className="mt-1 text-secondary" />
                   <a
                     href="tel:+523522300006"
+                    aria-label="Llamar al Corporativo Monarca al 352 230 0006"
                     className="text-white hover:text-secondary transition"
                   >
                     352 230 0006
@@ -115,9 +115,12 @@ const Footer = () => {
             </p>
 
             <div className="flex items-center gap-4">
+
               <a
                 href="https://www.facebook.com/profile.php?id=100062926254911"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visitar Facebook de Corporativo Monarca"
                 className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-secondary hover:text-primary transition"
               >
                 <FaFacebookF size={14} />
@@ -126,10 +129,13 @@ const Footer = () => {
               <a
                 href="https://www.instagram.com/monarca_abogados/"
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Visitar Instagram de Corporativo Monarca"
                 className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white/80 hover:bg-secondary hover:text-primary transition"
               >
                 <FaInstagram size={14} />
               </a>
+
             </div>
           </div>
         </div>

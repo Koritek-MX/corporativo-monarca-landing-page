@@ -11,7 +11,7 @@ import {
 
 const Contact = () => {
 
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);  
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const sectionRef = useRef<HTMLDivElement | null>(null);
   const [visible, setVisible] = useState(false);
   const recaptchaRef = useRef<ReCAPTCHA>(null);
@@ -135,6 +135,7 @@ const Contact = () => {
                   <p className="font-semibold text-primary">Teléfono</p>
                   <a
                     href="tel:+523523200006"
+                    aria-label="Llamar al Corporativo Monarca al 352 230 0006"
                     className="text-gray-600 hover:text-secondary transition"
                   >
                     352 230 0006
@@ -239,12 +240,13 @@ const Contact = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-primary mb-1">
+              <label htmlFor="state" className="block text-sm font-medium text-primary mb-1">
                 Estado
               </label>
 
               <select
-                defaultValue="Michoacán"
+                id="state"
+                name="state"
                 className="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-secondary"
                 value={form.state}
                 onChange={(e) =>

@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
-import logo from "../../assets/images/monarca-gold.webp";
 
 interface Props {
   open: boolean;
@@ -131,12 +130,16 @@ const Navbar = ({ open, setOpen }: Props) => {
         <div className="pt-2 pb-2 w-full">
           <div className="w-full px-4 lg:px-8 xl:px-12">
             <div className="flex items-center justify-between h-20">
-
               {/* Logo */}
               <img
-                src={logo}
+                src="/monarca-gold.webp"
                 alt="Corporativo Monarca"
-                className="h-30 w-auto object-contain"
+                className="h-25 w-auto object-contain"
+                width="240"
+                height="240"
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
               />
 
               {/* Desktop Menu */}
@@ -171,11 +174,13 @@ const Navbar = ({ open, setOpen }: Props) => {
                   <span className="block text-xs opacity-80">
                     ¿Necesitas ayuda?
                   </span>
+
                   <a
                     href="tel:+523522300006"
+                    aria-label="Llamar al Corporativo Monarca al 352 230 0006"
                     className="flex items-center gap-2 font-bold hover:text-secondary transition"
                   >
-                    <HiOutlinePhone size={16} />
+                    <HiOutlinePhone size={16} aria-hidden="true" />
                     352 230 0006
                   </a>
                 </div>
@@ -186,15 +191,17 @@ const Navbar = ({ open, setOpen }: Props) => {
                 <button
                   className="text-white mr-3"
                   onClick={openLogin}
+                  aria-label="Abrir inicio de sesión"
                 >
-                  <FaUser size={30} />
+                  <FaUser size={30} aria-hidden="true" />
                 </button>
 
                 <button
                   className="text-white"
                   onClick={() => setOpen(true)}
+                  aria-label="Abrir menú"
                 >
-                  <HiOutlineMenu size={35} />
+                  <HiOutlineMenu size={35} aria-hidden="true" />
                 </button>
               </div>
 
@@ -224,9 +231,14 @@ const Navbar = ({ open, setOpen }: Props) => {
         >
           <div className="flex items-center justify-between px-6 h-24 border-b border-white/20">
             <img
-              src={logo}
+              src="/monarca-gold.webp"
               alt="Corporativo Monarca"
               className="h-30 w-auto"
+              width="240"
+              height="240"
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
             />
 
             <button onClick={() => setOpen(false)}>

@@ -85,7 +85,7 @@ const AboutUs = () => {
               `}
             >
               <img
-                src="https://images.unsplash.com/photo-1521791136064-7986c2920216"
+                src="/handshake.webp"
                 alt="Video institucional"
                 className="
                   rounded-2xl shadow-lg object-cover w-full h-[400px]

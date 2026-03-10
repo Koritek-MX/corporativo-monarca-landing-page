@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://corporativomonarca.com/sitemap.xml

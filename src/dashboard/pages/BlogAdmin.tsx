@@ -7,7 +7,6 @@ import {
 import Swal from "sweetalert2";
 
 import {
-  getAllBlogsByUserIdService,
   createBlogService,
   updateBlogService,
   deleteBlogService,
