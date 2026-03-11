@@ -464,7 +464,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  URL Imagen
+                  URL Imagen (Si dejas vacío el campo se generara una imagen automatica)
                 </label>
                 <input
                   placeholder="https://ejemplo.com/imagen.jpg"
