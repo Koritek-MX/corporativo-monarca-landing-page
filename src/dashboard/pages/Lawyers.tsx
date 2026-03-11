@@ -1,10 +1,7 @@
+import { formatPhone } from "../../components/common/formatPhone";
+import { useAuth } from "../../components/hooks/AuthContext";
+import Pagination from "../../components/common/Pagination";
 import { useEffect, useState } from "react";
-import {
-  HiOutlinePlus,
-  HiOutlinePencil,
-  HiOutlineTrash,
-} from "react-icons/hi";
-import Swal from "sweetalert2";
 import {
   deleteUserService,
   createUserService,
@@ -12,9 +9,12 @@ import {
   updatePasswordUserService,
   getUsersPaginationService,
 } from "../../services/user.services";
-import { formatPhone } from "../../components/common/formatPhone";
-import { useAuth } from "../../components/hooks/AuthContext";
-import Pagination from "../../components/common/Pagination";
+import Swal from "sweetalert2";
+import {
+  HiOutlinePlus,
+  HiOutlinePencil,
+  HiOutlineTrash,
+} from "react-icons/hi";
 
 const ROLE_STYLES: Record<string, { bg: string; text: string }> = {
   ADMIN: {
@@ -87,18 +87,30 @@ const Lawyers = () => {
     }
   };
 
+
+
   /* 👉 Crear abogado */
   const createLawyer = async () => {
     if (form.password !== form.confirmPassword) {
       return Swal.fire("Error", "Las contraseñas no coinciden", "warning");
     }
 
+    const getAvatarUrl = (name: string) => {
+      const cleanName = name
+        .replace(/^(lic\.?|dr\.?|dra\.?|ing\.?|mtro\.?|mtra\.?)/i, "")
+        .trim();
+
+      return `https://ui-avatars.com/api/?name=${encodeURIComponent(cleanName)}&background=1A3263&color=fff&size=256`;
+    };
+    const avatarUrl =
+      form.avatar?.trim() || getAvatarUrl(form.name);
+
     await createUserService({
       name: form.name,
       email: form.email,
       phone: form.phone,
       specialty: form.specialty,
-      avatar: form.avatar,
+      avatar: avatarUrl,
       isVisible: form.isVisible,
       password: form.password,
       role: form.role
@@ -215,7 +227,7 @@ const Lawyers = () => {
       specialty: user.specialty || "",
       avatar: user.avatar || "",
       role: user.role || "",
-      isVisible: user.isVisible || null,
+      isVisible: user.isVisible,
       password: "",
       confirmPassword: "",
     });
@@ -257,7 +269,6 @@ const Lawyers = () => {
     form.phone?.trim() &&
     form.specialty.trim() &&
     form.role &&
-    form.avatar.trim() &&
     passwordsMatch;
 
 
@@ -453,7 +464,7 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  URL Imagen *
+                  URL Imagen
                 </label>
                 <input
                   placeholder="https://ejemplo.com/imagen.jpg"
@@ -477,6 +488,7 @@ const Lawyers = () => {
                     setForm({ ...form, role: e.target.value })
                   }
                 >
+                  <option value="">Selecciona un rol</option>
                   <option value="ABOGADO">Abogado</option>
                   <option value="ADMIN">Admin</option>
                 </select>
