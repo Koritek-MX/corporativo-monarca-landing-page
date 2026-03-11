@@ -27,6 +27,15 @@ const CATEGORY_COLORS: Record<string, string> = {
   revision: "#FF6500",
 };
 
+const emptyForm = {
+  title: "",
+  category: "audiencia",
+  start: "",
+  end: "",
+  guests: [] as { value: string; label: string }[],
+  caseId: "",
+};
+
 const Calendar = () => {
 
   const { user } = useAuth();
@@ -38,14 +47,7 @@ const Calendar = () => {
   const [activeEvent, setActiveEvent] = useState<EventApi | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
-  const [form, setForm] = useState({
-    title: "",
-    category: "audiencia",
-    start: "",
-    end: "",
-    guests: [] as { value: string; label: string }[],
-    caseId: "",
-  });
+  const [form, setForm] = useState(emptyForm);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -564,7 +566,7 @@ const Calendar = () => {
               {/* Invitados */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
-                  Invitados
+                  Abogados invitados
                 </label>
                 <Select
                   isMulti

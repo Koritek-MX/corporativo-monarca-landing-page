@@ -3,11 +3,19 @@ import api from "./api";
 export const getCasesPaginationService = async (
   page: number,
   limit: number,
-  archived: boolean
+  archived?: boolean
 ) => {
-  const { data } = await api.get(
-    `/cases?page=${page}&limit=${limit}&archived=${archived}`
-  );
+
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (archived !== undefined) {
+    params.append("archived", String(archived));
+  }
+
+  const { data } = await api.get(`/cases?${params.toString()}`);
 
   return data;
 };

@@ -335,6 +335,18 @@ const Billing = () => {
     pdf.save(fileName);
   };
 
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat("es-MX", {
+      style: "currency",
+      currency: "MXN",
+      minimumFractionDigits: 2,
+    }).format(value || 0);
+  };
+
+  const parseCurrency = (value: string) => {
+    return Number(value.replace(/[^\d.]/g, ""));
+  };
+
   return (
     <div className="flex flex-col gap-6">
 
@@ -512,7 +524,7 @@ const Billing = () => {
       {/* MODAL – Nuevo Cobro */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
+          <div className="bg-white rounded-2xl w-full max-w-xl shadow-xl flex flex-col max-h-[90vh]">
 
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
@@ -609,8 +621,15 @@ const Billing = () => {
                     Monto total (MXN) *
                   </label>
                   <input
-
+                    type="number"
+                    min="0"
+                    step="0.01"
                     value={form.totalAmount}
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     onChange={(e) =>
                       setForm({ ...form, totalAmount: e.target.value })
                     }
@@ -624,6 +643,13 @@ const Billing = () => {
                   </label>
                   <input
                     type="number"
+                    min="0"
+                    step="0.01"
+                    onKeyDown={(e) => {
+                      if (["e", "E", "+", "-"].includes(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
                     value={form.initialPaid}
                     onChange={(e) =>
                       setForm({ ...form, initialPaid: e.target.value })

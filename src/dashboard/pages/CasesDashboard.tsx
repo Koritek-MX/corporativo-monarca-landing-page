@@ -1,6 +1,7 @@
 import { HiOutlinePlus, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi";
 import { getClientsService } from "../../services/client.service";
 import { getUsersService } from "../../services/user.services";
+import Pagination from "../../components/common/Pagination";
 import { MdKeyboardArrowDown } from "react-icons/md";
 import { VscFolderActive } from "react-icons/vsc";
 import { useNavigate } from "react-router-dom";
@@ -13,8 +14,9 @@ import {
   getCasesPaginationService,
   updateCaseService
 } from "../../services/case.services";
+import Select from "react-select";
 import Swal from "sweetalert2";
-import Pagination from "../../components/common/Pagination";
+import { useAuth } from "../../components/hooks/AuthContext";
 
 const STATUS_STYLES: Record<
   string,
@@ -66,12 +68,14 @@ const emptyForm = {
   status: "POR_INICIAR",
   clientId: "",
   lawyerId: "",
-  authority: ""
+  authority: "",
+  guests: [] as { value: string; label: string }[],
 }
 
 
 const CasesDashboard = () => {
 
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [statusModalOpen, setStatusModalOpen] = useState(false);
   const [selectedCase, setSelectedCase] = useState<any>(null);
@@ -91,9 +95,10 @@ const CasesDashboard = () => {
   }, [page, showArchived]);
 
   useEffect(() => {
+    if (!user?.id) return;
     loadClients();
     loadUsers();
-  }, []);
+  }, [user]);
 
   const loadCases = async () => {
     try {
@@ -120,29 +125,20 @@ const CasesDashboard = () => {
 
   const loadClients = async () => {
     try {
-      const [data] = await Promise.all([
-        getClientsService(),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getClientsService();
       setClients(data);
     } catch (error) {
-      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
-    } finally {
-      Swal.close();
+      console.error("Error", "No se pudieron cargar los clientes", "error")
     }
+
   };
 
   const loadUsers = async () => {
     try {
-      const [data] = await Promise.all([
-        getUsersService(),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getUsersService();
       setUsers(data);
     } catch (error) {
-      Swal.fire("Error", "No se pudieron cargar los usuarios", "error");
-    } finally {
-      Swal.close();
+      console.error("Error", "No se pudieron cargar los usuarios", "error");
     }
   };
 
@@ -151,6 +147,7 @@ const CasesDashboard = () => {
   };
 
   const createCase = async () => {
+
     await createCaseService({
       ...form,
       clientId: Number(form.clientId),
@@ -213,6 +210,7 @@ const CasesDashboard = () => {
       clientId: caseItem.clientId || "",
       lawyerId: caseItem.lawyerId || "",
       authority: caseItem.authority || "",
+      guests: caseItem.guests || []
     });
 
     setIsModalOpen(true);
@@ -283,6 +281,13 @@ const CasesDashboard = () => {
     setStatusModalOpen(true);
   };
 
+  const guestOptions = users
+    .filter((u: any) => String(u.id) !== String(form.lawyerId))
+    .map((u: any) => ({
+      value: u.id,
+      label: u.name,
+    }));
+
   const isFormValid =
     form.folio?.trim() &&
     form.area &&
@@ -327,7 +332,11 @@ const CasesDashboard = () => {
           </button>
 
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditingCase(null);
+              setForm(emptyForm);
+              setIsModalOpen(true);
+            }}
             className="flex items-center gap-2 bg-primary text-white px-5 py-3 rounded-xl font-semibold hover:bg-primary/90 transition"
           >
             <HiOutlinePlus />
@@ -364,7 +373,8 @@ const CasesDashboard = () => {
                   <th className="px-6 py-4 text-left">Asunto</th>
                   <th className="px-6 py-4 text-left">Cliente</th>
                   <th className="px-6 py-4 text-left">Area</th>
-                  <th className="px-6 py-4 text-left">Abogado</th>
+                  <th className="px-6 py-4 text-left">Abogado responsable</th>
+                  <th className="px-6 py-4 text-left">Abogado(s) invitado(s)</th>
                   <th className="px-6 py-4 text-left">Estado</th>
                   <th className="px-6 py-4 text-center">Expedientes</th>
                   <th className="px-6 py-4 text-right">Acciones</th>
@@ -403,6 +413,23 @@ const CasesDashboard = () => {
 
                     <td className="px-6 py-4 text-gray-600">
                       {a.lawyer.name}
+                    </td>
+
+                    <td className="px-6 py-4">
+                      {a.guests?.length ? (
+                        <div className="flex flex-wrap gap-2">
+                          {a.guests.map((g: any) => (
+                            <span
+                              key={g.value}
+                              className="px-2 py-1 text-xs bg-primary/10 text-primary rounded"
+                            >
+                              {g.label}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400">Sin invitados</span>
+                      )}
                     </td>
 
                     <td
@@ -468,7 +495,7 @@ const CasesDashboard = () => {
 
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
-                Nuevo asunto
+                {editingCase ? "Editar asunto" : "Nuevo asunto"}
               </h2>
             </div>
 
@@ -525,6 +552,26 @@ const CasesDashboard = () => {
 
               <div>
                 <label className="block text-sm font-medium mb-1">
+                  Cliente *
+                </label>
+                <select
+                  value={form.clientId}
+                  onChange={(e) =>
+                    setForm({ ...form, clientId: e.target.value })
+                  }
+                  className="w-full border rounded-lg px-4 py-3"
+                >
+                  <option value="">Selecciona cliente</option>
+                  {clients.map(c => (
+                    <option key={c.id} value={c.id}>
+                      {c.name} {c.lastName}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1">
                   Título *
                 </label>
                 <input
@@ -552,25 +599,7 @@ const CasesDashboard = () => {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">
-                  Cliente *
-                </label>
-                <select
-                  value={form.clientId}
-                  onChange={(e) =>
-                    setForm({ ...form, clientId: e.target.value })
-                  }
-                  className="w-full border rounded-lg px-4 py-3"
-                >
-                  <option value="">Selecciona cliente</option>
-                  {clients.map(c => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} {c.lastName}
-                    </option>
-                  ))}
-                </select>
-              </div>
+
 
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -578,19 +607,47 @@ const CasesDashboard = () => {
                 </label>
                 <select
                   value={form.lawyerId}
-                  onChange={(e) =>
-                    setForm({ ...form, lawyerId: e.target.value })
-                  }
+                  onChange={(e) => {
+                    const lawyerId = e.target.value;
+
+                    setForm({
+                      ...form,
+                      lawyerId,
+                      guests: form.guests?.filter(
+                        (g: any) => String(g.value) !== String(lawyerId)
+                      ),
+                    });
+                  }}
                   className="w-full border rounded-lg px-4 py-3"
                 >
                   <option value="">Selecciona abogado</option>
-                  {users.map(u => (
+
+                  {users.map((u: any) => (
                     <option key={u.id} value={u.id}>
                       {u.name}
                     </option>
                   ))}
                 </select>
               </div>
+
+
+              {/* Invitados */}
+              <div>
+                <label className="text-sm font-semibold text-gray-700">
+                  Abogados invitados
+                </label>
+                <Select
+                  isMulti
+                  options={guestOptions}
+                  value={form.guests}
+                  onChange={(g) =>
+                    setForm({ ...form, guests: g as any })
+                  }
+                  placeholder="Selecciona invitados"
+                />
+              </div>
+
+
               <label className="text-sm font-semibold text-gray-700">
                 (*) Los campos son obligatorios.
               </label>
@@ -616,7 +673,7 @@ const CasesDashboard = () => {
                   }
                 `}
               >
-                Crear asunto
+                {editingCase ? "Guardar cambios" : "Crear asunto"}
               </button>
             </div>
 
