@@ -464,8 +464,9 @@ const Lawyers = () => {
 
               <div>
                 <label className="block text-sm mb-1 font-medium">
-                  URL Imagen (Si dejas vacío el campo se generara una imagen automatica)
+                  URL Imagen
                 </label>
+
                 <input
                   placeholder="https://ejemplo.com/imagen.jpg"
                   value={form.avatar}
@@ -474,6 +475,11 @@ const Lawyers = () => {
                   }
                   className="w-full border rounded-lg px-4 py-3"
                 />
+                {!editingUser && (
+                  <label className="block text-xs mt-2 font-medium text-blue-600">
+                    * Si dejas vacío el campo se generara una imagen automatica
+                  </label>
+                )}
               </div>
 
               <div>
