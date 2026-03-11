@@ -670,8 +670,8 @@ const DashboardHome = () => {
       )}
 
       {openClientModal && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
 
             {/* Header */}
             <div className="px-6 py-4 border-b">
@@ -681,7 +681,7 @@ const DashboardHome = () => {
             </div>
 
             {/* Body */}
-            <div className="px-6 py-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            <div className="px-6 py-6 space-y-6 overflow-y-auto">
 
               {/* Información general */}
               <section>
@@ -889,15 +889,15 @@ const DashboardHome = () => {
       )}
 
       {openEventModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
                 Crear evento
               </h2>
             </div>
-            <div className="px-6 py-6 space-y-5">
+            <div className="px-6 py-6 space-y-5 overflow-y-auto">
               {/* Título */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
@@ -1033,15 +1033,15 @@ const DashboardHome = () => {
       )}
 
       {openCaseModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
                 Nuevo asunto
               </h2>
             </div>
 
-            <div className="px-6 py-6 space-y-4">
+            <div className="px-6 py-6 space-y-5 overflow-y-auto">
 
               <div>
                 <label className="block text-sm font-medium mb-1">
@@ -1193,17 +1193,15 @@ const DashboardHome = () => {
       )}
 
       {openPaymentModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-xl shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
 
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
                 Registar cobro
               </h2>
             </div>
-
-            <div className="px-6 py-6 space-y-4">
-
+            <div className="px-6 py-6 space-y-5 overflow-y-auto">
               {/* Cliente */}
               <div>
                 <label className="block text-sm font-medium mb-1">Cliente</label>

@@ -276,8 +276,8 @@ const CaseFiles = () => {
 
       {/* MODAL CREAR */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-lg shadow-xl">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
 
             <div className="px-6 py-4 border-b">
               <h2 className="text-lg font-bold text-primary">
@@ -285,7 +285,7 @@ const CaseFiles = () => {
               </h2>
             </div>
 
-            <div className="px-6 py-6 space-y-4">
+            <div className="px-6 py-6 space-y-6 overflow-y-auto">
 
               <div>
                 <label className="block text-sm mb-1 font-medium">

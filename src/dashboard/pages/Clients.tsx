@@ -318,8 +318,8 @@ const Clients = () => {
 
       {/* MODAL */}
       {open && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl overflow-hidden">
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white w-full max-w-3xl rounded-2xl shadow-xl flex flex-col max-h-[90vh]">
 
             {/* Header modal */}
             <div className="px-6 py-4 border-b">
@@ -329,7 +329,7 @@ const Clients = () => {
             </div>
 
             {/* Body */}
-            <div className="px-6 py-6 space-y-6 max-h-[75vh] overflow-y-auto">
+            <div className="px-6 py-6 space-y-6 overflow-y-auto">
 
               {/* Información general */}
               <section>

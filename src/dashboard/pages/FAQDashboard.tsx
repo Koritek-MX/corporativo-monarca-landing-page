@@ -291,24 +291,17 @@ const FAQDashboard = () => {
 
             {isModalOpen && (
 
-                <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-
-                    <div className="bg-white rounded-2xl w-full max-w-xl shadow-xl">
-
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+                    <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
                         <div className="px-6 py-4 border-b">
-
                             <h2 className="text-lg font-bold text-primary">
                                 {editingFaq ? "Editar pregunta" : "Nueva pregunta"}
                             </h2>
-
                         </div>
-
-                        <div className="px-6 py-6 space-y-4">
-
+                        <div className="px-6 py-6 space-y-5 overflow-y-auto">
                             <label className="block text-sm font-medium">
                                 Pregunta *
                             </label>
-
                             <input
                                 value={form.question}
                                 onChange={(e) =>
@@ -329,11 +322,9 @@ const FAQDashboard = () => {
                                 }
                                 className="w-full border rounded-lg px-4 py-3"
                             />
-
                             <label className="block text-sm font-medium">
                                 Orden
                             </label>
-
                             <input
                                 type="number"
                                 value={form.order}
@@ -342,15 +333,12 @@ const FAQDashboard = () => {
                                 }
                                 className="w-full border rounded-lg px-4 py-3"
                             />
-
                             <label className="text-sm font-semibold text-gray-700">
                                 (*) Los campos son obligatorios.
                             </label>
-
                         </div>
 
                         <div className="flex justify-end gap-3 px-6 py-4 border-t">
-
                             <button
                                 onClick={() => setIsModalOpen(false)}
                                 className="px-4 py-2 text-gray-600"
@@ -362,22 +350,18 @@ const FAQDashboard = () => {
                                 onClick={handleSaveFaq}
                                 disabled={!isFormValid}
                                 className={`
-                  px-6 py-2 rounded-lg font-semibold transition
-                  ${isFormValid
+                                    px-6 py-2 rounded-lg font-semibold transition
+                                    ${isFormValid
                                         ? "bg-primary text-white hover:bg-primary/90"
                                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
                                     }
-                `}
+                                    `}
                             >
                                 {editingFaq ? "Editar pregunta" : "Crear pregunta"}
                             </button>
-
                         </div>
-
                     </div>
-
                 </div>
-
             )}
 
         </div>

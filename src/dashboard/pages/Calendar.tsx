@@ -442,9 +442,8 @@ const Calendar = () => {
 
       {/* MODAL */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
             <div className="px-6 py-4 border-b flex justify-between items-center">
               <h2 className="text-lg font-bold text-primary">
                 {mode === "create" ? "Crear evento" : "Editar evento"}
@@ -459,8 +458,7 @@ const Calendar = () => {
               )}
             </div>
 
-            <div className="px-6 py-6 space-y-5">
-
+            <div className="px-6 py-6 space-y-5 overflow-y-auto">
               {/* Título */}
               <div>
                 <label className="text-sm font-semibold text-gray-700">
@@ -611,15 +609,13 @@ const Calendar = () => {
         </div>
       )}
       {detailOpen && selectedEvent && (
-        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center">
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl">
-
+        <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-xl flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="px-6 py-4 border-b flex justify-between">
               <h2 className="text-lg font-bold text-primary">
                 Detalle del evento
               </h2>
-
               <button
                 onClick={() => setDetailOpen(false)}
                 className="text-gray-500"
@@ -627,10 +623,8 @@ const Calendar = () => {
                 ✕
               </button>
             </div>
-
             {/* Body */}
-            <div className="px-6 py-6 space-y-4 text-sm">
-
+            <div className="px-6 py-6 space-y-4 text-sm overflow-y-auto">
               <p>
                 <strong>Título:</strong>{" "}
                 {selectedEvent.title.replace(/^\d{1,2}:\d{2}\s(AM|PM)\s-\s/, "")}
