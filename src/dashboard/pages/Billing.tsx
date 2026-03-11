@@ -335,18 +335,6 @@ const Billing = () => {
     pdf.save(fileName);
   };
 
-  const formatCurrency = (value: number) => {
-    return new Intl.NumberFormat("es-MX", {
-      style: "currency",
-      currency: "MXN",
-      minimumFractionDigits: 2,
-    }).format(value || 0);
-  };
-
-  const parseCurrency = (value: string) => {
-    return Number(value.replace(/[^\d.]/g, ""));
-  };
-
   return (
     <div className="flex flex-col gap-6">
 
