@@ -524,7 +524,7 @@ const Calendar = () => {
                       <option value="">Selecciona un asunto</option>
                       {cases.map((c) => (
                         <option key={c.id} value={c.id}>
-                          {c.title} - {c.client.name} {c.client.lastName}
+                          {c.folio} - {c.title}
                         </option>
                       ))}
                     </>
