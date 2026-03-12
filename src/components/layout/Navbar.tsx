@@ -1,7 +1,12 @@
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { HiOutlineMenu, HiOutlineX, HiOutlinePhone } from "react-icons/hi";
 import { FaUser } from "react-icons/fa";
+import {
+  HiOutlineMenu,
+  HiOutlineX,
+  HiOutlinePhone
+} from "react-icons/hi";
+
 
 interface Props {
   open: boolean;
@@ -19,8 +24,9 @@ const sections = [
 ];
 
 const Navbar = ({ open, setOpen }: Props) => {
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
+  const location = useLocation();
   const [show, setShow] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
   const [activeSection, setActiveSection] = useState("inicio");
@@ -55,15 +61,8 @@ const Navbar = ({ open, setOpen }: Props) => {
   /* 👉 Login */
   const openLogin = () => {
     setShow(true);
-    setIsNavigating(true);
-
     setOpen(false);
     navigate("/login");
-
-    setTimeout(() => {
-      setIsNavigating(false);
-      setLastScrollY(window.scrollY);
-    }, 300);
   };
 
   /* 👉 Show / Hide navbar */
@@ -96,6 +95,9 @@ const Navbar = ({ open, setOpen }: Props) => {
 
   /* 👉 Scroll spy */
   useEffect(() => {
+
+    if (location.pathname !== "/") return;
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -115,7 +117,18 @@ const Navbar = ({ open, setOpen }: Props) => {
     });
 
     return () => observer.disconnect();
-  }, []);
+
+  }, [location.pathname]);
+
+  const handleLogoClick = () => {
+
+    if (window.location.pathname === "/") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      navigate("/");
+    }
+
+  };
 
   return (
     <>
@@ -131,16 +144,19 @@ const Navbar = ({ open, setOpen }: Props) => {
           <div className="w-full px-4 lg:px-8 xl:px-12">
             <div className="flex items-center justify-between h-20">
               {/* Logo */}
-              <img
-                src="/monarca-gold.webp"
-                alt="Corporativo Monarca"
-                className="h-25 w-auto object-contain"
-                width="240"
-                height="240"
-                fetchPriority="high"
-                loading="eager"
-                decoding="async"
-              />
+              <Link to="/">
+                <img
+                  src="/monarca-gold.webp"
+                  alt="Corporativo Monarca"
+                  className="h-25 w-auto object-contain"
+                  width="240"
+                  height="240"
+                  fetchPriority="high"
+                  loading="eager"
+                  decoding="async"
+                  onClick={handleLogoClick}
+                />
+              </Link>
 
               {/* Desktop Menu */}
               <nav className="hidden md:flex gap-10 font-semibold">
@@ -230,17 +246,19 @@ const Navbar = ({ open, setOpen }: Props) => {
           `}
         >
           <div className="flex items-center justify-between px-6 h-24 border-b border-white/20">
-            <img
-              src="/monarca-gold.webp"
-              alt="Corporativo Monarca"
-              className="h-30 w-auto"
-              width="240"
-              height="240"
-              fetchPriority="high"
-              loading="eager"
-              decoding="async"
-            />
-
+            <Link to="/">
+              <img
+                src="/monarca-gold.webp"
+                alt="Corporativo Monarca"
+                className="h-30 w-auto"
+                width="240"
+                height="240"
+                fetchPriority="high"
+                loading="eager"
+                decoding="async"
+                onClick={handleLogoClick}
+              />
+            </Link>
             <button onClick={() => setOpen(false)}>
               <HiOutlineX className="text-white" size={32} />
             </button>
