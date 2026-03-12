@@ -204,6 +204,7 @@ const Calendar = () => {
 
   /* ➕ Crear evento */
   const handleCreateEvent = async () => {
+
     if (!form.title || !form.start) return;
 
     if (new Date(form.end) < new Date(form.start)) {
@@ -216,15 +217,12 @@ const Calendar = () => {
     }
 
     try {
-      // 🔄 Loading
+
       Swal.fire({
         title: "Creando evento...",
-        text: "Por favor espera",
         allowOutsideClick: false,
         allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        },
+        didOpen: () => Swal.showLoading(),
       });
 
       await createEventService({
@@ -233,39 +231,46 @@ const Calendar = () => {
         end: form.end,
         category: form.category,
         caseId: form.caseId ? Number(form.caseId) : null,
-        userId: user.id,
         guests: form.guests.map(g => ({
           id: g.value,
           name: g.label,
         })),
       });
 
-      Swal.fire({
+      Swal.close();
+
+      await Swal.fire({
         icon: "success",
         title: "Evento creado",
-        timer: 1500,
+        timer: 1200,
         showConfirmButton: false,
       });
 
-      await loadEvents();
       setIsModalOpen(false);
 
+      loadEvents();
+
     } catch (error) {
-      Swal.close(); // 🔴 cerrar loading si falla
+
+      Swal.close();
 
       Swal.fire({
         icon: "error",
         title: "Error",
         text: "No se pudo crear el evento",
       });
+
     }
+
   };
 
   /* ✏️ Editar evento */
   const handleUpdateEvent = async () => {
+
     if (!activeEvent) return;
 
     try {
+
       if (new Date(form.end) < new Date(form.start)) {
         Swal.fire({
           icon: "warning",
@@ -287,25 +292,34 @@ const Calendar = () => {
         }))
       });
 
-      // 🔥 Refrescar calendario desde backend
-      await loadEvents();
-
       setIsModalOpen(false);
 
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: "Evento actualizado",
-        timer: 1500,
+        timer: 1200,
         showConfirmButton: false,
       });
 
+      loadEvents();
+
     } catch (error) {
-      Swal.fire("Error", "No se pudo actualizar", "error");
+
+      console.error(error);
+
+      Swal.fire({
+        icon: "error",
+        title: "Error",
+        text: "No se pudo actualizar el evento",
+      });
+
     }
+
   };
 
   /* 🗑️ Eliminar evento */
   const handleDeleteEvent = () => {
+
     if (!activeEvent) return;
 
     Swal.fire({
@@ -316,26 +330,38 @@ const Calendar = () => {
       confirmButtonText: "Eliminar",
       cancelButtonText: "Cancelar",
     }).then(async (result) => {
-      if (result.isConfirmed) {
-        try {
-          await deleteEventService(Number(activeEvent.id));
 
-          await loadEvents();
+      if (!result.isConfirmed) return;
 
-          setIsModalOpen(false);
+      try {
 
-          Swal.fire({
-            icon: "success",
-            title: "Evento eliminado",
-            timer: 1500,
-            showConfirmButton: false,
-          });
+        await deleteEventService(Number(activeEvent.id));
 
-        } catch (error) {
-          Swal.fire("Error", "No se pudo eliminar", "error");
-        }
+        setIsModalOpen(false);
+
+        await Swal.fire({
+          icon: "success",
+          title: "Evento eliminado",
+          timer: 1200,
+          showConfirmButton: false,
+        });
+
+        loadEvents();
+
+      } catch (error) {
+
+        console.error(error);
+
+        Swal.fire({
+          icon: "error",
+          title: "Error",
+          text: "No se pudo eliminar el evento",
+        });
+
       }
+
     });
+
   };
 
   const getNowPlusOneHour = () => {
@@ -682,15 +708,8 @@ const Calendar = () => {
                 Cerrar
               </button>
               <button
-                disabled={selectedEvent?.extendedProps.userId !== user?.id}
                 onClick={openEditFromDetail}
-                className={`
-                px-6 py-2 rounded-lg text-white transition
-                ${selectedEvent?.extendedProps.userId === user?.id
-                    ? "bg-primary hover:bg-primary/90"
-                    : "bg-gray-300 cursor-not-allowed"
-                  }
-              `}
+                className={`px-6 py-2 rounded-lg text-white transition bg-primary hover:bg-primary/90`}
               >
                 Editar
               </button>
