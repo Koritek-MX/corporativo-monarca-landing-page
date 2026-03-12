@@ -418,12 +418,12 @@ const CasesDashboard = () => {
                     <td className="px-6 py-4">
                       {a.guests?.length ? (
                         <div className="flex flex-wrap gap-2">
-                          {a.guests.map((g: any) => (
+                          {a.guests.map((g: any, i: number) => (
                             <span
-                              key={g.value}
+                              key={i}
                               className="px-2 py-1 text-xs bg-primary/10 text-primary rounded"
                             >
-                              {g.label}
+                              {g.name ?? g.label}
                             </span>
                           ))}
                         </div>
