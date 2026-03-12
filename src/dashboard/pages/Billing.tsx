@@ -798,9 +798,6 @@ const Billing = () => {
                       Corporativo Monarca - Consultoria jurídica y empresarial
                     </p>
                     <p style={{ fontSize: "12px", margin: 0 }}>
-                      RFC: MON123456ABC
-                    </p>
-                    <p style={{ fontSize: "12px", margin: 0 }}>
                       Juan Escutia #10 Int. 3, Col. Centro, CP. 59300
                     </p>
 
@@ -812,7 +809,7 @@ const Billing = () => {
                       monarcacorporativo@outlook.com
                     </p>
                     <p style={{ fontSize: "12px", margin: 0 }}>
-                      Tel: 352-501-5754
+                      Tel: 352-230-0006
                     </p>
                   </div>
 
