@@ -178,7 +178,7 @@ const Stats = () => {
         {/* Casos */}
         <div className="bg-white rounded-2xl p-6 shadow-sm border">
           <h3 className="font-semibold text-primary mb-4">
-            Asuntos por estatus
+            Asuntos por estado
           </h3>
 
           <div className="relative">

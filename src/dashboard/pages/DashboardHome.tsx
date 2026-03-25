@@ -218,7 +218,7 @@ const DashboardHome = () => {
       color: "bg-blue-50 text-blue-600",
     },
     {
-      label: "Asuntos avtivos",
+      label: "Asuntos activos",
       value: dashboardStats?.activeCases || 0,
       icon: HiOutlineBriefcase,
       color: "bg-purple-50 text-purple-600",

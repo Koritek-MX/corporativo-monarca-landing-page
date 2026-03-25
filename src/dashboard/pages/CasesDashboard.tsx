@@ -148,6 +148,12 @@ const CasesDashboard = () => {
 
   const createCase = async () => {
 
+    console.log("Payload", {
+      ...form,
+      clientId: Number(form.clientId),
+      lawyerId: Number(form.lawyerId),
+    });
+
     await createCaseService({
       ...form,
       clientId: Number(form.clientId),
@@ -370,7 +376,7 @@ const CasesDashboard = () => {
                 <tr>
                   <th className="px-6 py-4 text-left">No. expediente</th>
                   <th className="px-6 py-4 text-left">Autoridad</th>
-                  <th className="px-6 py-4 text-left">Asunto</th>
+                  <th className="px-6 py-4 text-left">Descripción</th>
                   <th className="px-6 py-4 text-left">Cliente</th>
                   <th className="px-6 py-4 text-left">Area</th>
                   <th className="px-6 py-4 text-left">Abogado responsable</th>
@@ -460,20 +466,36 @@ const CasesDashboard = () => {
 
                     <td className="px-6 py-4 text-right">
                       <div className="inline-flex gap-2">
+
                         <button
-                          className="text-primary hover:text-secondary"
+                          disabled={a.lawyerId !== user?.id}
                           onClick={() => openEditCase(a)}
+                          className={`
+                            ${a.lawyerId === user?.id
+                              ? "text-primary hover:text-secondary"
+                              : "text-gray-300 cursor-not-allowed"
+                            }
+                          `}
                         >
                           <HiOutlinePencil size={22} />
                         </button>
+
                         <button
-                          className="text-red-500 hover:text-red-600"
+                          disabled={a.lawyerId !== user?.id}
                           onClick={() => deleteCase(a.id)}
+                          className={`
+                            ${a.lawyerId === user?.id
+                              ? "text-red-500 hover:text-red-600"
+                              : "text-gray-300 cursor-not-allowed"
+                            }
+                          `}
                         >
                           <HiOutlineTrash size={22} />
                         </button>
+
                       </div>
                     </td>
+
                   </tr>
                 ))}
               </tbody>
