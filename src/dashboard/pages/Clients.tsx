@@ -248,7 +248,7 @@ const Clients = () => {
                 <tr>
                   <th className="px-6 py-4 text-left">Cliente</th>
                   <th className="px-6 py-4 text-left">Régimen fiscal</th>
-                  <th className="px-6 py-4 text-left">Correo</th>
+                  <th className="px-6 py-4 text-left">Correo electronico</th>
                   <th className="px-6 py-4 text-left">Teléfono</th>
                   <th className="px-6 py-4 text-left">RFC</th>
                   <th className="px-6 py-4 text-right">Acciones</th>
@@ -282,11 +282,15 @@ const Clients = () => {
                         {c.type === "FISICA" ? "Física" : "Moral"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">{c.email}</td>
+                    <td className="px-6 py-4">
+                      {c.email ? c.email : <span className="text-gray-400 italic">Sin correo electronico</span>}
+                      </td>
                     <td className="px-6 py-4 text-gray-600">
                       {formatPhone(c.phone)}
                     </td>
-                    <td className="px-6 py-4">{c.rfc}</td>
+                    <td className="px-6 py-4">
+                      {c.rfc ? c.rfc : <span className="text-gray-400 italic">Sin RFC</span>}
+                      </td>
                     <td className="px-6 py-4 text-right space-x-3">
                       <button
                         onClick={() => openEdit(c)}

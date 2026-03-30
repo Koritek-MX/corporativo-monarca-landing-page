@@ -375,10 +375,10 @@ const CasesDashboard = () => {
               <thead className="bg-primary text-white uppercase text-xs tracking-wider">
                 <tr>
                   <th className="px-6 py-4 text-left">No. expediente</th>
+                  <th className="px-6 py-4 text-left">Area</th>
                   <th className="px-6 py-4 text-left">Autoridad</th>
                   <th className="px-6 py-4 text-left">Descripción</th>
                   <th className="px-6 py-4 text-left">Cliente</th>
-                  <th className="px-6 py-4 text-left">Area</th>
                   <th className="px-6 py-4 text-left">Abogado responsable</th>
                   <th className="px-6 py-4 text-left">Abogado(s) invitado(s)</th>
                   <th className="px-6 py-4 text-left">Estado</th>
@@ -401,8 +401,12 @@ const CasesDashboard = () => {
                       {a.folio}
                     </td>
 
+                    <td className="px-6 py-4 text-gray-600">
+                      {a.area}
+                    </td>
+
                     <td className="px-6 py-4 text-gray-700">
-                      {a.authority}
+                      {a.authority ? a.authority : <span className="text-gray-400 italic">Sin autoridad</span>}
                     </td>
 
                     <td className="px-6 py-4 text-gray-700">
@@ -411,10 +415,6 @@ const CasesDashboard = () => {
 
                     <td className="px-6 py-4 text-gray-600">
                       {a.client.name + " " + a.client.lastName}
-                    </td>
-
-                    <td className="px-6 py-4 text-gray-600">
-                      {a.area}
                     </td>
 
                     <td className="px-6 py-4 text-gray-600">
@@ -434,7 +434,7 @@ const CasesDashboard = () => {
                           ))}
                         </div>
                       ) : (
-                        <span className="text-gray-400">Sin invitados</span>
+                        <span className="text-gray-400 italic">Sin invitados</span>
                       )}
                     </td>
 
