@@ -56,6 +56,18 @@ const Calendar = () => {
     loadCases();
   }, [user]);
 
+  const parseLocalDate = (date: any): Date => {
+    if (!date) return new Date(); // fallback
+
+    if (date instanceof Date) return date;
+
+    if (typeof date === "string") {
+      return new Date(date.replace("Z", ""));
+    }
+
+    return new Date(date);
+  };
+
   const loadEvents = async () => {
     try {
       Swal.fire({
@@ -68,11 +80,22 @@ const Calendar = () => {
         getEventsByUserService(user.id),
         new Promise((resolve) => setTimeout(resolve, 700)),
       ]);
-      const formatted = data.map((e: any) => ({
+
+      /* 🔥 HOY EN LOCAL (IMPORTANTE) */
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      /* 🔥 FILTRO CORRECTO */
+      const filtered = data.filter((e: any) => {
+        const eventDate = parseLocalDate(e.start);
+        return eventDate >= today;
+      });
+
+      const formatted = filtered.map((e: any) => ({
         id: e.id,
         title: e.title,
-        start: e.start,
-        end: e.end,
+        start: parseLocalDate(e.start),
+        end: e.end ? parseLocalDate(e.end) : null,
         extendedProps: {
           userId: e.userId,
           category: e.category,
@@ -86,12 +109,11 @@ const Calendar = () => {
       setEvents(formatted);
 
     } catch (error) {
-      Swal.fire("Error", "No se pudieron cargar los clientes", "error");
+      Swal.fire("Error", "No se pudieron cargar los eventos", "error");
     } finally {
       Swal.close();
     }
   };
-
   const loadUsers = async () => {
     try {
       const data = await getUsersService();
@@ -149,14 +171,40 @@ const Calendar = () => {
 
   /* 🟢 Click en día */
   const handleDateClick = (info: any) => {
+    const now = new Date();
+
+    // 👉 parsear manualmente para evitar UTC
+    const [year, month, day] = info.dateStr.split("-").map(Number);
+
+    const selectedDate = new Date(
+      year,
+      month - 1, // 👈 importante (0-index)
+      day,
+      now.getHours(),
+      now.getMinutes(),
+      0,
+      0
+    );
+
+    const endDate = new Date(selectedDate.getTime() + 60 * 60 * 1000);
+
+    const formatLocal = (date: Date) => {
+      const pad = (n: number) => String(n).padStart(2, "0");
+
+      return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(
+        date.getDate()
+      )}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+    };
+
     setForm({
       title: "",
       category: "audiencia",
-      start: info.dateStr + "T09:00",
-      end: info.dateStr + "T10:00",
+      start: formatLocal(selectedDate),
+      end: formatLocal(endDate),
       guests: [],
       caseId: "",
     });
+
     setMode("create");
     setActiveEvent(null);
     setIsModalOpen(true);
@@ -169,14 +217,23 @@ const Calendar = () => {
     setDetailOpen(true);
   };
 
+  const toLocalISOString = (dateString: string) => {
+    const d = new Date(dateString);
+
+    return new Date(
+      d.getTime() - d.getTimezoneOffset() * 60000
+    ).toISOString();
+  };
+
 
   const openEditFromDetail = async () => {
     const currentUserInfo = await loadInfoUser(selectedEvent.id);
 
     if (!currentUserInfo) return;
 
-    const formatForInput = (date: string) => {
-      const d = new Date(date);
+    const formatForInput = (date: string | Date) => {
+      const d = parseLocalDate(date); // 👈 ya tienes esto bien
+
       const pad = (n: number) => String(n).padStart(2, "0");
 
       return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(
@@ -227,8 +284,8 @@ const Calendar = () => {
 
       await createEventService({
         title: form.title,
-        start: form.start,
-        end: form.end,
+        start: toLocalISOString(form.start),
+        end: form.end ? toLocalISOString(form.end) : null,
         category: form.category,
         caseId: form.caseId ? Number(form.caseId) : null,
         guests: form.guests.map(g => ({
@@ -282,8 +339,8 @@ const Calendar = () => {
 
       await updateEventService(Number(activeEvent.id), {
         title: form.title,
-        start: form.start,
-        end: form.end,
+        start: toLocalISOString(form.start),
+        end: form.end ? toLocalISOString(form.end) : null,
         category: form.category,
         caseId: form.caseId ? Number(form.caseId) : null,
         guests: form.guests.map(g => ({
@@ -670,13 +727,13 @@ const Calendar = () => {
 
               <p>
                 <strong>Inicio:</strong>{" "}
-                {new Date(selectedEvent.start).toLocaleString("es-MX")}
+                {parseLocalDate(selectedEvent.start).toLocaleString("es-MX")}
               </p>
 
               {selectedEvent.end && (
                 <p>
                   <strong>Fin:</strong>{" "}
-                  {new Date(selectedEvent.end).toLocaleString("es-MX")}
+                  {selectedEvent.end ? parseLocalDate(selectedEvent.end).toLocaleString("es-MX") : ""}
                 </p>
               )}
 
