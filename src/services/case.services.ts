@@ -3,7 +3,8 @@ import api from "./api";
 export const getCasesPaginationService = async (
   page: number,
   limit: number,
-  archived?: boolean
+  archived?: boolean,
+  search?: string
 ) => {
 
   const params = new URLSearchParams({
@@ -13,6 +14,11 @@ export const getCasesPaginationService = async (
 
   if (archived !== undefined) {
     params.append("archived", String(archived));
+  }
+
+  /* 🔍 SEARCH */
+  if (search && search.trim() !== "") {
+    params.append("search", search.trim());
   }
 
   const { data } = await api.get(`/cases?${params.toString()}`);

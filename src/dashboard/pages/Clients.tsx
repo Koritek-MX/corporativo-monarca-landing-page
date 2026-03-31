@@ -231,13 +231,28 @@ const Clients = () => {
         </button>
       </div>
 
-      <input
-        type="text"
-        placeholder="Buscar cliente..."
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        className="border px-4 py-2 rounded-lg w-full max-w-sm"
-      />
+      <div className="relative w-full max-w-sm">
+        <input
+          type="text"
+          placeholder="Buscar cliente..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="border px-4 py-2 pr-10 rounded-lg w-full"
+        />
+
+        {searchInput && (
+          <button
+            onClick={() => {
+              setSearchInput("");
+              setSearch(""); // 👈 importante si usas debounce
+              setPage(1);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+          >
+            ✕
+          </button>
+        )}
+      </div>
 
       {/* Tabla */}
       {loadingUsers ? (

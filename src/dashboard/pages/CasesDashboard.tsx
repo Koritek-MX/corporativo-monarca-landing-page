@@ -75,6 +75,9 @@ const emptyForm = {
 
 const CasesDashboard = () => {
 
+  const [isFirstLoad, setIsFirstLoad] = useState(true);
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const { user } = useAuth();
   const navigate = useNavigate();
   const [statusModalOpen, setStatusModalOpen] = useState(false);
@@ -92,7 +95,7 @@ const CasesDashboard = () => {
 
   useEffect(() => {
     loadCases();
-  }, [page, showArchived]);
+  }, [page, showArchived, search]);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -100,26 +103,33 @@ const CasesDashboard = () => {
     loadUsers();
   }, [user]);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1); // 👈 reset página al buscar
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
   const loadCases = async () => {
     try {
       setLoadingCases(true);
-      Swal.fire({
-        title: "Cargando asuntos...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-      const [data] = await Promise.all([
-        getCasesPaginationService(page, 10, showArchived),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+
+      const data = await getCasesPaginationService(
+        page,
+        10,
+        showArchived,
+        search
+      );
 
       setCases(data.data);
       setTotalPages(data.totalPages);
+
     } catch (error) {
       Swal.fire("Error", "No se pudieron cargar los asuntos", "error");
     } finally {
       setLoadingCases(false);
-      Swal.close();
     }
   };
 
@@ -301,11 +311,13 @@ const CasesDashboard = () => {
     form.clientId &&
     form.lawyerId;
 
+
   return (
     <div className="flex flex-col gap-6">
 
       {/* Header */}
       <div className="flex items-start justify-between">
+
 
         {/* IZQUIERDA */}
         <div>
@@ -353,6 +365,32 @@ const CasesDashboard = () => {
 
       </div>
 
+      <div className="relative w-full max-w-sm">
+
+        <input
+          type="text"
+          placeholder="Buscar asunto..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="border px-4 py-2 pr-10 rounded-lg w-full"
+        />
+
+        {/* ❌ LIMPIAR */}
+        {searchInput && (
+          <button
+            onClick={() => {
+              setSearchInput("");
+              setSearch("");
+              setPage(1);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        )}
+
+      </div>
+
       {/* Tabla */}
       {loadingCases ? (
         <div className="py-10 text-center text-gray-500">
@@ -361,11 +399,17 @@ const CasesDashboard = () => {
       ) : cases.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <div className="text-5xl mb-3">💼</div>
+
           <p className="font-semibold text-lg">
-            No hay asuntos registrados
+            {search
+              ? "No se encontraron resultados"
+              : "No hay asuntos registrados"}
           </p>
+
           <p className="text-sm">
-            Cuando agregues uno aparecerá aquí.
+            {search
+              ? "Intenta con otro término de búsqueda"
+              : "Cuando agregues uno aparecerá aquí."}
           </p>
         </div>
       ) : (
@@ -377,8 +421,8 @@ const CasesDashboard = () => {
                   <th className="px-6 py-4 text-left">No. expediente</th>
                   <th className="px-6 py-4 text-left">Area</th>
                   <th className="px-6 py-4 text-left">Autoridad</th>
-                  <th className="px-6 py-4 text-left">Descripción</th>
                   <th className="px-6 py-4 text-left">Cliente</th>
+                  <th className="px-6 py-4 text-left">Descripción</th>
                   <th className="px-6 py-4 text-left">Abogado responsable</th>
                   <th className="px-6 py-4 text-left">Abogado(s) invitado(s)</th>
                   <th className="px-6 py-4 text-left">Estado</th>
@@ -409,12 +453,12 @@ const CasesDashboard = () => {
                       {a.authority ? a.authority : <span className="text-gray-400 italic">Sin autoridad</span>}
                     </td>
 
-                    <td className="px-6 py-4 text-gray-700">
-                      {a.title}
-                    </td>
-
                     <td className="px-6 py-4 text-gray-600">
                       {a.client.name + " " + a.client.lastName}
+                    </td>
+
+                    <td className="px-6 py-4 text-gray-700">
+                      {a.title}
                     </td>
 
                     <td className="px-6 py-4 text-gray-600">
