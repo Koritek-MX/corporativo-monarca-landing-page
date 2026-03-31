@@ -5,8 +5,14 @@ export const getClientsService = async () => {
   return data;
 };
 
-export const getClientsPaginationService = async (page = 1, limit = 10) => {
-  const { data } = await api.get(`/clients?page=${page}&limit=${limit}`);
+export const getClientsPaginationService = async (
+  page = 1,
+  limit = 10,
+  search = ""
+) => {
+  const { data } = await api.get(
+    `/clients?page=${page}&limit=${limit}&search=${search}`
+  );
   return data;
 };
 

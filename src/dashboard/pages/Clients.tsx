@@ -32,13 +32,11 @@ const emptyClient: Client = {
   id: 0
 };
 
-const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
-const phoneRegex = /^[0-9]{10}$/;
-
-
 
 const Clients = () => {
 
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const [clients, setClients] = useState<Client[]>([]);
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Client | null>(null);
@@ -46,10 +44,23 @@ const Clients = () => {
   const [loadingUsers, setLoadingUsers] = useState(false);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const isSearching = search.trim().length > 0;
+
+  const rfcRegex = /^[A-ZÑ&]{3,4}\d{6}[A-Z0-9]{3}$/;
+  const phoneRegex = /^[0-9]{10}$/;
 
   useEffect(() => {
     loadClients();
-  }, [page]);
+  }, [page, search]);
+
+  useEffect(() => {
+    const delay = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 400);
+
+    return () => clearTimeout(delay);
+  }, [searchInput]);
 
   const isFormValid =
     form.name.trim() &&
@@ -61,16 +72,12 @@ const Clients = () => {
   const loadClients = async () => {
     try {
       setLoadingUsers(true);
-      Swal.fire({
-        title: "Cargando clientes...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
 
-      const [data] = await Promise.all([
-        getClientsPaginationService(page, 10),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+      const data = await getClientsPaginationService(
+        page,
+        10,
+        search
+      );
 
       setClients(data.data);
       setTotalPages(data.totalPages);
@@ -79,7 +86,6 @@ const Clients = () => {
       Swal.fire("Error", "No se pudieron cargar los clientes", "error");
     } finally {
       setLoadingUsers(false);
-      Swal.close();
     }
   };
 
@@ -225,99 +231,116 @@ const Clients = () => {
         </button>
       </div>
 
+      <input
+        type="text"
+        placeholder="Buscar cliente..."
+        value={searchInput}
+        onChange={(e) => setSearchInput(e.target.value)}
+        className="border px-4 py-2 rounded-lg w-full max-w-sm"
+      />
+
       {/* Tabla */}
       {loadingUsers ? (
         <div className="py-10 text-center text-gray-500">
           Cargando clientes...
         </div>
-      ) : clients.length === 0 ? (<>
+      ) : clients.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
-          <div className="text-5xl mb-3">👨🏻‍💼</div>
+          <div className="text-5xl mb-3">
+            {isSearching ? "🔍" : "👨🏻‍💼"}
+          </div>
+
           <p className="font-semibold text-lg">
-            No hay clientes registrados
+            {isSearching
+              ? "No se encontraron resultados"
+              : "No hay clientes registrados"}
           </p>
+
           <p className="text-sm">
-            Cuando agregues uno aparecerá aquí.
+            {isSearching
+              ? "Intenta con otro nombre, correo o RFC"
+              : "Cuando agregues uno aparecerá aquí."}
           </p>
         </div>
-      </>) : (<>
-        <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] md:min-w-full text-sm">
-              <thead className="bg-primary text-white uppercase text-xs tracking-wider">
-                <tr>
-                  <th className="px-6 py-4 text-left">Cliente</th>
-                  <th className="px-6 py-4 text-left">Régimen fiscal</th>
-                  <th className="px-6 py-4 text-left">Correo electronico</th>
-                  <th className="px-6 py-4 text-left">Teléfono</th>
-                  <th className="px-6 py-4 text-left">RFC</th>
-                  <th className="px-6 py-4 text-right">Acciones</th>
-                </tr>
-              </thead>
+      ) : (
+        <>
+          <div className="bg-white rounded-2xl border shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] md:min-w-full text-sm">
+                <thead className="bg-primary text-white uppercase text-xs tracking-wider">
+                  <tr>
+                    <th className="px-6 py-4 text-left">Cliente</th>
+                    <th className="px-6 py-4 text-left">Régimen fiscal</th>
+                    <th className="px-6 py-4 text-left">Correo electronico</th>
+                    <th className="px-6 py-4 text-left">Teléfono</th>
+                    <th className="px-6 py-4 text-left">RFC</th>
+                    <th className="px-6 py-4 text-right">Acciones</th>
+                  </tr>
+                </thead>
 
-              <tbody>
-                {clients.map((c, index) => (
-                  <tr
-                    key={c.id}
-                    className={`
+                <tbody>
+                  {clients.map((c, index) => (
+                    <tr
+                      key={c.id}
+                      className={`
                       border-t transition
                       ${index % 2 === 0 ? "bg-white" : "bg-gray-200"}
                       hover:bg-primary/5
                     `}
-                  >
-                    <td className="px-6 py-4 font-medium">
-                      {c.name} {c.lastName}
+                    >
+                      <td className="px-6 py-4 font-medium">
+                        {c.name} {c.lastName}
 
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`
                           inline-block px-3 py-1 rounded-full text-xs font-semibold uppercase
                           ${c.type === "FISICA"
-                            ? "bg-secondary/20 text-secondary"
-                            : "bg-primary/20 text-primary"
-                          }
+                              ? "bg-secondary/20 text-secondary"
+                              : "bg-primary/20 text-primary"
+                            }
                         `}
-                      >
-                        {c.type === "FISICA" ? "Física" : "Moral"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {c.email ? c.email : <span className="text-gray-400 italic">Sin correo electronico</span>}
+                        >
+                          {c.type === "FISICA" ? "Física" : "Moral"}
+                        </span>
                       </td>
-                    <td className="px-6 py-4 text-gray-600">
-                      {formatPhone(c.phone)}
-                    </td>
-                    <td className="px-6 py-4">
-                      {c.rfc ? c.rfc : <span className="text-gray-400 italic">Sin RFC</span>}
+                      <td className="px-6 py-4">
+                        {c.email ? c.email : <span className="text-gray-400 italic">Sin correo electronico</span>}
                       </td>
-                    <td className="px-6 py-4 text-right space-x-3">
-                      <button
-                        onClick={() => openEdit(c)}
-                        className="text-primary hover:text-secondary"
-                      >
-                        <HiOutlinePencil size={22} />
-                      </button>
-                      <button
-                        onClick={() => deleteClient(c.id)}
-                        className="text-red-500 hover:text-red-700"
-                      >
-                        <HiOutlineTrash size={22} />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                      <td className="px-6 py-4 text-gray-600">
+                        {formatPhone(c.phone)}
+                      </td>
+                      <td className="px-6 py-4">
+                        {c.rfc ? c.rfc : <span className="text-gray-400 italic">Sin RFC</span>}
+                      </td>
+                      <td className="px-6 py-4 text-right space-x-3">
+                        <button
+                          onClick={() => openEdit(c)}
+                          className="text-primary hover:text-secondary"
+                        >
+                          <HiOutlinePencil size={22} />
+                        </button>
+                        <button
+                          onClick={() => deleteClient(c.id)}
+                          className="text-red-500 hover:text-red-700"
+                        >
+                          <HiOutlineTrash size={22} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-        {/* PAGINACIÓN */}
-        <Pagination
-          page={page}
-          totalPages={totalPages}
-          setPage={setPage}
-        />
-      </>)}
+          {/* PAGINACIÓN */}
+          <Pagination
+            page={page}
+            totalPages={totalPages}
+            setPage={setPage}
+          />
+        </>)}
 
 
       {/* MODAL */}
