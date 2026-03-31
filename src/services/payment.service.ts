@@ -7,9 +7,21 @@ export const getPaymentsService = async () => {
 
 export const getPaymentsPaginationService = async (
   page: number,
-  limit: number
+  limit: number,
+  search?: string
 ) => {
-  const { data } = await api.get(`/payments/pagination?page=${page}&limit=${limit}`);
+
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  if (search) {
+    params.append("search", search);
+  }
+
+  const { data } = await api.get(`/payments/pagination?${params.toString()}`);
+
   return data;
 };
 

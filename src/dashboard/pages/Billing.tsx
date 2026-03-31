@@ -34,6 +34,8 @@ const PAYMENT_STATUS: Record<string, { bg: string; text: string }> = {
 
 const Billing = () => {
 
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const navigate = useNavigate();
   const [receiptOpen, setReceiptOpen] = useState(false);
   const [selectedPayment, setSelectedPayment] = useState<any>(null);
@@ -61,33 +63,34 @@ const Billing = () => {
 
   useEffect(() => {
     loadPayments();
-  }, [page]);
+  }, [page, search]);
 
   useEffect(() => {
     loadClients();
   }, []);
 
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 400);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
+
   const loadPayments = async () => {
     try {
       setLoadingPayments(true);
-      Swal.fire({
-        title: "Cargando cobros...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
-      const [data] = await Promise.all([
-        getPaymentsPaginationService(page, 10),
-        new Promise((resolve) => setTimeout(resolve, 700)),
-      ]);
+
+      const data = await getPaymentsPaginationService(page, 10, search);
 
       setPayments(data.data);
       setTotalPages(data.totalPages);
 
     } catch (error) {
-      await Swal.fire("Error", "No se pudieron cargar los cobros", "error");
+      Swal.fire("Error", "No se pudieron cargar los cobros", "error");
     } finally {
       setLoadingPayments(false);
-      Swal.close();
     }
   };
 
@@ -356,6 +359,32 @@ const Billing = () => {
         </button>
       </div>
 
+      <div className="relative w-full max-w-sm">
+
+        <input
+          type="text"
+          placeholder="Buscar cobro..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="border px-4 py-2 pr-10 rounded-lg w-full"
+        />
+
+        {/* ❌ LIMPIAR */}
+        {searchInput && (
+          <button
+            onClick={() => {
+              setSearchInput("");
+              setSearch("");
+              setPage(1);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        )}
+
+      </div>
+
       {/* Tabla */}
 
       {loadingPayments ? (
@@ -366,10 +395,15 @@ const Billing = () => {
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <div className="text-5xl mb-3">💵</div>
           <p className="font-semibold text-lg">
-            No hay cobros registrados
+            {search
+              ? "No se encontraron resultados"
+              : "No hay cobros registrados"}
           </p>
+
           <p className="text-sm">
-            Cuando agregues uno aparecerá aquí.
+            {search
+              ? "Intenta con otro término de búsqueda"
+              : "Cuando agregues uno aparecerá aquí."}
           </p>
         </div>
       ) : (
