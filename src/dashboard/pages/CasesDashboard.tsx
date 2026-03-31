@@ -75,7 +75,6 @@ const emptyForm = {
 
 const CasesDashboard = () => {
 
-  const [isFirstLoad, setIsFirstLoad] = useState(true);
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const { user } = useAuth();

@@ -7,9 +7,22 @@ export const getUsersService = async () => {
 
 export const getUsersPaginationService = async (
   page: number,
-  limit: number
+  limit: number,
+  search?: string
 ) => {
-  const { data } = await api.get(`/users/pagination?page=${page}&limit=${limit}`);
+
+  const params = new URLSearchParams({
+    page: String(page),
+    limit: String(limit),
+  });
+
+  /* 🔍 AGREGAR SEARCH */
+  if (search) {
+    params.append("search", search);
+  }
+
+  const { data } = await api.get(`/users/pagination?${params.toString()}`);
+
   return data;
 };
 

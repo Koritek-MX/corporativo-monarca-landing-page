@@ -46,6 +46,8 @@ const emptyPassForm = {
 
 const Lawyers = () => {
 
+  const [searchInput, setSearchInput] = useState("");
+  const [search, setSearch] = useState("");
   const { user } = useAuth();
   const [users, setUsers] = useState<any[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -59,35 +61,38 @@ const Lawyers = () => {
 
   useEffect(() => {
     loadUsers();
-  }, [page]);
+  }, [page, search]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setSearch(searchInput);
+      setPage(1);
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [searchInput]);
 
 
   /* 👉 Cargar abogados */
   const loadUsers = async () => {
     try {
       setLoadingUsers(true);
-      Swal.fire({
-        title: "Cargando abogados...",
-        allowOutsideClick: false,
-        didOpen: () => Swal.showLoading(),
-      });
 
-      const [data] = await Promise.all([
-        getUsersPaginationService(page, 10),
-        new Promise((resolve) => setTimeout(resolve, 600)),
-      ]);
+      const data = await getUsersPaginationService(
+        page,
+        10,
+        search
+      );
 
       setUsers(data.data);
       setTotalPages(data.totalPages);
+
     } catch {
       Swal.fire("Error", "No se pudieron cargar", "error");
     } finally {
       setLoadingUsers(false);
-      Swal.close();
     }
   };
-
-
 
   /* 👉 Crear abogado */
   const createLawyer = async () => {
@@ -296,6 +301,31 @@ const Lawyers = () => {
         </button>
       </div>
 
+      <div className="relative w-full max-w-sm">
+
+        <input
+          type="text"
+          placeholder="Buscar abogado..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+          className="border px-4 py-2 pr-10 rounded-lg w-full"
+        />
+
+        {searchInput && (
+          <button
+            onClick={() => {
+              setSearchInput("");
+              setSearch("");
+              setPage(1);
+            }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700"
+          >
+            ✕
+          </button>
+        )}
+
+      </div>
+
       {/* TABLA */}
 
       {loadingUsers ? (
@@ -306,10 +336,15 @@ const Lawyers = () => {
         <div className="flex flex-col items-center justify-center py-16 text-gray-500">
           <div className="text-5xl mb-3">⚖️</div>
           <p className="font-semibold text-lg">
-            No hay abogados registrados
+            {search
+              ? "No se encontraron resultados"
+              : "No hay abogados registrados"}
           </p>
+
           <p className="text-sm">
-            Cuando agregues uno aparecerá aquí.
+            {search
+              ? "Intenta con otro término de búsqueda"
+              : "Cuando agregues uno aparecerá aquí."}
           </p>
         </div>
       ) : (
